@@ -19,6 +19,7 @@ namespace Party_Tower_Main
         private int resolutionY;            // Y Resoultion Value of the Screen
         private int mapSizeX;               // Total Width of the Game Map 
         private int mapSizeY;               // Total Height of the Game Map 
+        Vector2 cameraCenter;               // Center of the Camera
         #endregion Fields
         //#############################################################################################
         #region Properties
@@ -87,7 +88,8 @@ namespace Party_Tower_Main
              * 
              * Prevent Camera Going Off Map Should Always be done last.
              */
-            cameraScreen = new Rectangle(player1.Center.X - (resolutionX / 2), player1.Center.Y - (resolutionY / 2), resolutionX, resolutionY);
+            cameraCenter = new Vector2(player1.X, player1.Y);
+            cameraScreen = new Rectangle((int)cameraCenter.X - (resolutionX / 2), (int)cameraCenter.Y - (resolutionY / 2), resolutionX, resolutionY);
             PreventCameraGoingOffMap();
         }
 
