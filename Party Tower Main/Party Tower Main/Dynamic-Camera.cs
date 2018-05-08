@@ -101,9 +101,13 @@ namespace Party_Tower_Main
             cameraCenter = (p1 + p2) * .5f; // Midpoint Equation
             DetermineZoom(p1, p2); 
             ZoomCheck();
-            TransformMatrix();
-            UpdateVisibleArea();
-            PreventCameraGoingOffMap();
+            bool onMap;
+            do
+            {
+                TransformMatrix();
+                UpdateVisibleArea();
+                onMap = PreventCameraGoingOffMap();
+            } while (onMap);
 
         }
 
@@ -158,11 +162,62 @@ namespace Party_Tower_Main
         }
 
         /// <summary>
-        /// Determines if the newly drawn camera will draw off any boundry of the map. If it does, it resets the camera. 
+        /// Determines if the visible area being shown is currently off of the map.
         /// </summary>
-        private void PreventCameraGoingOffMap()
+        /// <returns></returns>
+        private bool PreventCameraGoingOffMap()
         {
+            bool mustAdjust = false;
 
+            /*
+             * The Logic here is as follows....
+             * 
+             * If I know how big the visible area should be, according to the original matrix which has scaled the current visible area,
+             * Then I can check to see if the visible area is being placed at a location that is off my gamemap.
+             * 
+             * If the rectangle is never placed off my gamemap, cool. No problem. Return false, break the do while in update camera, 
+             * and everything is cool.
+             * 
+             * If the rectangle IS! placed out of bounds of my gamemap, then I need to adjust it!
+             * How? Well, my visible area has ALREADY been scaled accordingly to my original matrix. 
+             * Ultimately I'm going to use the same matrix to scale this new point, so the only thing that gets changed in my "transform" matrix will be
+             * the first vector 3. 
+             * 
+             * To find this new center point, I simply need 1/2 the width [or height] of the current visible area, as the width/height of the new visible area
+             * that will be recaluclated will be the same, just the points it's drawn too will be different.
+             * 
+             * I simply adjust the camera mid point [X || Y] accordingly by 1/2 the currently scaled visible areas width/height 
+             * and recalculate my transform matrix with this new mid point. I DONT need to adjust for zoom, as zoom wouldn't become any smaller
+             * since the distance between my players would be the same. 
+             * 
+             * Then I'd run through and check this stuff again. Presumable, I'd redraw my visible area, run this method again, and find that the redrawn
+             * visible are will not intersect my edges of the game map.
+             * 
+             * Thus, the camera is now on screen.
+             */
+
+            if(visibleArea.X < 0)
+            {
+                mustAdjust = true;
+                cameraCenter.X = visibleArea.Width / 2;
+            }
+            if(visibleArea.X + visibleArea.Width > mapEdge.X)
+            {
+                mustAdjust = true;
+                cameraCenter.X = mapEdge.X - visibleArea.Width / 2;
+            }
+            if (visibleArea.Y < 0)
+            {
+                mustAdjust = true;
+                cameraCenter.Y = visibleArea.Height / 2;
+            }
+            if(visibleArea.Y + visibleArea.Height > mapEdge.Y)
+            {
+                mustAdjust = true;
+                cameraCenter.Y = mapEdge.Y - visibleArea.Height / 2;
+            }
+
+            return mustAdjust;
         }
 
         /// <summary>
