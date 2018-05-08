@@ -13,45 +13,41 @@ namespace Party_Tower_Main
     {
         //#############################################################################################
         #region Fields
-        private Texture2D cameraTexture;    // Texture to test and make sure the camera is always functional
-        private Rectangle cameraScreen;     // A Rectangle that is always the size of the selcted screen
-        private int resolutionX;            // X Resolution Value of the Screen
-        private int resolutionY;            // Y Resoultion Value of the Screen
-        private int mapSizeX;               // Total Width of the Game Map 
-        private int mapSizeY;               // Total Height of the Game Map 
+
+        private Matrix transform;                   // Transform matrix
+        private Vector2 cameraCenter;               // Center of the Camera
+        private GraphicsDevice resolution;          // Resolution of the Current Chosen Screen
+
+        private float zoom;                         // Zoom of Camera
+        private float maxZoom;                      // Maximum Zoom in of Camera
+        private float minZoom;                      // Minimum Zoom out of Camera
+
         #endregion Fields
         //#############################################################################################
         #region Properties
-        public Rectangle CameraPosition { get { return cameraScreen; } }
-        public Texture2D CamTexture { get { return cameraTexture; } set { cameraTexture = value; } }
+
+        public Matrix Transform { get { return transform; } }
+
         #endregion Properties
         //#############################################################################################
         #region Constructor
-        public Dynamic_Camera(int startingResolutionX, int startingResolutionY, Texture2D texture)
+        public Dynamic_Camera(GraphicsDevice gD)
         {
-            cameraTexture = texture;
-            resolutionX = startingResolutionX;
-            resolutionY = startingResolutionY;
-            cameraScreen = new Rectangle(0, 0, startingResolutionX, startingResolutionY);
+            resolution = gD;
+            zoom = 1.0f;
+            minZoom = .5f;
+            maxZoom = 2f;
+            cameraCenter = Vector2.Zero;
         }
         #endregion Constructor
         //#############################################################################################
         #region Methods
-        public bool IsDrawn(Rectangle position) 
+        
+        public void UpdateGraphicsDevice(GraphicsDevice newGraphics)
         {
-            if (cameraScreen.Intersects(position))
-            {
-                return true;
-            }
-            return false;
+            resolution = newGraphics;
         }
-
-        public void ChangeCameraResolution(int resolutionX, int resolutionY)
-        {
-            this.resolutionX = resolutionX;
-            this.resolutionY = resolutionY;
-        }
-
+        
         /// <summary>
         /// Updates the Camera based on the positions of two players
         /// </summary>
@@ -70,6 +66,11 @@ namespace Party_Tower_Main
              * If the camera tries to scale things smaller than its scalableMax value permits it to, then the camera remains in its original place. 
              *
              */
+            Vector2 p1 = player1.Center.ToVector2();
+            Vector2 p2 = player2.Center.ToVector2();
+            cameraCenter = (p1 + p2) * .5f;
+            DetermineZoom(p1, p2);
+            ZoomCheck();
 
             PreventCameraGoingOffMap();
 
@@ -87,8 +88,22 @@ namespace Party_Tower_Main
              * 
              * Prevent Camera Going Off Map Should Always be done last.
              */
-            cameraScreen = new Rectangle(player1.Center.X - (resolutionX / 2), player1.Center.Y - (resolutionY / 2), resolutionX, resolutionY);
+
+            Vector2 p1Vector = new Vector2(player1.X, player1.Y);
+            cameraCenter = p1Vector;
             PreventCameraGoingOffMap();
+            TransformMatrix();
+        }
+
+        private void DetermineZoom(Vector2 p1, Vector2 p2)
+        {
+            
+            
+        }
+
+        private void ZoomCheck()
+        {
+
         }
 
         /// <summary>
@@ -96,28 +111,16 @@ namespace Party_Tower_Main
         /// </summary>
         private void PreventCameraGoingOffMap()
         {
-            if (cameraScreen.X < 0)
-            {
-                cameraScreen = new Rectangle(0, cameraScreen.Y, cameraScreen.Width, cameraScreen.Height);
-            }
-            if (cameraScreen.X + cameraScreen.Width > mapSizeX)
-            {
-                cameraScreen = new Rectangle(mapSizeX - cameraScreen.Width, cameraScreen.Y, cameraScreen.Width, cameraScreen.Height);
-            }
-            if (cameraScreen.Y < 0)
-            {
-                cameraScreen = new Rectangle(cameraScreen.Y, 0, 896, 896);
-            }
-            if (cameraScreen.Y + cameraScreen.Height > mapSizeY)
-            {
-                cameraScreen = new Rectangle(cameraScreen.Y- cameraScreen.Height, mapSizeY, cameraScreen.Width, cameraScreen.Height);
-            }
+
         }
 
-        public void DrawCam(SpriteBatch spriteBatch)
+        private void TransformMatrix()
         {
-            spriteBatch.Draw(cameraTexture, cameraScreen, Color.White);
+            transform = Matrix.CreateTranslation(new Vector3(-cameraCenter.X, -cameraCenter.Y, 0)) *
+                               Matrix.CreateScale(new Vector3(zoom, zoom, 1)) *
+                               Matrix.CreateTranslation(new Vector3(resolution.Viewport.Width * 0.5f, resolution.Viewport.Height * 0.5f, 0));
         }
+
         #endregion Methods
     }
 }
