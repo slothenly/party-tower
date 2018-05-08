@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External Level Designer Tool", "External Level Designer Tool\External Level Designer Tool.csproj", "{A8E61C87-7EBA-4467-84B4-03067EF23FDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8E61C87-7EBA-4467-84B4-03067EF23FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E61C87-7EBA-4467-84B4-03067EF23FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E61C87-7EBA-4467-84B4-03067EF23FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E61C87-7EBA-4467-84B4-03067EF23FDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {390F1AB8-D368-401B-94AA-CB288F8DF154}
+	EndGlobalSection
+EndGlobal
