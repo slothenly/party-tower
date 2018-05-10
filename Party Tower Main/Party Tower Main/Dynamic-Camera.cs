@@ -19,6 +19,7 @@ namespace Party_Tower_Main
         private Rectangle resolutionBounds;         // Resolution of the Current Chosen Screen
         private Rectangle visibleArea;              // Actual Visible Area of the screen as a Rectangle
         private Texture2D visibleTexture;           // Testable Textures used to make sure the visibleArea is actually the Visible Area
+        private float scaleCorrectly;               // Added amount of distance to properly scale the camera with both players within it's bounds
         private float zoom;                         // Zoom of Camera
         private float maxZoom;                      // Maximum Zoom in of Camera
         private float minZoom;                      // Minimum Zoom out of Camera
@@ -34,16 +35,19 @@ namespace Party_Tower_Main
         //#############################################################################################
         #region Constructor
 
-       /// <summary>
-       /// Creates the Camera class
-       /// </summary>
-       /// <param name="view"></param>
-        public Dynamic_Camera(Viewport view)
+        /// <summary>
+        /// Creates the Camera class
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="scaleableAmount"> Equivelant to the width (or height) of the player since they are the same in a 64 x 64 box </param>
+        /// <param name="maxWidthDistance"> Equivelant to the maxWidth from CameraLimiter </param>
+        public Dynamic_Camera(Viewport view, int scaleableAmount, int maxWidthDistance)
         {
             resolutionBounds = view.Bounds;
+            scaleCorrectly = scaleableAmount;
             zoom = 1.0f;
-            minZoom = .5f;
-            maxZoom = 2f;
+            minZoom = resolutionBounds.Width / (scaleCorrectly + maxWidthDistance); // Should be .75 if we're using 1/6 the screen of each side
+            maxZoom = 1f;
             cameraCenter = Vector2.Zero;
         }
         #endregion Constructor
@@ -93,6 +97,7 @@ namespace Party_Tower_Main
             resolutionBounds = bounds.Bounds;
             Vector2 p1 = player1.Center.ToVector2();
             Vector2 p2 = player2.Center.ToVector2();
+
             /*
              * Currently hard sets the center point of the camera as the midpoint between the two players. To account for smooth camera drift, 
              * a noncentered camera, and perhaps more natural viewing, this value can be fiddled with once testing using more variables.
@@ -118,7 +123,16 @@ namespace Party_Tower_Main
         /// <param name="p2"> Player 2's Position</param>
         private void DetermineZoom(Vector2 p1, Vector2 p2)
         {
-
+            // If the change in distance for height > width, scale by height
+            if ((Math.Abs(p1.X - p2.X) - resolutionBounds.Width) < (Math.Abs(p1.Y - p2.Y) - resolutionBounds.Height))
+            {
+                zoom = resolutionBounds.Height / (Math.Abs(p1.Y - p2.Y) + scaleCorrectly);
+            }
+            // Else, go by the width
+            else
+            {
+                zoom = resolutionBounds.Width / (Math.Abs(p1.X - p2.X) + scaleCorrectly);
+            }
         }
 
         /// <summary>
@@ -126,6 +140,15 @@ namespace Party_Tower_Main
         /// </summary>
         private void ZoomCheck()
         {
+            if(zoom > maxZoom)
+            {
+                zoom = maxZoom;
+            }
+
+            if(zoom < minZoom)
+            {
+                zoom = minZoom;
+            }
 
         }
 
