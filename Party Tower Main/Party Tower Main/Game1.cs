@@ -9,6 +9,8 @@ namespace Party_Tower_Main
     /// </summary>
     public class Game1 : Game
     {
+        #region GameStates
+
         enum GameState
         {
             Menu,
@@ -19,9 +21,17 @@ namespace Party_Tower_Main
             GameOver
         }
 
+        #endregion
+
+        #region Fields
+
         GameState gameState;
+        CameraLimiters cameraLimiters;
+        Dynamic_Camera camera;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        #endregion
 
         public Game1()
         {
@@ -39,6 +49,8 @@ namespace Party_Tower_Main
         {
             // TODO: Add your initialization logic here
             gameState = GameState.Menu;
+            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, new Rectangle(0, 0, 64, 64));
+            camera = new Dynamic_Camera(GraphicsDevice.Viewport, 32, cameraLimiters.MaxWidthDistance);      // Dummy Values that need changed
             base.Initialize();
         }
 
@@ -138,28 +150,43 @@ namespace Party_Tower_Main
             switch (gameState)
             {
                 case GameState.Menu:
+                    spriteBatch.Begin();
                     // Menu.DrawElements();
+                    spriteBatch.End();
                     break;
 
                 case GameState.Options:
+                    spriteBatch.Begin();
                     // ?
+                    spriteBatch.End();
                     break;
 
                 case GameState.Game:
+                    spriteBatch.Begin();
                     // GameLoop.DrawElements;
+                    spriteBatch.End();
                     break;
 
                 case GameState.Pause:
+                    spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, 
+                        null, null, null, null, camera.Transform);
                     // GameLoop.DrawElements();
+                    spriteBatch.End();
+                    spriteBatch.Begin();
                     // GameLoop.DrawPauseOverlay();
+                    spriteBatch.End();
                     break;
 
                 case GameState.GameOver:
+                    spriteBatch.Begin();
                     // ?
+                    spriteBatch.End();
                     break;
 
                 case GameState.LoadLevel:
+                    spriteBatch.Begin();
                     // ?
+                    spriteBatch.End();
                     break;
             }
         }
