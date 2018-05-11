@@ -9,6 +9,17 @@ namespace Party_Tower_Main
     /// </summary>
     public class Game1 : Game
     {
+        enum GameState
+        {
+            Menu,
+            Options,
+            Game,
+            LoadLevel,
+            Pause,
+            GameOver
+        }
+
+        GameState gameState;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -27,7 +38,7 @@ namespace Party_Tower_Main
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            gameState = GameState.Menu;
             base.Initialize();
         }
 
@@ -62,6 +73,8 @@ namespace Party_Tower_Main
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            gameState = UpdateGameState();
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -75,9 +88,80 @@ namespace Party_Tower_Main
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            DrawRightGameState();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Helper Method that determines the New Game State after properly updating the current state of the game
+        /// </summary>
+        /// <returns></returns>
+        private GameState UpdateGameState()
+        {
+            switch (gameState)
+            {
+                case GameState.Menu:
+                    // gameState = Menu.Update();
+                    return gameState;
+
+                case GameState.Options:
+                    // gameState = ??
+                    return gameState;
+
+                case GameState.Game:
+                    // gameState = GameLoop.Update();
+                    return gameState;
+
+                case GameState.Pause:
+                    // gameState = ?
+                    return gameState;
+
+                case GameState.GameOver:
+                    // gameState = ?
+                    return gameState;
+
+                case GameState.LoadLevel:
+                    // GameLoop.NextLevel();
+                    // gameState = ?
+                    return gameState;
+            }
+
+            return gameState;
+        }
+
+        /// <summary>
+        /// Helper Method that determines what to draw to the screen based on this new GameState
+        /// </summary>
+        private void DrawRightGameState()
+        {
+            switch (gameState)
+            {
+                case GameState.Menu:
+                    // Menu.DrawElements();
+                    break;
+
+                case GameState.Options:
+                    // ?
+                    break;
+
+                case GameState.Game:
+                    // GameLoop.DrawElements;
+                    break;
+
+                case GameState.Pause:
+                    // GameLoop.DrawElements();
+                    // GameLoop.DrawPauseOverlay();
+                    break;
+
+                case GameState.GameOver:
+                    // ?
+                    break;
+
+                case GameState.LoadLevel:
+                    // ?
+                    break;
+            }
         }
     }
 }
