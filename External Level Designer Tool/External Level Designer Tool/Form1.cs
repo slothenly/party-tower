@@ -27,9 +27,9 @@ namespace External_Level_Designer_Tool
             this.Location = new Point(75, 20);
             #endregion
 
-//  #############################################################################
+            //  #############################################################################
 
-            #region Main Panels initialization
+            #region Main Panels Initialization
             //Left panel initialization (Tools/Selection)
             Panel leftP = new Panel();
             leftP.Height = this.Height;
@@ -123,20 +123,22 @@ namespace External_Level_Designer_Tool
             btnSelector.Controls.Add(btnExport);
 
             //8 Characters per line
-            AddNewTile("dirt", "Glow Stone", typeSelector);
-            AddNewTile("brick", "Brick", typeSelector);
-            AddNewTile("grass", "Grass", typeSelector);
-            AddNewTile("dirt", "Glow Stone", typeSelector);                //            <=== Add Tilesets here
-            AddNewTile("brick", "WWWWWW", typeSelector);
-            AddNewTile("grass", "WWWWWWW", typeSelector);
-            AddNewTile("dirt", "WWWWWWWW", typeSelector);
-            AddNewTile("brick", "WWWWWWWW", typeSelector);
-            AddNewTile("grass", "Grass", typeSelector);
+            AddNewTile("dirt",   "Glow Stone",   typeSelector);
+            AddNewTile("brick",  "Brick",        typeSelector);
+            AddNewTile("grass",  "Grass",        typeSelector);
+            AddNewTile("dirt",   "Glow Stone",   typeSelector);                //            <=== Add Tilesets here
+            AddNewTile("brick",  "WWWWWW",       typeSelector);
+            AddNewTile("grass",  "WWWWWWW",      typeSelector);
+            AddNewTile("dirt",   "WWWWWWWW",     typeSelector);
+            AddNewTile("brick",  "WWWWWWWW",     typeSelector);
+            AddNewTile("grass",  "Grass",        typeSelector);
             #endregion
 
             //  #############################################################################
 
             #region Right Panel Specifics
+
+
 
             #endregion
 

@@ -48,9 +48,13 @@
     <Compile Include="eggGame1.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
-    <Compile Include="ImageBox.cs" />
+    <Compile Include="ImageBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Level.cs" />
-    <Compile Include="MapBuilder.cs" />
+    <Compile Include="MapBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MapBuilder.Designer.cs">
       <DependentUpon>MapBuilder.cs</DependentUpon>
     </Compile>
@@ -66,6 +70,10 @@
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
