@@ -84,9 +84,14 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\brick.png" />
+    <Content Include="Resources\brickTileset.png" />
     <Content Include="Resources\dirt.png" />
+    <Content Include="Resources\dirtTileset.png" />
     <Content Include="Resources\grass.png" />
+    <Content Include="Resources\grassTileset.png" />
     <Content Include="Resources\moss.png" />
+    <Content Include="Resources\mossTileset.png" />
+    <Content Include="Resources\noTexture.png" />
     <Content Include="Resources\platform.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
