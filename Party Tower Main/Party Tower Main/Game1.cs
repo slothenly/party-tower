@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using System.Collections.Generic;
 
 namespace Party_Tower_Main
 {
@@ -25,6 +28,10 @@ namespace Party_Tower_Main
 
         #region Fields
 
+        // Audio Stuff
+        List<SoundEffect> soundEffects;
+        List<Song> gameSongs;
+
         GameState gameState;
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
@@ -37,6 +44,8 @@ namespace Party_Tower_Main
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            soundEffects = new List<SoundEffect>();
+            gameSongs = new List<Song>();
         }
 
         /// <summary>
@@ -111,35 +120,36 @@ namespace Party_Tower_Main
         /// <returns></returns>
         private GameState UpdateGameState()
         {
+            GameState newState;
             switch (gameState)
             {
                 case GameState.Menu:
-                    // gameState = Menu.Update();
-                    return gameState;
+                    // newState = Menu.Update();
+                    return newState;
 
                 case GameState.Options:
-                    // gameState = ??
-                    return gameState;
+                    // newState = ??
+                    return newState;
 
                 case GameState.Game:
-                    // gameState = GameLoop.Update();
-                    return gameState;
+                    // newState = GameLoop.Update();
+                    return newState;
 
                 case GameState.Pause:
-                    // gameState = ?
-                    return gameState;
+                    // newState = ?
+                    return newState;
 
                 case GameState.GameOver:
-                    // gameState = ?
-                    return gameState;
+                    // newState = ?
+                    return newState;
 
                 case GameState.LoadLevel:
                     // GameLoop.NextLevel();
-                    // gameState = ?
-                    return gameState;
+                    // newState = ?
+                    return newState;
             }
 
-            return gameState;
+            return newState;
         }
 
         /// <summary>
