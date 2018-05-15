@@ -13,6 +13,9 @@ namespace External_Level_Designer_Tool
     public partial class Form1 : Form
     {
         List<ImageBox> Selectables = new List<ImageBox>();
+        Panel leftP = new Panel();
+        Panel rightP = new Panel();
+
         int Rows;
         int Columns;
         string currentTile = null;
@@ -38,13 +41,11 @@ namespace External_Level_Designer_Tool
 
             #region Main Panels Initialization
             //Left panel initialization (Tools/Selection)
-            Panel leftP = new Panel();
             leftP.Height = this.Height;
             leftP.Width = this.Width / 5;
             leftP.BackColor = Color.Red;
 
             //Right panel initialization (Workspace)
-            Panel rightP = new Panel();
             rightP.Height = Height;
             rightP.Width = (this.Width / 5) * 4;
             rightP.Left = this.Width / 5;
@@ -179,8 +180,37 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void AddRow(object sender, EventArgs e)
         {
+            //Copies the old set of buttons to an external array
+            
+            List<string> tempHolder = new List<string>();
+                    //currently just takes the item's image name. plop that into the correct slot next.
+            foreach (Control item in rightP.Controls)
+            {
+                if (item is ImageBox)
+                {
+                    string temp = item.Tag.ToString();
+                    tempHolder.Add(temp);
+                }
+            }
 
-        }
+            //Adds one to the row count
+            Rows++;
+
+            //Clears the displayed buttons and sets them into the new expanded array
+            rightP.Controls.Clear();
+            TabletChange(Rows, Columns, rightP);
+            for (int i = 0; i < rightP.Controls.Count; i++)
+            {
+                if (tempHolder[i] != null)
+                {
+                    ImageBox temp = (ImageBox)rightP.Controls[i];
+                    temp.Image = ImageSelect(tempHolder[i]);
+                    rightP.Controls.RemoveAt(i);
+                    
+                }
+            }
+
+    }
 
         /// <summary>
         /// Adds another column to the tablet
@@ -291,18 +321,20 @@ namespace External_Level_Designer_Tool
             Button btnAddRow = new Button();
             btnAddRow.Height = baseHeightWidth / 2;
             btnAddRow.Width = baseHeightWidth * Columns;
-            btnAddRow.Text = "Add Row";
+            btnAddRow.Text = "+  +  +  +  +";
             btnAddRow.BackColor = Color.Gainsboro;
             btnAddRow.Top = baseHeightWidth * (Rows);
             btnAddRow.Left = 0;
+            btnAddRow.Click += AddRow;
 
             VertButton btnAddColumn = new VertButton();
             btnAddColumn.Width = baseHeightWidth / 2;
             btnAddColumn.Height = baseHeightWidth * Rows;
-            btnAddColumn.Text = "Add Column";
+            btnAddColumn.Text = "+\n+\n+\n+\n+";
             btnAddColumn.BackColor = Color.Gainsboro;
             btnAddColumn.Top = 0;
             btnAddColumn.Left = baseHeightWidth * Columns;
+            btnAddColumn.Click += AddColumn;
 
             parent.Controls.Add(btnAddColumn);
             parent.Controls.Add(btnAddRow);
