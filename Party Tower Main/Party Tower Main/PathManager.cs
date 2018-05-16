@@ -30,7 +30,7 @@ namespace Party_Tower_Main
 
         //properties --------------------------------------------------------------------
 
-        public string[] mapLevel
+        public string[] MapOfLevel
         {
             set { map = value; }
         }
