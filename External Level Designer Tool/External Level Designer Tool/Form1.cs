@@ -13,8 +13,13 @@ namespace External_Level_Designer_Tool
     public partial class Form1 : Form
     {
         List<ImageBox> Selectables = new List<ImageBox>();
+        List<List<ImageBox>> RowList = new List<List<ImageBox>>();
         Panel leftP = new Panel();
         Panel rightP = new Panel();
+        Button addBottomRow;
+        Button addTopRow;
+        Button addLeftColumn;
+        Button addRightColumn;
 
         int Rows;
         int Columns;
@@ -162,7 +167,7 @@ namespace External_Level_Designer_Tool
 
             #region Right Panel Specifics
 
-            TabletChange(Rows, Columns, rightP);
+            TabletSetup(Rows, Columns, rightP);
 
             #endregion
 
@@ -178,9 +183,48 @@ namespace External_Level_Designer_Tool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AddRow(object sender, EventArgs e)
+        private void AddRowTop(object sender, EventArgs e)
         {
-            
+            List<ImageBox> newRow = new List<ImageBox>();
+            Button topCopy = (Button)sender;
+            int btnMeasure = 0;
+
+            //create a new row at positions starting at zero
+            for (int columns = 0; columns < Columns; columns++)
+            {
+                ImageBox temp = new ImageBox();
+                temp.Width = rightP.Width / Columns;
+                temp.Width = (rightP.Width - temp.Width) / Columns;
+                temp.Height = temp.Width;
+                temp.Image = ImageSelect("noTexture");
+                temp.Top = temp.Width;
+                temp.Left = (columns * temp.Width) + temp.Width;
+                temp.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                temp.SizeMode = PictureBoxSizeMode.Zoom;
+                temp.Click += TabletBtnClicked;
+                btnMeasure = temp.Width;
+
+                //adds the button to the parent container's controls as well as the containing list
+                rightP.Controls.Add(temp);
+                newRow.Add(temp);
+            }
+
+            //put the new row in the array at spot zero
+            RowList.Insert(0, newRow);
+
+            //move the button up
+            topCopy.Top -= btnMeasure;
+
+        }
+
+        /// <summary>
+        /// Adds another row to the tablet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddRowBottom(object sender, EventArgs e)
+        {
+
         }
 
         /// <summary>
@@ -188,7 +232,17 @@ namespace External_Level_Designer_Tool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AddColumn(object sender, EventArgs e)
+        private void AddColumnLeft(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Adds another column to the tablet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddColumnRight(object sender, EventArgs e)
         {
 
         }
@@ -257,17 +311,22 @@ namespace External_Level_Designer_Tool
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <param name="parent"></param>
-        private void TabletChange(int row, int col, Panel parent)
+        private void TabletSetup(int row, int col, Panel parent)
         {
 
             //****************************************************
             //**************** Main Tablet Setup *****************
             //****************************************************
 
-            for (int columns = 0; columns < Columns; columns++)
+
+            //creates a set of lists that contain each row of tablet buttons (ImageBoxes)
+            for (int rows = 0; rows < Rows; rows++)
             {
-                for (int rows = 0; rows < Rows; rows++)
+                List<ImageBox> current = new List<ImageBox>();
+
+                for (int columns = 0; columns < Columns; columns++)
                 {
+                    //Sets up all the initial button parameters
                     ImageBox temp = new ImageBox();
                     temp.Width = parent.Width / Columns;
                     temp.Width = (parent.Width - temp.Width) / Columns;
@@ -279,56 +338,63 @@ namespace External_Level_Designer_Tool
                     temp.SizeMode = PictureBoxSizeMode.Zoom;
                     temp.Click += TabletBtnClicked;
 
+                    //adds the button to the parent container's controls as well as the containing list
                     parent.Controls.Add(temp);
+                    current.Add(temp);
                 }
+
+                //Adds the current list of tablet buttons to the list of rows
+                RowList.Add(current);
             }
 
+
+                
             //****************************************************
             //***************** Tablet Extenders *****************
             //****************************************************
 
             int baseHeightWidth = parent.Controls[0].Height;
 
-            Button btnAddBottomRow = new Button();
-            btnAddBottomRow.Height = baseHeightWidth / 2;
-            btnAddBottomRow.Width = baseHeightWidth * Columns;
-            btnAddBottomRow.Text = "+  +  +  +  +";
-            btnAddBottomRow.BackColor = Color.Gainsboro;
-            btnAddBottomRow.Top = baseHeightWidth * (Rows);
-            btnAddBottomRow.Left = baseHeightWidth;
-            btnAddBottomRow.Click += AddRow;                        //set these up to connect to collections
+            addBottomRow = new Button();
+            addBottomRow.Height = baseHeightWidth / 2;
+            addBottomRow.Width = baseHeightWidth * Columns;
+            addBottomRow.Text = "+  +  +  +  +";
+            addBottomRow.BackColor = Color.Gainsboro;
+            addBottomRow.Top = baseHeightWidth * (Rows + 1);
+            addBottomRow.Left = baseHeightWidth;
+            addBottomRow.Click += AddRowBottom;                        //set these up to connect to collections
                                                                     //of lists which can do the heavy lifting
-            Button btnAddTopRow = new Button();                     //the lists will replace the 2d arrays
-            btnAddTopRow.Height = baseHeightWidth / 2;
-            btnAddTopRow.Width = baseHeightWidth * Columns;
-            btnAddTopRow.Text = "+  +  +  +  +";
-            btnAddTopRow.BackColor = Color.Gainsboro;
-            btnAddTopRow.Top = baseHeightWidth;
-            btnAddTopRow.Left = baseHeightWidth;
-            btnAddTopRow.Click += AddRow;
+            addTopRow = new Button();                     //the lists will replace the 2d arrays
+            addTopRow.Height = baseHeightWidth / 2;
+            addTopRow.Width = baseHeightWidth * Columns;
+            addTopRow.Text = "+  +  +  +  +";
+            addTopRow.BackColor = Color.Gainsboro;
+            addTopRow.Top = baseHeightWidth / 2;
+            addTopRow.Left = baseHeightWidth;
+            addTopRow.Click += AddRowTop;
 
-            Button btnAddLeftColumn = new Button();
-            btnAddLeftColumn.Width = baseHeightWidth / 2;
-            btnAddLeftColumn.Height = baseHeightWidth * Rows;
-            btnAddLeftColumn.Text = "+\n+\n+\n+\n+";
-            btnAddLeftColumn.BackColor = Color.Gainsboro;
-            btnAddLeftColumn.Top = baseHeightWidth;
-            btnAddLeftColumn.Left = baseHeightWidth / 2;
-            btnAddLeftColumn.Click += AddColumn;
+            addLeftColumn = new Button();
+            addLeftColumn.Width = baseHeightWidth / 2;
+            addLeftColumn.Height = baseHeightWidth * Rows;
+            addLeftColumn.Text = "+\n+\n+\n+\n+";
+            addLeftColumn.BackColor = Color.Gainsboro;
+            addLeftColumn.Top = baseHeightWidth;
+            addLeftColumn.Left = baseHeightWidth / 2;
+            addLeftColumn.Click += AddColumnLeft;
 
-            Button btnAddRightColumn = new Button();
-            btnAddRightColumn.Width = baseHeightWidth / 2;
-            btnAddRightColumn.Height = baseHeightWidth * Rows;
-            btnAddRightColumn.Text = "+\n+\n+\n+\n+";
-            btnAddRightColumn.BackColor = Color.Gainsboro;
-            btnAddRightColumn.Top = 0;
-            btnAddRightColumn.Left = (baseHeightWidth * Columns) + baseHeightWidth;
-            btnAddRightColumn.Click += AddColumn;
+            addRightColumn = new Button();
+            addRightColumn.Width = baseHeightWidth / 2;
+            addRightColumn.Height = baseHeightWidth * Rows;
+            addRightColumn.Text = "+\n+\n+\n+\n+";
+            addRightColumn.BackColor = Color.Gainsboro;
+            addRightColumn.Top = baseHeightWidth;
+            addRightColumn.Left = (baseHeightWidth * Columns) + baseHeightWidth;
+            addRightColumn.Click += AddColumnRight;
 
-            parent.Controls.Add(btnAddLeftColumn);
-            parent.Controls.Add(btnAddRightColumn);
-            parent.Controls.Add(btnAddTopRow);
-            parent.Controls.Add(btnAddBottomRow);
+            parent.Controls.Add(addLeftColumn);
+            parent.Controls.Add(addRightColumn);
+            parent.Controls.Add(addTopRow);
+            parent.Controls.Add(addBottomRow);
         }
 
         /// <summary>
