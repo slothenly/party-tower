@@ -27,7 +27,7 @@ namespace Party_Tower_Main
 
         public string[] MapOfLevel
         {
-            set { map = value; }
+            get { return map; }
         }
 
         //constructor -------------------------------------------------------------------
@@ -40,7 +40,12 @@ namespace Party_Tower_Main
 
         //methods -----------------------------------------------------------------------
 
-        // 
+        public void SetNewLevel(string[] newMap)
+        {
+            map = newMap;
+        }
+
+
         public void Following()
         {
             var start = new Location {};
