@@ -12,11 +12,6 @@ namespace Party_Tower_Main
     class PathManager
     {
         ///<summary>
-        ///Jacob LeBerth Jacob Marcovechio
-        ///NodeManager class
-        ///holds a list of nodes that encompass the games map
-        ///tracks groupings of nodes and their neighbors for passability
-        /// and handles other node based logic
         ///</summary>
 
         //fields ------------------------------------------------------------------------
