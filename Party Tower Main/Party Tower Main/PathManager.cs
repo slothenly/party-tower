@@ -30,6 +30,19 @@ namespace Party_Tower_Main
             get { return map; }
         }
 
+        /* Example of Map as String[]
+            {
+                 "+------+",
+                 "|      |",
+                 "|E X   |",
+                 "|XXX   |",
+                 "|   X  |",
+                 "| P    |",
+                 "|      |",
+                 "+------+",
+            };
+         */
+
         //constructor -------------------------------------------------------------------
         public PathManager()
         {
