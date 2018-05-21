@@ -12,11 +12,6 @@ namespace Party_Tower_Main
     class PathManager
     {
         ///<summary>
-        ///Jacob LeBerth Jacob Marcovechio
-        ///NodeManager class
-        ///holds a list of nodes that encompass the games map
-        ///tracks groupings of nodes and their neighbors for passability
-        /// and handles other node based logic
         ///</summary>
 
         //fields ------------------------------------------------------------------------
@@ -30,9 +25,9 @@ namespace Party_Tower_Main
 
         //properties --------------------------------------------------------------------
 
-        public string[] mapLevel
+        public string[] MapOfLevel
         {
-            set { map = value; }
+            get { return map; }
         }
 
         //constructor -------------------------------------------------------------------
@@ -45,7 +40,12 @@ namespace Party_Tower_Main
 
         //methods -----------------------------------------------------------------------
 
-        // 
+        public void SetNewLevel(string[] newMap)
+        {
+            map = newMap;
+        }
+
+
         public void Following()
         {
             var start = new Location {};
