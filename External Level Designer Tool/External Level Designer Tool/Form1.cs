@@ -185,9 +185,9 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void AddRowTop(object sender, EventArgs e)
         {
-            List<ImageBox> newRow = new List<ImageBox>();
-            Button topCopy = (Button)sender;
-            int btnMeasure = 0;
+            List<ImageBox> newRow = new List<ImageBox>();                   //on hold for functionality
+            Button topCopy = (Button)sender;                                //will be returned to once basics
+            int btnMeasure = 0;                                             //have been nailed down
 
             //create a new row at positions starting at zero
             for (int columns = 0; columns < Columns; columns++)
@@ -354,10 +354,10 @@ namespace External_Level_Designer_Tool
             //****************************************************
 
             int baseHeightWidth = parent.Controls[0].Height;
-
+            /*
             addBottomRow = new Button();
-            addBottomRow.Height = baseHeightWidth / 2;
-            addBottomRow.Width = baseHeightWidth * Columns;
+            addBottomRow.Height = baseHeightWidth / 2;                  //put on hold to get functionality first
+            addBottomRow.Width = baseHeightWidth * Columns;             //will be returned to later to get working
             addBottomRow.Text = "+  +  +  +  +";
             addBottomRow.BackColor = Color.Gainsboro;
             addBottomRow.Top = baseHeightWidth * (Rows + 1);
@@ -395,6 +395,8 @@ namespace External_Level_Designer_Tool
             parent.Controls.Add(addRightColumn);
             parent.Controls.Add(addTopRow);
             parent.Controls.Add(addBottomRow);
+            */
+
         }
 
         /// <summary>
