@@ -5,6 +5,16 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 
+
+enum GameState
+{
+    Menu,
+    Options,
+    Game,
+    GameOver,
+    LoadLevel
+}
+
 namespace Party_Tower_Main
 {
     /// <summary>
@@ -37,6 +47,9 @@ namespace Party_Tower_Main
         Dynamic_Camera camera;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        KeyboardState kb;
+        KeyboardState previousKb;
 
         #endregion
 
@@ -94,7 +107,7 @@ namespace Party_Tower_Main
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            gameState = UpdateGameState();
+            UpdateGameState();
 
             // TODO: Add your update logic here
 
@@ -118,38 +131,53 @@ namespace Party_Tower_Main
         /// Helper Method that determines the New Game State after properly updating the current state of the game
         /// </summary>
         /// <returns></returns>
-        private GameState UpdateGameState()
+        private void UpdateGameState()
         {
-            GameState newState;
+            previousKb = kb;
+            kb = Keyboard.GetState();
             switch (gameState)
             {
                 case GameState.Menu:
-                    // newState = Menu.Update();
-                    return newState;
+                    if (SingleKeyPress(Keys.Enter))
+                    {
+                        gameState = GameState.Game;
+                    }
+                    if (SingleKeyPress(Keys.Tab))
+                    {
+                        gameState = GameState.Options;
+                    }
+                    //anything else
+                    break;
 
                 case GameState.Options:
-                    // newState = ??
-                    return newState;
+                    if (SingleKeyPress(Keys.Tab))
+                    {
+                        gameState = GameState.Game;
+                    }
+                    //Options stuff
+                    break;
 
                 case GameState.Game:
-                    // newState = GameLoop.Update();
-                    return newState;
+                    if (SingleKeyPress(Keys.P))
+                    {
+                        //Pause stuff
+                    }
+                    break;
 
-                case GameState.Pause:
-                    // newState = ?
-                    return newState;
+                    //Don't need a state for pause
 
                 case GameState.GameOver:
-                    // newState = ?
-                    return newState;
+                    if (SingleKeyPress(Keys.Enter))
+                    {
+                        gameState = GameState.Menu;
+                    }
+                    break;
 
+                    //Do we need this?
                 case GameState.LoadLevel:
-                    // GameLoop.NextLevel();
-                    // newState = ?
-                    return newState;
-            }
+                    break;
 
-            return newState;
+            }
         }
 
         /// <summary>
@@ -167,7 +195,7 @@ namespace Party_Tower_Main
 
                 case GameState.Options:
                     spriteBatch.Begin();
-                    // ?
+                    // 
                     spriteBatch.End();
                     break;
 
@@ -198,6 +226,17 @@ namespace Party_Tower_Main
                     // ?
                     spriteBatch.End();
                     break;
+            }
+        }
+        public bool SingleKeyPress(Keys pressedKey)
+        {
+            if (kb.IsKeyDown(pressedKey) && previousKb.IsKeyUp(pressedKey))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }
