@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,12 +15,14 @@ namespace External_Level_Designer_Tool
     {
         List<ImageBox> Selectables = new List<ImageBox>();
         List<List<ImageBox>> RowList = new List<List<ImageBox>>();
+        Dictionary<string, string> translator = new Dictionary<string, string>();
         Panel leftP = new Panel();
         Panel rightP = new Panel();
         Button addBottomRow;
         Button addTopRow;
         Button addLeftColumn;
         Button addRightColumn;
+        TextBox fileName;
 
         int Rows;
         int Columns;
@@ -110,7 +113,7 @@ namespace External_Level_Designer_Tool
             btnRemove.Text = "Remove";
             btnRemove.Click += SetPlacing;
 
-            TextBox fileName = new TextBox();
+            fileName = new TextBox();
             fileName.Multiline = true;
             fileName.Height = btnSelector.Height / 7;   //technically 2/7 because multiLine is turned on
             fileName.Width = btnSelector.Width;
@@ -173,6 +176,14 @@ namespace External_Level_Designer_Tool
 
             //  #############################################################################
 
+            #region Translator Dictionaly Initialization
+
+            translator.Add("Brick", "br");
+            translator.Add("Dirt", "di");
+            translator.Add("Grass", "gr");
+            translator.Add("Moss", "mo");
+
+            #endregion
         }
         //  #############################################################################
 
@@ -185,9 +196,9 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void AddRowTop(object sender, EventArgs e)
         {
-            List<ImageBox> newRow = new List<ImageBox>();
-            Button topCopy = (Button)sender;
-            int btnMeasure = 0;
+            List<ImageBox> newRow = new List<ImageBox>();                   //on hold for functionality
+            Button topCopy = (Button)sender;                                //will be returned to once basics
+            int btnMeasure = 0;                                             //have been nailed down
 
             //create a new row at positions starting at zero
             for (int columns = 0; columns < Columns; columns++)
@@ -254,7 +265,49 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void Export(object sender, EventArgs e)
         {
+            //collects all the neccesary information into the string "exported" and spits it into a designated text file
+            string exported = "";
+            string filePath = fileName.Text;
+            exported += Rows.ToString() + "," + Columns.ToString() + Environment.NewLine;
 
+            //Adds each of the items according to their spots in the tablet
+            foreach (List<ImageBox> current in RowList)
+            {
+                //cycle through each button in each list then add a new line
+                foreach (ImageBox btn in current)
+                {
+                    if (btn != null)
+                    {
+                        if (btn.Tag != null)
+                        {
+                            exported += translator[btn.Tag.ToString()] + ",";
+                        }
+                        else
+                        {
+                            exported += "00,";
+                        }
+                    }
+                }
+                exported += Environment.NewLine;
+            }
+
+            //Clear and possible files with the same path as this
+            try
+            {
+                File.Delete(@"..\..\..\..\Resources\levelExports\" + filePath + ".txt");
+            }
+            catch (System.IO.DirectoryNotFoundException)
+            {
+                //this just means that the file doesn't exist yet
+                //don't do anything
+            }
+
+            //Write everything into our new text file
+            StreamWriter w = new StreamWriter(@"..\..\Resources\levelExports\" + filePath + ".txt");
+            w.Write(exported);
+            w.Close();
+
+            MessageBox.Show("Successfully Exported");
         }
 
         /// <summary>
@@ -354,10 +407,10 @@ namespace External_Level_Designer_Tool
             //****************************************************
 
             int baseHeightWidth = parent.Controls[0].Height;
-
+            /*
             addBottomRow = new Button();
-            addBottomRow.Height = baseHeightWidth / 2;
-            addBottomRow.Width = baseHeightWidth * Columns;
+            addBottomRow.Height = baseHeightWidth / 2;                  //put on hold to get functionality first
+            addBottomRow.Width = baseHeightWidth * Columns;             //will be returned to later to get working
             addBottomRow.Text = "+  +  +  +  +";
             addBottomRow.BackColor = Color.Gainsboro;
             addBottomRow.Top = baseHeightWidth * (Rows + 1);
@@ -395,6 +448,8 @@ namespace External_Level_Designer_Tool
             parent.Controls.Add(addRightColumn);
             parent.Controls.Add(addTopRow);
             parent.Controls.Add(addBottomRow);
+            */
+
         }
 
         /// <summary>
