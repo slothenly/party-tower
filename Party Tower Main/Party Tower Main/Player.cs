@@ -48,8 +48,10 @@ namespace Party_Tower_Main
         private double rollDelay;
 
         private Color color;
+        private List<Collectible> collectiblesCollected;
+        private Dictionary<string, Keys> bindableKb;
 
-        //for collision
+        //Collision
         private Rectangle bottomChecker;
         private Rectangle topChecker;
         private Rectangle sideChecker;
@@ -60,14 +62,15 @@ namespace Party_Tower_Main
         private bool playerVisible = true;
         private bool bounceLockout = false;
         private bool shouldBounce = false;
-        Tile temp; //used to make sure player checks collision against only 
+        //Tile temp; //used to make sure player checks collision against only 
                    //1 tile when necessary (as opposed to all of them each frame like usual)
 
-        //for directionality and FSM
+        //Directionality and FSM
         private bool isFacingRight;
         private PlayerState playerState;
         private PlayerState previousPlayerState;
-        //for movement
+        
+        //Movement
         private bool rollInAir;
         private bool isRolling;
         private int verticalVelocity = 0;
@@ -81,10 +84,6 @@ namespace Party_Tower_Main
         //might not need this
         private bool goingUp; //used to allow player to float correctly when transitioning up a screen
 
-        //for rebinding keys
-        private Dictionary<string, Keys> bindableKb;
-
-        private List<CapturedChicken> collectedChickens;
 
         //sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
@@ -95,6 +94,10 @@ namespace Party_Tower_Main
         SoundEffect rollSound;
         SoundEffect walkSound;
         SoundEffect checkpointSound;
+
+        //Coop
+        Vector2 playerSpawn; //position at which the dead player will spawn at
+        
 
         GameTime gameTime;
         #endregion
@@ -136,28 +139,24 @@ namespace Party_Tower_Main
             get { return bounceLockout; }
         }
 
-        public Checkpoint LastCheckpoint
+        public Vector2 PlayerSpawn
         {
-            get { return lastCheckpoint; }
-            set { lastCheckpoint = value; }
+            get { return playerSpawn; }
+            set { playerSpawn = value; }
         }
         public Dictionary<string, Keys> BindableKb
         {
             get { return bindableKb; }
             set { bindableKb = value; }
         }
-        public List<CapturedChicken> CollectedChickens
+        public List<Collectible> CollectiblesCollected
         {
-            get { return collectedChickens; }
-            set { collectedChickens = value; }
+            get { return collectiblesCollected; }
+            set { collectiblesCollected = value; }
         }
         public PlayerState PreviousPlayerState
         {
             get { return previousPlayerState; }
-        }
-        public SoundEffect CheckpointSound
-        {
-            get { return checkpointSound; }
         }
         public bool GoingUp
         {
@@ -254,7 +253,7 @@ namespace Party_Tower_Main
         /// Checks if enemies are touching player
         /// </summary>
         /// <param name="e"></param>
-        public override void CheckColliderAgainstEnemy(Enemy e)
+        public void CheckColliderAgainstEnemy(Enemy e)
         {
             if (bottomChecker.Intersects(e.Hitbox))
             {
