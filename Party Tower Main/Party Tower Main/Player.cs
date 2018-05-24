@@ -31,6 +31,8 @@ enum PlayerState
     BounceRight,
 
     Die,
+    Carried,
+    Carrying
 }
 namespace Party_Tower_Main
 {
@@ -78,9 +80,12 @@ namespace Party_Tower_Main
         private bool rollEnd;
         private bool hasRolledInAir;
         private int jumpCount; //used for double jump
+        private bool jumpBoost;
+        private bool carrying;
+        private bool inCarry;
 
-        private Vector2 previousPlayerPosition; //positions used to check if the player is going up or down
-        private Vector2 playerPosition;
+        private Vector2 previousPosition; //positions used to check if the player is going up or down
+        private Vector2 position;
 
         //might not need this
         private bool goingUp; //used to allow player to float correctly when transitioning up a screen
@@ -139,7 +144,11 @@ namespace Party_Tower_Main
         {
             get { return bounceLockout; }
         }
-
+        public Vector2 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
         public Vector2 PlayerSpawn
         {
             get { return playerSpawn; }
@@ -169,6 +178,16 @@ namespace Party_Tower_Main
             get { return isRolling; }
             set { isRolling = value; }
         }
+        public bool InCarry
+        {
+            get { return inCarry; }
+            set { inCarry = value; }
+        }
+        public bool Carrying
+        {
+            get { return carrying; }
+            set { carrying = value; }
+        }
         #endregion
         //################
 
@@ -194,6 +213,8 @@ namespace Party_Tower_Main
             rollEnd = false;
             hasRolledInAir = false;
             jumpCount = 0;
+            jumpBoost = false;
+            carrying = false;
 
             gameTime = new GameTime();
             downDashDelay = 13;
@@ -316,6 +337,22 @@ namespace Party_Tower_Main
             else
             {
                 debugEnemyCollision = false;
+            }
+        }
+        /// <summary>
+        /// Checks if this player downdashed onto the other player (for putting them into being carried)
+        /// </summary>
+        /// <param name="otherPlayer"></param>
+        /// <returns></returns>
+        public bool DownDashOn (Player otherPlayer)
+        {
+            if (bottomChecker.Intersects(otherPlayer.Hitbox) && playerState == PlayerState.DownDash)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
         /// <summary>
@@ -500,9 +537,9 @@ namespace Party_Tower_Main
         public void FiniteState()
         {
             //previousPosition tracks player from previous frame
-            previousPlayerPosition = playerPosition;
+            previousPosition = position;
             previousPlayerState = PlayerState;
-            playerPosition = new Vector2(X, Y); //player position of current frame
+            position = new Vector2(X, Y); //player position of current frame
 
 
             //previousKb used to prevent jump spamming (holding down space) 
@@ -811,8 +848,8 @@ namespace Party_Tower_Main
                     }
                     else
                     {
-                        //can jump twice
-                        if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1)
+                        //can jump twice while falling, unless carrying the other player
+                        if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
                         {
                             jumpSound.Play();
                             if (kb.IsKeyDown(bindableKb["right"]))
@@ -833,7 +870,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.JumpLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir)
+                        if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying)
                         {
                             rollSound.Play();
                             rollInAir = true;
@@ -846,7 +883,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.RollLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["downDash"]))
+                        if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
                         {
                             downDashSound.Play();
                             playerState = PlayerState.DownDash;
@@ -891,8 +928,68 @@ namespace Party_Tower_Main
                 case PlayerState.BounceRight:
                     Movement();
                     break;
-                    #endregion
-                    //################
+                #endregion
+                //################
+
+                case PlayerState.Carried:
+
+                    jumpBoost = true;
+
+                    //The carried player can only jump
+                    if (SingleKeyPress(bindableKb["jump"]))
+                    {
+                        inCarry = false;
+                        if (kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.JumpLeft;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.JumpRight;
+                        }
+                        else if (isFacingRight)
+                        {
+                            playerState = PlayerState.JumpRight;
+                        }
+                        else
+                        {
+                            playerState = PlayerState.JumpLeft;
+                        }
+                    }
+                    break;
+                case PlayerState.Carrying:
+
+                    carrying = true;
+
+                    //Carrying playey can only move and jump
+                    if (SingleKeyPress(bindableKb["jump"]))
+                    {
+                        if (kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.JumpLeft;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.JumpRight;
+                        }
+                        else if (isFacingRight)
+                        {
+                            playerState = PlayerState.JumpRight;
+                        }
+                        else
+                        {
+                            playerState = PlayerState.JumpLeft;
+                        }
+                    }
+                    if (kb.IsKeyDown(bindableKb["left"]))
+                    {
+                        playerState = PlayerState.WalkLeft;
+                    }
+                    if (kb.IsKeyDown(bindableKb["right"]))
+                    {
+                        playerState = PlayerState.WalkRight;
+                    }
+                    break;
             }
             #endregion
             //################
@@ -930,11 +1027,19 @@ namespace Party_Tower_Main
             else if (playerState == PlayerState.WalkLeft || playerState == PlayerState.WalkRight)
             {
                 //slow-down the player if they were rolling
-                if (horizontalVelocity > 10 || horizontalVelocity < -10)
+                if ((horizontalVelocity > 10 || horizontalVelocity < -10))
                 {
                     Decelerate(horizontalVelocity, 1, 10, false);
                 }
-                Accelerate(horizontalVelocity, 5, 10, false);
+
+                if (carrying) //slightly slower movement since carrying
+                {
+                    Accelerate(horizontalVelocity, 3, 9, false);
+                }
+                else
+                {
+                    Accelerate(horizontalVelocity, 5, 10, false);
+                }
             }
             //Roll
             else if (playerState == PlayerState.RollLeft || playerState == PlayerState.RollRight)
@@ -992,7 +1097,25 @@ namespace Party_Tower_Main
             else if (playerState == PlayerState.JumpLeft || playerState == PlayerState.JumpRight)
             {
                 //give huge start velocity then transition to fall and allow gravity to create arch
-                verticalVelocity = -30;
+                if (jumpBoost) //bigger boost since being carried
+                {
+                    verticalVelocity = -40;
+                    jumpBoost = false; 
+                }
+                else //normal jump
+                {
+                    verticalVelocity = -30;
+                }
+
+                if (carrying) //smaller boost since carrying
+                {
+                    verticalVelocity = -20;
+                }
+                else //normal jump
+                {
+                    verticalVelocity = -30;
+                }
+
                 jumpCount++; //increment to keep track of how many times player has jumped
             }
             //Fall
@@ -1064,6 +1187,7 @@ namespace Party_Tower_Main
                 }
                 playerState = PlayerState.Fall;
             }
+            //carried is handled in Coop Manager, and carrying just adjusts some movement settings for jump and walk
 
             X += horizontalVelocity;
             Y += verticalVelocity;
@@ -1094,15 +1218,23 @@ namespace Party_Tower_Main
             coinSound.Play();
             collectiblesCollected.Add(thing);
         }
-        //not applicable
-        public override void CheckColliderAgainstPlayer(Player p)
-        {
-            //do nothing
-        }
 
         public void PutInFallState()
         {
             playerState = PlayerState.DownDash;
+        }
+
+
+
+
+        //Not applicable
+        /// <summary>
+        /// DON'T CALL THIS
+        /// </summary>
+        /// <param name="p"></param>
+        public override void CheckColliderAgainstPlayer(Player p)
+        {
+            throw new NotImplementedException();
         }
     }
 }

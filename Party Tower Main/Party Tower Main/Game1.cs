@@ -59,12 +59,11 @@ namespace Party_Tower_Main
         Player playerOne;
         Player playerTwo;
         List<Player> players;
-        Coop_Manager playerManager;
+        Coop_Manager coopManager;
+
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
-
-        Vector2 checkpointPosition;
 
 
 
@@ -95,8 +94,6 @@ namespace Party_Tower_Main
             players = new List<Player>();
             playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 75, 75), Color.White, Content);
             playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 75, 75), Color.Red, Content);
-
-            checkpointPosition = new Vector2(0, 0);
 
             players.Add(playerOne);
             players.Add(playerTwo);
@@ -147,25 +144,33 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused) //do normal stuff
                     {
-                        //Player dying
-                        if (playerOne.PlayerState == PlayerState.Die)
+                        //adjust states and movement of both players
+                        foreach(Player currentPlayer in players)
                         {
-                            checkpointPosition = playerManager.GetAlivePlayerPosition(playerTwo);
-
-                            //Might want to add some sort of delay here so player doesn't spawn instantly
-
-                            playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                            currentPlayer.FiniteState();
                         }
-                        else if (playerTwo.PlayerState == PlayerState.Die)
+
+                        //Player dying
+                        coopManager.CheckAndRespawnPlayer();
+                        
+                        //One Player Carrying another
+                        if (playerOne.DownDashOn(playerTwo) || playerOne.InCarry) //Player one on top
                         {
-                           checkpointPosition = playerManager.GetAlivePlayerPosition(playerOne);
-
-                            //Might want to add some sort of delay here so player doesn't spawn instantly
-
-                            playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                            coopManager.PlayerCarry(playerOne, playerTwo);
+                        }
+                        else if (playerTwo.DownDashOn(playerOne) || playerTwo.InCarry) //Player two on top
+                        {
+                            coopManager.PlayerCarry(playerTwo, playerOne);
+                        }
+                        else //if neither player is on top, then no player should be carrying
+                        {
+                            foreach (Player currentPlayer in players)
+                            {
+                                currentPlayer.Carrying = false;
+                            }
                         }
                     }
-                    else //not paused
+                    else //paused
                     {
                         //do stuff when paused
                     }
