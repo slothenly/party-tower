@@ -7,10 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Party_Tower_Main
 {
-    class Enemy : GameObject
+    class Tile : GameObject
     {
         //Fill up as we develop
-
         public override void CheckColliderAgainstPlayer(Player p)
         {
             throw new NotImplementedException();

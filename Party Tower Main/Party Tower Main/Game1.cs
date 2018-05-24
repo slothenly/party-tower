@@ -43,6 +43,10 @@ namespace Party_Tower_Main
         List<Song> gameSongs;
 
         GameState gameState;
+
+        bool paused = false; //used to determine which 
+                             //game logic is run based on if game is paused or not
+
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
         GraphicsDeviceManager graphics;
@@ -50,6 +54,19 @@ namespace Party_Tower_Main
 
         KeyboardState kb;
         KeyboardState previousKb;
+
+        //Player fields
+        Player playerOne;
+        Player playerTwo;
+        List<Player> players;
+        Coop_Manager playerManager;
+
+        Texture2D playerOneTexture;
+        Texture2D playerTwoTexture;
+
+        Vector2 checkpointPosition;
+
+
 
         #endregion
 
@@ -70,9 +87,20 @@ namespace Party_Tower_Main
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
             gameState = GameState.Menu;
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, new Rectangle(0, 0, 64, 64));
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, 32, cameraLimiters.MaxWidthDistance);      // Dummy Values that need changed
+
+            players = new List<Player>();
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 75, 75), Color.White, Content);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 75, 75), Color.Red, Content);
+
+            checkpointPosition = new Vector2(0, 0);
+
+            players.Add(playerOne);
+            players.Add(playerTwo);
+
             base.Initialize();
         }
 
@@ -84,6 +112,10 @@ namespace Party_Tower_Main
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            //Placeholder textures for now
+            playerOneTexture = Content.Load<Texture2D>("white");
+            playerTwoTexture = Content.Load<Texture2D>("white");
 
             // TODO: use this.Content to load your game content here
         }
@@ -109,7 +141,36 @@ namespace Party_Tower_Main
 
             UpdateGameState();
 
-            // TODO: Add your update logic here
+            //Write logic for each gameState in here
+            switch (gameState)
+            {
+                case GameState.Game:
+                    if (!paused) //do normal stuff
+                    {
+                        //Player dying
+                        if (playerOne.PlayerState == PlayerState.Die)
+                        {
+                            checkpointPosition = playerManager.GetAlivePlayerPosition(playerTwo);
+
+                            //Might want to add some sort of delay here so player doesn't spawn instantly
+
+                            playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                        }
+                        else if (playerTwo.PlayerState == PlayerState.Die)
+                        {
+                           checkpointPosition = playerManager.GetAlivePlayerPosition(playerOne);
+
+                            //Might want to add some sort of delay here so player doesn't spawn instantly
+
+                            playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                        }
+                    }
+                    else //not paused
+                    {
+                        //do stuff when paused
+                    }
+                    break;
+            }
 
             base.Update(gameTime);
         }
@@ -158,9 +219,24 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
-                    if (SingleKeyPress(Keys.P))
+                    foreach (Player player in players) //any player can do this
                     {
-                        //Pause stuff
+                        if (SingleKeyPress(player.BindableKb["pause"]))
+                        {
+                            paused = !paused; //pause / unpause the game
+                        }
+                    }
+
+                    if (paused) //navigate when paused
+                    {
+                        if (SingleKeyPress(Keys.Back)) //press backspace to go back to main menu
+                        {
+                            gameState = GameState.Menu;
+                        }
+                        if (SingleKeyPress(Keys.Tab)) //press Tab to go to options
+                        {
+                            gameState = GameState.Options;
+                        }
                     }
                     break;
 

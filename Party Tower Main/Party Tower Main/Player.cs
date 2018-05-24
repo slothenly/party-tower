@@ -77,6 +77,7 @@ namespace Party_Tower_Main
         private int horizontalVelocity = 0;
         private bool rollEnd;
         private bool hasRolledInAir;
+        private int jumpCount; //used for double jump
 
         private Vector2 previousPlayerPosition; //positions used to check if the player is going up or down
         private Vector2 playerPosition;
@@ -192,12 +193,13 @@ namespace Party_Tower_Main
             rollInAir = false;
             rollEnd = false;
             hasRolledInAir = false;
+            jumpCount = 0;
 
             gameTime = new GameTime();
             downDashDelay = 13;
             rollDelay = 30;
             miliseconds = 2;
-            collectedChickens = new List<CapturedChicken>();
+            collectiblesCollected = new List<Collectible>();
 
             bindableKb = new Dictionary<string, Keys>();
 
@@ -302,11 +304,11 @@ namespace Party_Tower_Main
                 {
                     rollEnd = false;
                 }
-                //player takes damage if not rolling, bouncing, downdashing
+                //player takes dies if not rolling, bouncing, downdashing
                 if (playerState != PlayerState.RollLeft && playerState != PlayerState.RollRight && playerState != PlayerState.DownDash &&
                     playerState != PlayerState.BounceLeft && playerState != PlayerState.BounceRight)
                 {
-                    hitpoints--;
+                    playerState = PlayerState.Die;
                 }
 
                 bounceLockout = true;
@@ -324,132 +326,95 @@ namespace Party_Tower_Main
             //wall collision (collision box next to player depending on direction facing)
             if (sideChecker.Intersects(t.Hitbox))
             {
-                switch (t.Type)
+                #region Default
+                horizontalVelocity = 0; //stop player from moving through wall
+                if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
                 {
-                    case Tile.TileType.Damaging:
-                        break;
-                    case Tile.TileType.NoCollision:
-                        break;
-                    default:
-                        #region Default
-                        horizontalVelocity = 0; //stop player from moving through wall
-                        if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
-                        {
-                            hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
-                        }
-                        else if (t.X < hitbox.X) //player facing left and tile is to the left of player
-                        {
-                            hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
-                        }
-
-                        if (playerState == PlayerState.Fall)
-                        {
-                            if (isFacingRight)
-                            {
-                                hitbox.X -= 1;
-                            }
-                            else
-                            {
-                                hitbox.X += 1;
-                            }
-
-                        }
-                        #endregion
-                        break;
+                    hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
+                }
+                else if (t.X < hitbox.X) //player facing left and tile is to the left of player
+                {
+                    hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
                 }
 
+                if (playerState == PlayerState.Fall)
+                {
+                    if (isFacingRight)
+                    {
+                        hitbox.X -= 1;
+                    }
+                    else
+                    {
+                        hitbox.X += 1;
+                    }
+
+                }
+                #endregion
 
             }
             //ceiling collision (collision box above player)
             if (topChecker.Intersects(t.Hitbox))
             {
-                switch (t.Type)
+                #region Default
+                if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
                 {
-                    case Tile.TileType.Damaging:
-                        break;
-                    case Tile.TileType.NoCollision:
-                        break;
-                    default:
-                        #region Default
-                        if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
-                        {
-                            hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
-                        }
-                        topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
-                        verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
-                        #endregion
-                        break;
+                    hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
                 }
-
-
+                topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
+                verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
+                #endregion
             }
             //floor collision (collision box below player)
             else if (bottomChecker.Intersects(t.Hitbox))
             {
-                switch (t.Type)
+                #region Default
+                if (!(playerState == PlayerState.BounceLeft || playerState == PlayerState.BounceRight))
                 {
-                    case Tile.TileType.Damaging:
-                        break;
-                    case Tile.TileType.NoCollision:
-                        break;
-                    default:
-                        #region Default
-                        if (!(playerState == PlayerState.BounceLeft || playerState == PlayerState.BounceRight))
-                        {
-                            verticalVelocity = 0; //stop the player from falling
-                            hitbox.Y = t.Y - hitbox.Height; //place the player on top of tile
-                        }
-                        else
-                        {
-                            hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
-                        }
-
-
-                        hasRolledInAir = false;
-                        bottomIntersects = true;
-                        //FSM states are changed here so that the player can move after touching the ground
-                        //Roll Left
-                        if ((SingleKeyPress(bindableKb["roll"]) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
-                        {
-                            playerState = PlayerState.RollLeft;
-                        }
-                        //Walk Left
-                        else if (kb.IsKeyDown(bindableKb["left"]) && !kb.IsKeyDown(bindableKb["right"]) && !isRolling)
-                        {
-                            playerState = PlayerState.WalkLeft;
-                        }
-                        //Roll Right
-                        else if ((SingleKeyPress(bindableKb["roll"]) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
-                        {
-                            playerState = PlayerState.RollRight;
-                        }
-                        //Walk Right
-                        else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        //Idle Right
-                        else if (isFacingRight && !kb.IsKeyDown(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
-                        {
-                            playerState = PlayerState.IdleRight;
-                        }
-                        //Idle Left
-                        else if (!isFacingRight && !kb.IsKeyDown(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
-                        {
-                            playerState = PlayerState.IdleLeft;
-                        }
-                        temp = t;
-                        //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
-                        topIntersects = true;
-                        #endregion
-                        break;
+                    verticalVelocity = 0; //stop the player from falling
+                    hitbox.Y = t.Y - hitbox.Height; //place the player on top of tile
+                }
+                else
+                {
+                    hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
                 }
 
 
-            }
-            else if (t.Equals(temp))
-            {
-                bottomIntersects = false;
+                hasRolledInAir = false;
+                bottomIntersects = true;
+                //FSM states are changed here so that the player can move after touching the ground
+                //Roll Left
+                if ((SingleKeyPress(bindableKb["roll"]) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                {
+                    playerState = PlayerState.RollLeft;
+                }
+                //Walk Left
+                else if (kb.IsKeyDown(bindableKb["left"]) && !kb.IsKeyDown(bindableKb["right"]) && !isRolling)
+                {
+                    playerState = PlayerState.WalkLeft;
+                }
+                //Roll Right
+                else if ((SingleKeyPress(bindableKb["roll"]) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+                {
+                    playerState = PlayerState.RollRight;
+                }
+                //Walk Right
+                else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
+                {
+                    playerState = PlayerState.WalkRight;
+                }
+                //Idle Right
+                else if (isFacingRight && !kb.IsKeyDown(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
+                {
+                    playerState = PlayerState.IdleRight;
+                }
+                //Idle Left
+                else if (!isFacingRight && !kb.IsKeyDown(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
+                {
+                    playerState = PlayerState.IdleLeft;
+                }
+                //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
+                topIntersects = true;
+                #endregion
             }
         }
         /// <summary>
@@ -532,7 +497,7 @@ namespace Party_Tower_Main
         /// <summary>
         /// determines player state based on input and collision with enemies/platforms
         /// </summary>
-        public override void FiniteState()
+        public void FiniteState()
         {
             //previousPosition tracks player from previous frame
             previousPlayerPosition = playerPosition;
@@ -596,6 +561,13 @@ namespace Party_Tower_Main
             }
             #endregion
             //################
+
+            //double jump counter gets reset when player touches ground
+            if (bottomIntersects)
+            {
+                jumpCount = 0;
+            }
+
             //################
             #region FINITESTATE
             //FSM
@@ -839,6 +811,28 @@ namespace Party_Tower_Main
                     }
                     else
                     {
+                        //can jump twice
+                        if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1)
+                        {
+                            jumpSound.Play();
+                            if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.JumpRight; //jump right if trying to move right
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.JumpLeft; //jump left if trying to move left
+                            }
+                            //if no button is pressed, jump based on direction player is facing
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                        }
                         if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir)
                         {
                             rollSound.Play();
@@ -906,7 +900,7 @@ namespace Party_Tower_Main
         /// <summary>
         /// Calls accelerate/decelerate methods based on FSM state, the direction is accounted for in the methods
         /// </summary>
-        public override void Movement()
+        public void Movement()
         {
             if (kb.IsKeyUp(bindableKb["left"]) && kb.IsKeyUp(bindableKb["right"]) && verticalVelocity == 0)
             {
@@ -999,7 +993,7 @@ namespace Party_Tower_Main
             {
                 //give huge start velocity then transition to fall and allow gravity to create arch
                 verticalVelocity = -30;
-                playerState = PlayerState.Fall;
+                jumpCount++; //increment to keep track of how many times player has jumped
             }
             //Fall
             else if (playerState == PlayerState.Fall)
@@ -1095,10 +1089,10 @@ namespace Party_Tower_Main
         /// <summary>
         /// Whenever the player touches an active chicken, they "save" it (counter is incremented)
         /// </summary>
-        public void UpdateChickenList(CapturedChicken chick)
+        public void UpdateCollectibleList(Collectible thing) //called thing until we figure out what collectible is
         {
             coinSound.Play();
-            collectedChickens.Add(chick);
+            collectiblesCollected.Add(thing);
         }
         //not applicable
         public override void CheckColliderAgainstPlayer(Player p)

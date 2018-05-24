@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Party_Tower_Main
 {
     //Defines a chicken that needs to be saved by the player
-    class CapturedChicken : GameObject
+    class Collectible : GameObject
     {
         //Fields
 
@@ -21,7 +21,7 @@ namespace Party_Tower_Main
         Color[] Colors = new Color[] { Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.Indigo, Color.Purple};
 
         //Constructor
-        public CapturedChicken(int drawLevel, Texture2D defaultSprite, Rectangle hitbox)
+        public Collectible(int drawLevel, Texture2D defaultSprite, Rectangle hitbox)
         {
             this.drawLevel = drawLevel;
             this.defaultSprite = defaultSprite;
@@ -40,7 +40,7 @@ namespace Party_Tower_Main
             if (hitbox.Intersects(p.Hitbox) && isActive)
             {
                 //Run some method on P to update saved chickens
-                p.UpdateChickenList(this);
+                p.UpdateCollectibleList(this);
                 isActive = false;
             }
         }
@@ -59,7 +59,12 @@ namespace Party_Tower_Main
         /// <returns></returns>
         public Color RandomColor()
         {
+            /*Experimental random color using RGB
+            Color randomColor = new Color(rn.Next(0, 256), rn.Next(0, 256), rn.Next(0, 256));
+            return randomColor;*/
+
             return Colors[rn.Next(Colors.Length)];
+
         }
     }
 }
