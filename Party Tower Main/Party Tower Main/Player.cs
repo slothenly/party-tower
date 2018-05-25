@@ -90,6 +90,10 @@ namespace Party_Tower_Main
         //might not need this
         private bool goingUp; //used to allow player to float correctly when transitioning up a screen
 
+        //RespawnTimer
+
+        private Timer respawnTimer;
+
 
         //sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
@@ -188,6 +192,10 @@ namespace Party_Tower_Main
             get { return carrying; }
             set { carrying = value; }
         }
+        public Timer RespawnTimer
+        {
+            get { return respawnTimer; }
+        }
         #endregion
         //################
 
@@ -223,6 +231,8 @@ namespace Party_Tower_Main
             collectiblesCollected = new List<Collectible>();
 
             bindableKb = new Dictionary<string, Keys>();
+
+            respawnTimer = new Timer(3);    // 3 seconds for respawn to occur
 
             //sound
             bounceSound = myContent.Load<SoundEffect>("bounce");

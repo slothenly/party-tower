@@ -18,8 +18,6 @@ namespace Party_Tower_Main
 
         private Vector2 checkpointPosition;
 
-        //
-
         //Class
         public Coop_Manager(Player playerOne, Player playerTwo)
         {
@@ -41,23 +39,30 @@ namespace Party_Tower_Main
         /// <summary>
         /// Check if any player is dead, and depending on which one, respawn at the appropriate place
         /// </summary>
-        public void CheckAndRespawnPlayer()
+        public void CheckAndRespawnPlayer(GameTime gameTime)
         {
             if (playerOne.PlayerState == PlayerState.Die)
             {
-                checkpointPosition = GetAlivePlayerPosition(playerTwo);
 
                 //Might want to add some sort of delay here so player doesn't spawn instantly
-
-                playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                //Added delay using timer
+                if (playerOne.RespawnTimer.UpdateTimer(gameTime) == true)
+                {
+                    checkpointPosition = GetAlivePlayerPosition(playerTwo);
+                    playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                    playerOne.PlayerState = PlayerState.IdleRight;
+                }
             }
             else if (playerTwo.PlayerState == PlayerState.Die)
             {
-                checkpointPosition = GetAlivePlayerPosition(playerOne);
-
                 //Might want to add some sort of delay here so player doesn't spawn instantly
-
-                playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                //Added delay using timer
+                if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true)
+                {
+                    checkpointPosition = GetAlivePlayerPosition(playerOne);
+                    playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                    playerTwo.PlayerState = PlayerState.IdleRight;
+                }
             }
         }
 
