@@ -91,7 +91,6 @@ namespace Party_Tower_Main
         private bool goingUp; //used to allow player to float correctly when transitioning up a screen
 
         //RespawnTimer
-
         private Timer respawnTimer;
 
 
