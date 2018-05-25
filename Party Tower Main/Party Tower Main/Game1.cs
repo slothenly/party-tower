@@ -47,6 +47,8 @@ namespace Party_Tower_Main
         bool paused = false; //used to determine which 
                              //game logic is run based on if game is paused or not
 
+        bool bothPlayersDead; //used to determine if game over
+
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
         GraphicsDeviceManager graphics;
@@ -97,6 +99,8 @@ namespace Party_Tower_Main
 
             players.Add(playerOne);
             players.Add(playerTwo);
+
+            bothPlayersDead = false;
 
             base.Initialize();
         }
@@ -150,8 +154,15 @@ namespace Party_Tower_Main
                             currentPlayer.FiniteState();
                         }
 
-                        //Player dying
-                        coopManager.CheckAndRespawnPlayer();
+                        //Player(s) dying
+                        if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
+                        {
+                            bothPlayersDead = true;
+                        }
+                        else //both players not dead
+                        {
+                            bothPlayersDead = false;
+                        }
                         
                         //One Player Carrying another
                         if (playerOne.DownDashOn(playerTwo) || playerOne.InCarry) //Player one on top
@@ -169,6 +180,9 @@ namespace Party_Tower_Main
                                 currentPlayer.Carrying = false;
                             }
                         }
+
+                        //Player throwing
+                        coopManager.CheckForThrowAndThenThrow();
                     }
                     else //paused
                     {
@@ -224,6 +238,10 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
+                    if (bothPlayersDead) //if both players are dead during overlaping intervals, game over
+                    {
+                        gameState = GameState.GameOver;
+                    }
                     foreach (Player player in players) //any player can do this
                     {
                         if (SingleKeyPress(player.BindableKb["pause"]))

@@ -50,6 +50,20 @@ namespace Party_Tower_Main
         private EnemyState enemyState;
         private EnemyState previousEnemyState;
 
+        //Hitpoints
+        private int hitpoints;
+
+        public int Hitpoints
+        {
+            get { return hitpoints; }
+            set { hitpoints = value; }
+        }
+
+        public Enemy()
+        {
+            hitpoints = 3;
+        }
+
         //Sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
         SoundEffect deathSound;
@@ -66,7 +80,11 @@ namespace Party_Tower_Main
 
         public override void Draw(SpriteBatch sb)
         {
-            sb.Draw(defaultSprite, hitbox, Color.White);
+            if (hitpoints > 0)
+            {
+                sb.Draw(defaultSprite, hitbox, Color.White);
+            }
+
         }
 
         public void IsEnemyVisible(Rectangle visibleArea)

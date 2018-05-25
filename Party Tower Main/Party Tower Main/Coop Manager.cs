@@ -37,33 +37,43 @@ namespace Party_Tower_Main
         }
 
         /// <summary>
-        /// Check if any player is dead, and depending on which one, respawn at the appropriate place
+        /// Check if any player is dead, and depending on which one, respawn at the appropriate place, this will return true unless both players are dead
         /// </summary>
-        public void CheckAndRespawnPlayer(GameTime gameTime)
+        public bool CheckAndRespawnPlayer(GameTime gameTime)
         {
             if (playerOne.PlayerState == PlayerState.Die)
             {
 
                 //Might want to add some sort of delay here so player doesn't spawn instantly
                 //Added delay using timer
-                if (playerOne.RespawnTimer.UpdateTimer(gameTime) == true)
+                if (playerOne.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
                     checkpointPosition = GetAlivePlayerPosition(playerTwo);
                     playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
                     playerOne.PlayerState = PlayerState.IdleRight;
+                    return true;
+                }
+                else if (playerTwo.PlayerState == PlayerState.Die) //both players are dead
+                {
+                    return false;
                 }
             }
             else if (playerTwo.PlayerState == PlayerState.Die)
             {
                 //Might want to add some sort of delay here so player doesn't spawn instantly
                 //Added delay using timer
-                if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true)
+                if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
                     checkpointPosition = GetAlivePlayerPosition(playerOne);
                     playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
                     playerTwo.PlayerState = PlayerState.IdleRight;
                 }
+                else if (playerOne.PlayerState == PlayerState.Die) //both players are dead
+                {
+                    return false;
+                }
             }
+            return true;
         }
 
         /// <summary>
@@ -84,6 +94,43 @@ namespace Party_Tower_Main
             //The onTopPlayer follows the movement of the other player, but is on top
             onTopPlayer.Position =  new Vector2(carryingPlayer.Position.X, carryingPlayer.Position.Y - 75);
 
+        }
+
+        /// <summary>
+        /// Check whether or not the player should be thrown based on collision, then actually throw them using a helper method
+        /// </summary>
+        public void CheckForThrowAndThenThrow()
+        {
+            if (playerOne.PlayerState == PlayerState.Throw && playerTwo.PlayerState != PlayerState.Throw) //If one player is trying to throw the other
+            {
+                if (playerOne.BeingTouchedByOtherPlayer(playerTwo))
+                {
+                    PlayerThrow(playerOne, playerTwo);
+                }
+            }
+            if (playerOne.PlayerState != PlayerState.Throw && playerTwo.PlayerState == PlayerState.Throw) //switch roles for throw / thrown
+            {
+                if (playerTwo.BeingTouchedByOtherPlayer(playerOne))
+                {
+                    PlayerThrow(playerTwo, playerOne);
+                }
+            }
+        }
+        /// <summary>
+        /// Throw the actual player by making them bounce in the appropriate direction
+        /// </summary>
+        /// <param name="throwingPlayer"></param>
+        /// <param name="thrownPlayer"></param>
+        public void PlayerThrow(Player throwingPlayer, Player thrownPlayer)
+        {
+            if (throwingPlayer.IsFacingRight) //bounce the player based on which direction the thrower is facing
+            {
+                thrownPlayer.PlayerState = PlayerState.BounceRight;
+            }
+            else
+            {
+                thrownPlayer.PlayerState = PlayerState.BounceLeft;
+            }
         }
     }
 }

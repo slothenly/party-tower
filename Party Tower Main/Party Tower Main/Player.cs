@@ -32,7 +32,8 @@ enum PlayerState
 
     Die,
     Carried,
-    Carrying
+    Carrying,
+    Throw
 }
 namespace Party_Tower_Main
 {
@@ -65,13 +66,13 @@ namespace Party_Tower_Main
         private bool bounceLockout = false;
         private bool shouldBounce = false;
         //Tile temp; //used to make sure player checks collision against only 
-                   //1 tile when necessary (as opposed to all of them each frame like usual)
+        //1 tile when necessary (as opposed to all of them each frame like usual)
 
         //Directionality and FSM
         private bool isFacingRight;
         private PlayerState playerState;
         private PlayerState previousPlayerState;
-        
+
         //Movement
         private bool rollInAir;
         private bool isRolling;
@@ -106,7 +107,7 @@ namespace Party_Tower_Main
 
         //Coop
         Vector2 playerSpawn; //position at which the dead player will spawn at
-        
+
 
         GameTime gameTime;
         #endregion
@@ -306,6 +307,7 @@ namespace Party_Tower_Main
                     rollEnd = true;
                     isRolling = false;
                     rollDelay = 30;
+                    e.Hitpoints--;
                 }
                 else if (playerState == PlayerState.RollLeft)
                 {
@@ -315,6 +317,7 @@ namespace Party_Tower_Main
                     rollEnd = true;
                     isRolling = false;
                     rollDelay = 30;
+                    e.Hitpoints--;
                 }
                 else if (playerState == PlayerState.DownDash && shouldBounce)
                 {
@@ -327,6 +330,7 @@ namespace Party_Tower_Main
                     {
                         playerState = PlayerState.BounceLeft;
                     }
+                    e.Hitpoints--;
                     debugEnemyCollision = false;
                     rollEnd = false;
                 }
@@ -334,7 +338,7 @@ namespace Party_Tower_Main
                 {
                     rollEnd = false;
                 }
-                //player takes dies if not rolling, bouncing, downdashing
+                //player dies if not rolling, bouncing, downdashing
                 if (playerState != PlayerState.RollLeft && playerState != PlayerState.RollRight && playerState != PlayerState.DownDash &&
                     playerState != PlayerState.BounceLeft && playerState != PlayerState.BounceRight)
                 {
@@ -353,9 +357,58 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="otherPlayer"></param>
         /// <returns></returns>
-        public bool DownDashOn (Player otherPlayer)
+        public bool DownDashOn(Player otherPlayer)
         {
             if (bottomChecker.Intersects(otherPlayer.Hitbox) && playerState == PlayerState.DownDash)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// Same exact code as bouncing off enemies, except checking against the other player instead of enemy
+        /// </summary>
+        /// <param name="otherPlayer"></param>
+        public void RollAndBounceOffPlayer(Player otherPlayer) //FIGURE OUT WHERE THIS SHIT GOES
+        {
+            if (hitbox.Intersects(otherPlayer.hitbox))
+            {
+                if (hitbox.Intersects(otherPlayer.Hitbox) && !bounceLockout)
+                {
+                   // debugEnemyCollision = true;
+                    if (playerState == PlayerState.RollRight)
+                    {
+                        X = otherPlayer.X - hitbox.Width - 1;
+                        playerState = PlayerState.BounceLeft;
+                        //debugEnemyCollision = false;
+                        rollEnd = true;
+                        isRolling = false;
+                        rollDelay = 30;
+                    }
+                    else if (playerState == PlayerState.RollLeft)
+                    {
+                        X = otherPlayer.X + (hitbox.Width * 2) + 1;
+                        playerState = PlayerState.BounceRight;
+                        //debugEnemyCollision = false;
+                        rollEnd = true;
+                        isRolling = false;
+                        rollDelay = 30;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Determines if this player is being touched (any collision boxes included) by the other player
+        /// </summary>
+        /// <param name="otherPlayer"></param>
+        /// <returns></returns>
+        public bool BeingTouchedByOtherPlayer(Player otherPlayer)
+        {
+            if (bottomChecker.Intersects(otherPlayer.Hitbox) || sideChecker.Intersects(otherPlayer.hitbox)
+                || topChecker.Intersects(otherPlayer.Hitbox) || hitbox.Intersects(otherPlayer.hitbox))
             {
                 return true;
             }
@@ -477,7 +530,7 @@ namespace Party_Tower_Main
                 {
                     velocityType -= rate; //reduce velocity normally
 
-                    if (!bottomIntersects && !isRolling)
+                    if (!bottomIntersects && !isRolling && playerState != PlayerState.Throw)
                     {
                         playerState = PlayerState.Fall;
                     }
@@ -489,7 +542,7 @@ namespace Party_Tower_Main
                 {
                     velocityType += rate; //increase velocity since moving left is negative
                                           //needed to prevent player from hovering in air if they decelerate on an edge
-                    if (!bottomIntersects && !isRolling)
+                    if (!bottomIntersects && !isRolling && playerState != PlayerState.Throw)
                     {
                         playerState = PlayerState.Fall;
                     }
@@ -638,6 +691,10 @@ namespace Party_Tower_Main
                             jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
                         }
+                        else if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
                         else if (kb.IsKeyDown(bindableKb["right"]))
                         {
                             playerState = PlayerState.WalkRight;
@@ -665,7 +722,11 @@ namespace Party_Tower_Main
 
                     if (!debugEnemyCollision)
                     {
-                        if (SingleKeyPress(bindableKb["jump"]))
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
                         {
                             jumpSound.Play();
                             playerState = PlayerState.JumpRight;
@@ -702,7 +763,11 @@ namespace Party_Tower_Main
 
                     if (!debugEnemyCollision)
                     {
-                        if (SingleKeyPress(bindableKb["jump"]))
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
                         {
                             jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
@@ -738,7 +803,11 @@ namespace Party_Tower_Main
 
                     if (!debugEnemyCollision)
                     {
-                        if (SingleKeyPress(bindableKb["jump"]))
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
                         {
                             jumpSound.Play();
                             playerState = PlayerState.JumpRight;
@@ -755,6 +824,10 @@ namespace Party_Tower_Main
                         {
                             rollSound.Play();
                             playerState = PlayerState.RollRight;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
                         }
                         if (!bottomIntersects) //not touching ground
                         {
@@ -775,7 +848,11 @@ namespace Party_Tower_Main
                     {
                         playerState = PlayerState.Fall;
                     }
-                    if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
+                    if (kb.IsKeyDown(bindableKb["throw"]))
+                    {
+                        playerState = PlayerState.Throw;
+                    }
+                    else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
                     {
                         playerState = PlayerState.WalkLeft;
                     }
@@ -787,6 +864,10 @@ namespace Party_Tower_Main
                     {
                         jumpSound.Play();
                         playerState = PlayerState.JumpLeft;
+                    }
+                    else if (kb.IsKeyDown(bindableKb["throw"]))
+                    {
+                        playerState = PlayerState.Throw;
                     }
                     else if (!isRolling && bottomIntersects)
                     {
@@ -803,7 +884,11 @@ namespace Party_Tower_Main
                     {
                         playerState = PlayerState.Fall;
                     }
-                    if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
+                    if (kb.IsKeyDown(bindableKb["throw"]))
+                    {
+                        playerState = PlayerState.Throw;
+                    }
+                    else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
                     {
                         jumpSound.Play();
                         playerState = PlayerState.JumpRight;
@@ -857,8 +942,13 @@ namespace Party_Tower_Main
                     }
                     else
                     {
+                        //can throw mid air
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
                         //can jump twice while falling, unless carrying the other player
-                        if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
+                        else if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
                         {
                             jumpSound.Play();
                             if (kb.IsKeyDown(bindableKb["right"]))
@@ -940,6 +1030,8 @@ namespace Party_Tower_Main
                 #endregion
                 //################
 
+                //################
+                #region CARRY/CARRIED STATES
                 case PlayerState.Carried:
 
                     jumpBoost = true;
@@ -970,8 +1062,12 @@ namespace Party_Tower_Main
 
                     carrying = true;
 
-                    //Carrying playey can only move and jump
-                    if (SingleKeyPress(bindableKb["jump"]))
+                    //Carrying playey can only move, throw and jump
+                    if (kb.IsKeyDown(bindableKb["throw"]))
+                    {
+                        playerState = PlayerState.Throw;
+                    }
+                    else if (SingleKeyPress(bindableKb["jump"]))
                     {
                         if (kb.IsKeyDown(bindableKb["left"]))
                         {
@@ -999,6 +1095,35 @@ namespace Party_Tower_Main
                         playerState = PlayerState.WalkRight;
                     }
                     break;
+                #endregion
+                //################
+
+                //################
+                #region THROW STATE
+                case PlayerState.Throw:
+                    Movement();
+                    if (kb.IsKeyUp(bindableKb["throw"]))
+                    {
+                        if (kb.IsKeyDown(bindableKb["left"]))
+                        {
+
+                        }
+                        else if (kb.IsKeyDown(bindableKb["right"]))
+                        {
+
+                        }
+                        else if (isFacingRight)
+                        {
+                            playerState = PlayerState.IdleRight;
+                        }
+                        else
+                        {
+                            playerState = PlayerState.IdleLeft;
+                        }
+                    }
+                    break;
+                    #endregion
+                //################
             }
             #endregion
             //################
@@ -1195,6 +1320,19 @@ namespace Party_Tower_Main
                     isFacingRight = true;
                 }
                 playerState = PlayerState.Fall;
+            }
+            else if (playerState == PlayerState.Throw)
+            {
+                //Slowdown to stop if player is moving before pressing throw button
+                if (horizontalVelocity != 0)
+                {
+                    Decelerate(horizontalVelocity, 1, 0, false);
+                }
+                //Gravity
+                if (!bottomIntersects)
+                {
+                    Accelerate(verticalVelocity, 2, 30, true);
+                }
             }
             //carried is handled in Coop Manager, and carrying just adjusts some movement settings for jump and walk
 
