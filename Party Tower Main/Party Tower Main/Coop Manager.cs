@@ -18,6 +18,8 @@ namespace Party_Tower_Main
 
         private Vector2 checkpointPosition;
 
+        //
+
         //Class
         public Coop_Manager(Player playerOne, Player playerTwo)
         {
