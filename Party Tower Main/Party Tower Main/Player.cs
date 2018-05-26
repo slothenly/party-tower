@@ -44,7 +44,12 @@ namespace Party_Tower_Main
         //Fields
 
         private KeyboardState kb;
-        private KeyboardState previousKb; //used to prevent jump spamming
+        private KeyboardState previousKb; //used to prevent key spamming
+
+        //Gamepad input
+        private GamePadState gp;
+        private GamePadState previousGp;
+        private int playerIndexForGamepad;
 
         private double miliseconds; //used for downdash/roll
         private double downDashDelay; //used for downdash
@@ -202,7 +207,8 @@ namespace Party_Tower_Main
         //################
         #region CONSTRUCTOR
         //Constructor for player
-        public Player(int playerNumber, int drawLevel, Texture2D defaultSprite, Rectangle hitbox, Color color, ContentManager content)
+        public Player(int playerNumber, int drawLevel, Texture2D defaultSprite, Rectangle hitbox, Color color, 
+            ContentManager content, int playerIndexForGamepad)
         {
             this.drawLevel = drawLevel;
             this.defaultSprite = defaultSprite;
@@ -241,6 +247,8 @@ namespace Party_Tower_Main
             jumpSound = myContent.Load<SoundEffect>("jump");
             rollSound = myContent.Load<SoundEffect>("roll");
             walkSound = myContent.Load<SoundEffect>("walk");
+
+            this.playerIndexForGamepad = playerIndexForGamepad;
         }
         #endregion
         //################
@@ -418,9 +426,9 @@ namespace Party_Tower_Main
             }
         }
         /// <summary>
-        /// Checks if hitboxes around player touch Tile t
+        /// Checks if hitboxes around player touch Tile t, and check input depending on if controller is present
         /// </summary>
-        public void CollisionCheck(Tile t)
+        public void CollisionCheck(Tile t, bool hasGamepad)
         {
             //wall collision (collision box next to player depending on direction facing)
             if (sideChecker.Intersects(t.Hitbox))
@@ -480,36 +488,73 @@ namespace Party_Tower_Main
 
                 hasRolledInAir = false;
                 bottomIntersects = true;
-                //FSM states are changed here so that the player can move after touching the ground
-                //Roll Left
-                if ((SingleKeyPress(bindableKb["roll"]) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                if (hasGamepad) //this is done to prevent crashing if there isn't a controller
                 {
-                    playerState = PlayerState.RollLeft;
+                    //FSM states are changed here so that the player can move after touching the ground
+                    //Roll Left
+                    if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                    {
+                        playerState = PlayerState.RollLeft;
+                    }
+                    //Walk Left
+                    else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
+                    {
+                        playerState = PlayerState.WalkLeft;
+                    }
+                    //Roll Right
+                    else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+                    {
+                        playerState = PlayerState.RollRight;
+                    }
+                    //Walk Right
+                    else if ((kb.IsKeyDown(bindableKb["right"]) || GamepadRight()) && !isRolling)
+                    {
+                        playerState = PlayerState.WalkRight;
+                    }
+                    //Idle Right
+                    else if (isFacingRight && (kb.IsKeyUp(bindableKb["right"]) || !GamepadRight()) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
+                    {
+                        playerState = PlayerState.IdleRight;
+                    }
+                    //Idle Left
+                    else if (!isFacingRight && (kb.IsKeyUp(bindableKb["left"]) || !GamepadLeft()) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
+                    {
+                        playerState = PlayerState.IdleLeft;
+                    }
                 }
-                //Walk Left
-                else if (kb.IsKeyDown(bindableKb["left"]) && !kb.IsKeyDown(bindableKb["right"]) && !isRolling)
+                else //Doesn't have gamepad
                 {
-                    playerState = PlayerState.WalkLeft;
-                }
-                //Roll Right
-                else if ((SingleKeyPress(bindableKb["roll"]) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
-                {
-                    playerState = PlayerState.RollRight;
-                }
-                //Walk Right
-                else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
-                {
-                    playerState = PlayerState.WalkRight;
-                }
-                //Idle Right
-                else if (isFacingRight && !kb.IsKeyDown(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
-                {
-                    playerState = PlayerState.IdleRight;
-                }
-                //Idle Left
-                else if (!isFacingRight && !kb.IsKeyDown(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
-                {
-                    playerState = PlayerState.IdleLeft;
+                    //FSM states are changed here so that the player can move after touching the ground
+                    //Roll Left
+                    if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                    {
+                        playerState = PlayerState.RollLeft;
+                    }
+                    //Walk Left
+                    else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
+                    {
+                        playerState = PlayerState.WalkLeft;
+                    }
+                    //Roll Right
+                    else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+                    {
+                        playerState = PlayerState.RollRight;
+                    }
+                    //Walk Right
+                    else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
+                    {
+                        playerState = PlayerState.WalkRight;
+                    }
+                    //Idle Right
+                    else if (isFacingRight && kb.IsKeyUp(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
+                    {
+                        playerState = PlayerState.IdleRight;
+                    }
+                    //Idle Left
+                    else if (!isFacingRight && kb.IsKeyUp(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
+                    {
+                        playerState = PlayerState.IdleLeft;
+                    }
                 }
                 //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
                 topIntersects = true;
@@ -523,7 +568,6 @@ namespace Party_Tower_Main
         /// <param name="rate"></param>
         public void Decelerate(int velocityType, int rate, int limit, bool vertical)
         {
-
             if (isFacingRight)
             {
                 if (velocityType > limit)
@@ -596,7 +640,7 @@ namespace Party_Tower_Main
         /// <summary>
         /// determines player state based on input and collision with enemies/platforms
         /// </summary>
-        public void FiniteState()
+        public void FiniteState(bool hasGamepad)
         {
             //previousPosition tracks player from previous frame
             previousPosition = position;
@@ -607,6 +651,13 @@ namespace Party_Tower_Main
             //previousKb used to prevent jump spamming (holding down space) 
             previousKb = kb;
             kb = Keyboard.GetState();
+
+            if (hasGamepad) //only check controller input if there is one
+            {
+                previousGp = gp;
+                gp = GamePad.GetState(playerIndexForGamepad);
+            }
+
 
             //Debugging code
             if (SingleKeyPress(Keys.F8))
@@ -654,10 +705,21 @@ namespace Party_Tower_Main
 
             bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, Math.Abs(verticalVelocity));
 
-            if (verticalVelocity == 0 && !kb.IsKeyDown(bindableKb["jump"]))
+            if (hasGamepad)
             {
-                bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, 1);
+                if (verticalVelocity == 0 && (kb.IsKeyUp(bindableKb["jump"]) && gp.IsButtonUp(Buttons.A)))
+                {
+                    bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, 1);
+                }
             }
+            else //doesn't have gamepad
+            {
+                if (verticalVelocity == 0 && kb.IsKeyUp(bindableKb["jump"]))
+                {
+                    bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, 1);
+                }
+            }
+
             #endregion
             //################
 
@@ -669,297 +731,389 @@ namespace Party_Tower_Main
 
             //################
             #region FINITESTATE
-            //FSM
-            switch (playerState)
+            if (hasGamepad)
             {
-                //##################
-                #region IDLE STATES
-                //##################
-                //Idle Left
-                case PlayerState.IdleLeft:
-                    isFacingRight = false;
-                    if (debugEnemyCollision)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    Movement();
+                //FSM
+                switch (playerState)
+                {
+                    //##################
+                    #region IDLE STATES
+                    //##################
+                    //Idle Left
+                    case PlayerState.IdleLeft:
+                        isFacingRight = false;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
 
-                    if (!debugEnemyCollision)
-                    {
-                        if (SingleKeyPress(bindableKb["jump"]))
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]) || gp.IsButtonDown(Buttons.X))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollLeft;
+                            }
+                        }
+                        break;
+
+                    //Idle Right
+                    case PlayerState.IdleRight:
+                        isFacingRight = true;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
+
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollRight;
+                            }
+                        }
+                        break;
+
+                    #endregion
+                    //################
+
+                    //################
+                    #region WALK STATES
+                    //Walk Left
+                    case PlayerState.WalkLeft:
+                        isFacingRight = false;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
+
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyUp(bindableKb["left"]) && !GamepadLeft()) //stop moving left
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
+                            //CONTINUE ADDING GAMEPAD SUPPORT, IDEA OF MAKING METHOD THAT IS USED FOR ALL GAMEPAD INPUT WITH BUTTON AS PARAMETER
+                            //WHICH IS ONLY CALLED IF THERE IS CONTROLLER CONNECTED
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollLeft;
+                            }
+                            if (!bottomIntersects) //not touching ground
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
+                    //Walk Right
+                    case PlayerState.WalkRight:
+                        isFacingRight = true;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
+
+
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) //stop moving right
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) //moving left
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            if (!bottomIntersects) //not touching ground
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region ROLL STATES
+                    //Roll Left
+                    case PlayerState.RollLeft:
+                        isFacingRight = false;
+                        Movement(hasGamepad);
+                        if (!bottomIntersects && !isRolling) //not touching ground
+                        {
+                            playerState = PlayerState.Fall;
+                        }
+                        if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (!isRolling && (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()))
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        else if (!isRolling && (kb.IsKeyDown(bindableKb["right"]) || GamepadRight()))
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && !isRolling && bottomIntersects)
                         {
                             jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
                         }
-                        else if (kb.IsKeyDown(bindableKb["throw"]))
+                        else if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
                         {
                             playerState = PlayerState.Throw;
                         }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        else if (kb.IsKeyDown(bindableKb["left"]))
-                        {
-                            playerState = PlayerState.WalkLeft;
-                        }
-                        else if (SingleKeyPress(bindableKb["roll"]))
-                        {
-                            rollSound.Play();
-                            playerState = PlayerState.RollLeft;
-                        }
-                    }
-                    break;
-
-                //Idle Right
-                case PlayerState.IdleRight:
-                    isFacingRight = true;
-                    if (debugEnemyCollision)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    Movement();
-
-                    if (!debugEnemyCollision)
-                    {
-                        if (kb.IsKeyDown(bindableKb["throw"]))
-                        {
-                            playerState = PlayerState.Throw;
-                        }
-                        else if (SingleKeyPress(bindableKb["jump"]))
-                        {
-                            jumpSound.Play();
-                            playerState = PlayerState.JumpRight;
-                        }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        else if (kb.IsKeyDown(bindableKb["left"]))
-                        {
-                            playerState = PlayerState.WalkLeft;
-                        }
-                        else if (SingleKeyPress(bindableKb["roll"]))
-                        {
-                            rollSound.Play();
-                            playerState = PlayerState.RollRight;
-                        }
-                    }
-                    break;
-
-                #endregion
-                //################
-
-                //################
-                #region WALK STATES
-                //Walk Left
-                case PlayerState.WalkLeft:
-                    isFacingRight = false;
-                    if (debugEnemyCollision)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    Movement();
-
-                    if (!debugEnemyCollision)
-                    {
-                        if (kb.IsKeyDown(bindableKb["throw"]))
-                        {
-                            playerState = PlayerState.Throw;
-                        }
-                        else if (SingleKeyPress(bindableKb["jump"]))
-                        {
-                            jumpSound.Play();
-                            playerState = PlayerState.JumpLeft;
-                        }
-                        else if (kb.IsKeyUp(bindableKb["left"])) //stop moving left
+                        else if (!isRolling && bottomIntersects)
                         {
                             playerState = PlayerState.IdleLeft;
                         }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        else if (SingleKeyPress(bindableKb["roll"]))
-                        {
-                            rollSound.Play();
-                            playerState = PlayerState.RollLeft;
-                        }
-                        if (!bottomIntersects) //not touching ground
+
+                        break;
+
+                    //Roll Right
+                    case PlayerState.RollRight:
+                        isFacingRight = true;
+                        Movement(hasGamepad);
+                        if (!bottomIntersects && !isRolling) //not touching ground
                         {
                             playerState = PlayerState.Fall;
                         }
-                    }
-                    break;
-                //Walk Right
-                case PlayerState.WalkRight:
-                    isFacingRight = true;
-                    if (debugEnemyCollision)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    Movement();
-
-
-                    if (!debugEnemyCollision)
-                    {
-                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
                         {
                             playerState = PlayerState.Throw;
                         }
-                        else if (SingleKeyPress(bindableKb["jump"]))
+                        else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && !isRolling && bottomIntersects)
                         {
                             jumpSound.Play();
                             playerState = PlayerState.JumpRight;
                         }
-                        else if (kb.IsKeyUp(bindableKb["right"])) //stop moving right
-                        {
-                            playerState = PlayerState.IdleRight;
-                        }
-                        else if (kb.IsKeyDown(bindableKb["left"])) //moving left
+                        else if (!isRolling && (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()))
                         {
                             playerState = PlayerState.WalkLeft;
                         }
-                        else if (SingleKeyPress(bindableKb["roll"]))
+                        else if (!isRolling && (kb.IsKeyDown(bindableKb["right"]) || GamepadRight()))
                         {
-                            rollSound.Play();
-                            playerState = PlayerState.RollRight;
+                            playerState = PlayerState.WalkRight;
                         }
-                        else if (kb.IsKeyDown(bindableKb["throw"]))
+                        else if (!isRolling && bottomIntersects)
                         {
-                            playerState = PlayerState.Throw;
+                            playerState = PlayerState.IdleRight;
                         }
-                        if (!bottomIntersects) //not touching ground
-                        {
-                            playerState = PlayerState.Fall;
-                        }
-                    }
-                    break;
-                #endregion
-                //################
+                        break;
+                    #endregion
+                    //################
 
-                //################
-                #region ROLL STATES
-                //Roll Left
-                case PlayerState.RollLeft:
-                    isFacingRight = false;
-                    Movement();
-                    if (!bottomIntersects && !isRolling) //not touching ground
-                    {
+                    //################
+                    #region JUMP STATES
+                    //Jump Left
+                    case PlayerState.JumpLeft:
+                        isFacingRight = false;
+                        Movement(hasGamepad);
                         playerState = PlayerState.Fall;
-                    }
-                    if (kb.IsKeyDown(bindableKb["throw"]))
-                    {
-                        playerState = PlayerState.Throw;
-                    }
-                    else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
-                    {
-                        playerState = PlayerState.WalkLeft;
-                    }
-                    else if (!isRolling && kb.IsKeyDown(bindableKb["right"]))
-                    {
-                        playerState = PlayerState.WalkRight;
-                    }
-                    else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
-                    {
-                        jumpSound.Play();
-                        playerState = PlayerState.JumpLeft;
-                    }
-                    else if (kb.IsKeyDown(bindableKb["throw"]))
-                    {
-                        playerState = PlayerState.Throw;
-                    }
-                    else if (!isRolling && bottomIntersects)
-                    {
-                        playerState = PlayerState.IdleLeft;
-                    }
+                        break;
 
-                    break;
-
-                //Roll Right
-                case PlayerState.RollRight:
-                    isFacingRight = true;
-                    Movement();
-                    if (!bottomIntersects && !isRolling) //not touching ground
-                    {
+                    //Jump Right
+                    case PlayerState.JumpRight:
+                        isFacingRight = true;
+                        Movement(hasGamepad);
                         playerState = PlayerState.Fall;
-                    }
-                    if (kb.IsKeyDown(bindableKb["throw"]))
-                    {
-                        playerState = PlayerState.Throw;
-                    }
-                    else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
-                    {
-                        jumpSound.Play();
-                        playerState = PlayerState.JumpRight;
-                    }
-                    else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
-                    {
-                        playerState = PlayerState.WalkLeft;
-                    }
-                    else if (!isRolling && kb.IsKeyDown(bindableKb["right"]))
-                    {
-                        playerState = PlayerState.WalkRight;
-                    }
-                    else if (!isRolling && bottomIntersects)
-                    {
-                        playerState = PlayerState.IdleRight;
-                    }
-                    break;
-                #endregion
-                //################
+                        break;
+                    #endregion
+                    //################
 
-                //################
-                #region JUMP STATES
-                //Jump Left
-                case PlayerState.JumpLeft:
-                    isFacingRight = false;
-                    Movement();
-                    playerState = PlayerState.Fall;
-                    break;
-
-                //Jump Right
-                case PlayerState.JumpRight:
-                    isFacingRight = true;
-                    Movement();
-                    playerState = PlayerState.Fall;
-                    break;
-                #endregion
-                //################
-
-                //################
-                #region FALL STATE
-                //Fall 
-                case PlayerState.Fall:
-                    Movement();
-                    if (debugEnemyCollision && isFacingRight)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    else if (debugEnemyCollision && !isFacingRight)
-                    {
-                        playerState = PlayerState.Die;
-                    }
-                    else
-                    {
-                        //can throw mid air
-                        if (kb.IsKeyDown(bindableKb["throw"]))
+                    //################
+                    #region FALL STATE
+                    //Fall 
+                    case PlayerState.Fall:
+                        Movement(hasGamepad);
+                        if (debugEnemyCollision && isFacingRight)
                         {
-                            playerState = PlayerState.Throw;
+                            playerState = PlayerState.Die;
                         }
-                        //can jump twice while falling, unless carrying the other player
-                        else if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
+                        else if (debugEnemyCollision && !isFacingRight)
                         {
-                            jumpSound.Play();
-                            if (kb.IsKeyDown(bindableKb["right"]))
+                            playerState = PlayerState.Die;
+                        }
+                        else
+                        {
+                            //can throw mid air
+                            if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
                             {
-                                playerState = PlayerState.JumpRight; //jump right if trying to move right
+                                playerState = PlayerState.Throw;
                             }
-                            else if (kb.IsKeyDown(bindableKb["left"]))
+                            //can jump twice while falling, unless carrying the other player
+                            else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && jumpCount <= 1 && !carrying)
                             {
-                                playerState = PlayerState.JumpLeft; //jump left if trying to move left
+                                jumpSound.Play();
+                                if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                                {
+                                    playerState = PlayerState.JumpRight; //jump right if trying to move right
+                                }
+                                else if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                                {
+                                    playerState = PlayerState.JumpLeft; //jump left if trying to move left
+                                }
+                                //if no button is pressed, jump based on direction player is facing
+                                else if (isFacingRight)
+                                {
+                                    playerState = PlayerState.JumpRight;
+                                }
+                                else
+                                {
+                                    playerState = PlayerState.JumpLeft;
+                                }
                             }
-                            //if no button is pressed, jump based on direction player is facing
+                            if ((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !hasRolledInAir && !carrying)
+                            {
+                                rollSound.Play();
+                                rollInAir = true;
+                                if (isFacingRight)
+                                {
+                                    playerState = PlayerState.RollRight;
+                                }
+                                else
+                                {
+                                    playerState = PlayerState.RollLeft;
+                                }
+                            }
+                            if ((SingleKeyPress(bindableKb["downDash"]) || GamepadDownDash()) && !carrying)
+                            {
+                                downDashSound.Play();
+                                playerState = PlayerState.DownDash;
+                            }
+                        }
+
+                        //adjust delays to determine how long delay is for downdash
+                        downDashDelay = 13;
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region DOWNDASH
+                    case PlayerState.DownDash:
+                        if (debugEnemyCollision && shouldBounce)
+                        {
+                            if (isFacingRight)
+                            {
+                                playerState = PlayerState.BounceRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.BounceLeft;
+                            }
+                        }
+                        Movement(hasGamepad); //movement is after to prevent player from touching ground during downdash if they touch an enemy
+
+                        //Implement interaction with enemy here
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region BOUNCE STATES
+                    //Bounce Left
+                    case PlayerState.BounceLeft:
+                        Movement(hasGamepad);
+                        break;
+
+                    //Bounce Right
+                    case PlayerState.BounceRight:
+                        Movement(hasGamepad);
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region CARRY/CARRIED STATES
+                    case PlayerState.Carried:
+
+                        jumpBoost = true;
+
+                        //The carried player can only jump
+                        if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                        {
+                            inCarry = false;
+                            if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
                             else if (isFacingRight)
                             {
                                 playerState = PlayerState.JumpRight;
@@ -969,177 +1123,565 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.JumpLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying)
+                        break;
+                    case PlayerState.Carrying:
+
+                        carrying = true;
+
+                        //Carrying playey can only move, throw and jump
+                        if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
                         {
-                            rollSound.Play();
-                            rollInAir = true;
-                            if (isFacingRight)
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
+                        {
+                            if (kb.IsKeyDown(bindableKb["left"]))
                             {
-                                playerState = PlayerState.RollRight;
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.JumpRight;
                             }
                             else
                             {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                        }
+                        if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region THROW STATE
+                    case PlayerState.Throw:
+                        Movement(hasGamepad);
+                        if (kb.IsKeyUp(bindableKb["throw"]) && gp.IsButtonUp(Buttons.LeftTrigger))
+                        {
+                            if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                            {
+
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                            {
+
+                            }
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                        }
+                        break;
+                        #endregion
+                        //################
+                }
+            }
+            else
+            {
+                //FSM
+                switch (playerState)
+                {
+                    //##################
+                    #region IDLE STATES
+                    //##################
+                    //Idle Left
+                    case PlayerState.IdleLeft:
+                        isFacingRight = false;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
+
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]))
+                            {
+                                rollSound.Play();
                                 playerState = PlayerState.RollLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
+                        break;
+
+                    //Idle Right
+                    case PlayerState.IdleRight:
+                        isFacingRight = true;
+                        if (debugEnemyCollision)
                         {
-                            downDashSound.Play();
-                            playerState = PlayerState.DownDash;
+                            playerState = PlayerState.Die;
                         }
-                    }
+                        Movement(hasGamepad);
 
-                    //adjust delays to determine how long delay is for downdash
-                    downDashDelay = 13;
-                    break;
-                #endregion
-                //################
-
-                //################
-                #region DOWNDASH
-                case PlayerState.DownDash:
-                    if (debugEnemyCollision && shouldBounce)
-                    {
-                        if (isFacingRight)
+                        if (!debugEnemyCollision)
                         {
-                            playerState = PlayerState.BounceRight;
+                            if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollRight;
+                            }
                         }
-                        else
+                        break;
+
+                    #endregion
+                    //################
+
+                    //################
+                    #region WALK STATES
+                    //Walk Left
+                    case PlayerState.WalkLeft:
+                        isFacingRight = false;
+                        if (debugEnemyCollision)
                         {
-                            playerState = PlayerState.BounceLeft;
+                            playerState = PlayerState.Die;
                         }
-                    }
-                    Movement(); //movement is after to prevent player from touching ground during downdash if they touch an enemy
+                        Movement(hasGamepad);
 
-                    //Implement interaction with enemy here
-                    break;
-                #endregion
-                //################
-
-                //################
-                #region BOUNCE STATES
-                //Bounce Left
-                case PlayerState.BounceLeft:
-                    Movement();
-                    break;
-
-                //Bounce Right
-                case PlayerState.BounceRight:
-                    Movement();
-                    break;
-                #endregion
-                //################
-
-                //################
-                #region CARRY/CARRIED STATES
-                case PlayerState.Carried:
-
-                    jumpBoost = true;
-
-                    //The carried player can only jump
-                    if (SingleKeyPress(bindableKb["jump"]))
-                    {
-                        inCarry = false;
-                        if (kb.IsKeyDown(bindableKb["left"]))
+                        if (!debugEnemyCollision)
                         {
+                            if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyUp(bindableKb["left"])) //stop moving left
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollLeft;
+                            }
+                            if (!bottomIntersects) //not touching ground
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
+                    //Walk Right
+                    case PlayerState.WalkRight:
+                        isFacingRight = true;
+                        if (debugEnemyCollision)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        Movement(hasGamepad);
+
+
+                        if (!debugEnemyCollision)
+                        {
+                            if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            else if (SingleKeyPress(bindableKb["jump"]))
+                            {
+                                jumpSound.Play();
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (kb.IsKeyUp(bindableKb["right"])) //stop moving right
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"])) //moving left
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else if (SingleKeyPress(bindableKb["roll"]))
+                            {
+                                rollSound.Play();
+                                playerState = PlayerState.RollRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            if (!bottomIntersects) //not touching ground
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region ROLL STATES
+                    //Roll Left
+                    case PlayerState.RollLeft:
+                        isFacingRight = false;
+                        Movement(hasGamepad);
+                        if (!bottomIntersects && !isRolling) //not touching ground
+                        {
+                            playerState = PlayerState.Fall;
+                        }
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        else if (!isRolling && kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
+                        {
+                            jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
                         }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
+                        else if (kb.IsKeyDown(bindableKb["throw"]))
                         {
-                            playerState = PlayerState.JumpRight;
+                            playerState = PlayerState.Throw;
                         }
-                        else if (isFacingRight)
-                        {
-                            playerState = PlayerState.JumpRight;
-                        }
-                        else
-                        {
-                            playerState = PlayerState.JumpLeft;
-                        }
-                    }
-                    break;
-                case PlayerState.Carrying:
-
-                    carrying = true;
-
-                    //Carrying playey can only move, throw and jump
-                    if (kb.IsKeyDown(bindableKb["throw"]))
-                    {
-                        playerState = PlayerState.Throw;
-                    }
-                    else if (SingleKeyPress(bindableKb["jump"]))
-                    {
-                        if (kb.IsKeyDown(bindableKb["left"]))
-                        {
-                            playerState = PlayerState.JumpLeft;
-                        }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
-                        {
-                            playerState = PlayerState.JumpRight;
-                        }
-                        else if (isFacingRight)
-                        {
-                            playerState = PlayerState.JumpRight;
-                        }
-                        else
-                        {
-                            playerState = PlayerState.JumpLeft;
-                        }
-                    }
-                    if (kb.IsKeyDown(bindableKb["left"]))
-                    {
-                        playerState = PlayerState.WalkLeft;
-                    }
-                    if (kb.IsKeyDown(bindableKb["right"]))
-                    {
-                        playerState = PlayerState.WalkRight;
-                    }
-                    break;
-                #endregion
-                //################
-
-                //################
-                #region THROW STATE
-                case PlayerState.Throw:
-                    Movement();
-                    if (kb.IsKeyUp(bindableKb["throw"]))
-                    {
-                        if (kb.IsKeyDown(bindableKb["left"]))
-                        {
-
-                        }
-                        else if (kb.IsKeyDown(bindableKb["right"]))
-                        {
-
-                        }
-                        else if (isFacingRight)
-                        {
-                            playerState = PlayerState.IdleRight;
-                        }
-                        else
+                        else if (!isRolling && bottomIntersects)
                         {
                             playerState = PlayerState.IdleLeft;
                         }
-                    }
-                    break;
+
+                        break;
+
+                    //Roll Right
+                    case PlayerState.RollRight:
+                        isFacingRight = true;
+                        Movement(hasGamepad);
+                        if (!bottomIntersects && !isRolling) //not touching ground
+                        {
+                            playerState = PlayerState.Fall;
+                        }
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
+                        {
+                            jumpSound.Play();
+                            playerState = PlayerState.JumpRight;
+                        }
+                        else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        else if (!isRolling && kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        else if (!isRolling && bottomIntersects)
+                        {
+                            playerState = PlayerState.IdleRight;
+                        }
+                        break;
                     #endregion
-                //################
+                    //################
+
+                    //################
+                    #region JUMP STATES
+                    //Jump Left
+                    case PlayerState.JumpLeft:
+                        isFacingRight = false;
+                        Movement(hasGamepad);
+                        playerState = PlayerState.Fall;
+                        break;
+
+                    //Jump Right
+                    case PlayerState.JumpRight:
+                        isFacingRight = true;
+                        Movement(hasGamepad);
+                        playerState = PlayerState.Fall;
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region FALL STATE
+                    //Fall 
+                    case PlayerState.Fall:
+                        Movement(hasGamepad);
+                        if (debugEnemyCollision && isFacingRight)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        else if (debugEnemyCollision && !isFacingRight)
+                        {
+                            playerState = PlayerState.Die;
+                        }
+                        else
+                        {
+                            //can throw mid air
+                            if (kb.IsKeyDown(bindableKb["throw"]))
+                            {
+                                playerState = PlayerState.Throw;
+                            }
+                            //can jump twice while falling, unless carrying the other player
+                            else if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
+                            {
+                                jumpSound.Play();
+                                if (kb.IsKeyDown(bindableKb["right"]))
+                                {
+                                    playerState = PlayerState.JumpRight; //jump right if trying to move right
+                                }
+                                else if (kb.IsKeyDown(bindableKb["left"]))
+                                {
+                                    playerState = PlayerState.JumpLeft; //jump left if trying to move left
+                                }
+                                //if no button is pressed, jump based on direction player is facing
+                                else if (isFacingRight)
+                                {
+                                    playerState = PlayerState.JumpRight;
+                                }
+                                else
+                                {
+                                    playerState = PlayerState.JumpLeft;
+                                }
+                            }
+                            if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying)
+                            {
+                                rollSound.Play();
+                                rollInAir = true;
+                                if (isFacingRight)
+                                {
+                                    playerState = PlayerState.RollRight;
+                                }
+                                else
+                                {
+                                    playerState = PlayerState.RollLeft;
+                                }
+                            }
+                            if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
+                            {
+                                downDashSound.Play();
+                                playerState = PlayerState.DownDash;
+                            }
+                        }
+
+                        //adjust delays to determine how long delay is for downdash
+                        downDashDelay = 13;
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region DOWNDASH
+                    case PlayerState.DownDash:
+                        if (debugEnemyCollision && shouldBounce)
+                        {
+                            if (isFacingRight)
+                            {
+                                playerState = PlayerState.BounceRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.BounceLeft;
+                            }
+                        }
+                        Movement(hasGamepad); //movement is after to prevent player from touching ground during downdash if they touch an enemy
+
+                        //Implement interaction with enemy here
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region BOUNCE STATES
+                    //Bounce Left
+                    case PlayerState.BounceLeft:
+                        Movement(hasGamepad);
+                        break;
+
+                    //Bounce Right
+                    case PlayerState.BounceRight:
+                        Movement(hasGamepad);
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region CARRY/CARRIED STATES
+                    case PlayerState.Carried:
+
+                        jumpBoost = true;
+
+                        //The carried player can only jump
+                        if (SingleKeyPress(bindableKb["jump"]))
+                        {
+                            inCarry = false;
+                            if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                        }
+                        break;
+                    case PlayerState.Carrying:
+
+                        carrying = true;
+
+                        //Carrying playey can only move, throw and jump
+                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        {
+                            playerState = PlayerState.Throw;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
+                        {
+                            if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.JumpRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.JumpLeft;
+                            }
+                        }
+                        if (kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        if (kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        break;
+                    #endregion
+                    //################
+
+                    //################
+                    #region THROW STATE
+                    case PlayerState.Throw:
+                        Movement(hasGamepad);
+                        if (kb.IsKeyUp(bindableKb["throw"]))
+                        {
+                            if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+
+                            }
+                            else if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+
+                            }
+                            else if (isFacingRight)
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                        }
+                        break;
+                        #endregion
+                        //################
+                }
             }
+
             #endregion
             //################
         }
         /// <summary>
         /// Calls accelerate/decelerate methods based on FSM state, the direction is accounted for in the methods
         /// </summary>
-        public void Movement()
+        public void Movement(bool hasGamepad)
         {
-            if (kb.IsKeyUp(bindableKb["left"]) && kb.IsKeyUp(bindableKb["right"]) && verticalVelocity == 0)
+            if (hasGamepad)
             {
-                bool temp = isFacingRight;
-                isFacingRight = !isFacingRight;
-                Decelerate(horizontalVelocity, 1, 0, false);
-                isFacingRight = temp;
+                if (((kb.IsKeyUp(bindableKb["left"]) && !GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && verticalVelocity == 0))
+                {
+                    bool temp = isFacingRight;
+                    isFacingRight = !isFacingRight;
+                    Decelerate(horizontalVelocity, 1, 0, false);
+                    isFacingRight = temp;
+                }
+
             }
+            else
+            {
+                if ((kb.IsKeyUp(bindableKb["left"]) && kb.IsKeyUp(bindableKb["right"])) && verticalVelocity == 0)
+                {
+                    bool temp = isFacingRight;
+                    isFacingRight = !isFacingRight;
+                    Decelerate(horizontalVelocity, 1, 0, false);
+                    isFacingRight = temp;
+                }
+            }
+ 
 
             //Idle
             if (playerState == PlayerState.IdleLeft || playerState == PlayerState.IdleRight)
@@ -1181,11 +1723,23 @@ namespace Party_Tower_Main
                 bounceLockout = false;
                 isRolling = true;
                 Accelerate(horizontalVelocity, 6, 18, false);
-                if (SingleKeyPress(bindableKb["jump"]))
+                if (hasGamepad)
                 {
-                    isRolling = false;
-                    rollDelay = 30;
+                    if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                    {
+                        isRolling = false;
+                        rollDelay = 30;
+                    }
                 }
+                else
+                {
+                    if (SingleKeyPress(bindableKb["jump"]))
+                    {
+                        isRolling = false;
+                        rollDelay = 30;
+                    }
+                }
+
                 if (!bottomIntersects && !rollInAir) //mimic gravity while rolling
                 {
                     Accelerate(verticalVelocity, 2, 30, true);
@@ -1209,22 +1763,45 @@ namespace Party_Tower_Main
                     }
                     rollInAir = false;
                     rollDelay = 30;
-                    if (SingleKeyPress((bindableKb["left"])))
+                    if (hasGamepad)
                     {
-                        playerState = PlayerState.WalkLeft;
+                        if (kb.IsKeyDown((bindableKb["left"])) || GamepadLeft())
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        else if (!isFacingRight)
+                        {
+                            playerState = PlayerState.IdleLeft;
+                        }
+                        else if (isFacingRight)
+                        {
+                            playerState = PlayerState.IdleRight;
+                        }
                     }
-                    else if (SingleKeyPress((bindableKb["right"])))
+                    else
                     {
-                        playerState = PlayerState.WalkRight;
+                        if (kb.IsKeyDown(bindableKb["left"]))
+                        {
+                            playerState = PlayerState.WalkLeft;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["right"]))
+                        {
+                            playerState = PlayerState.WalkRight;
+                        }
+                        else if (!isFacingRight)
+                        {
+                            playerState = PlayerState.IdleLeft;
+                        }
+                        else if (isFacingRight)
+                        {
+                            playerState = PlayerState.IdleRight;
+                        }
                     }
-                    else if (!isFacingRight)
-                    {
-                        playerState = PlayerState.IdleLeft;
-                    }
-                    else if (isFacingRight)
-                    {
-                        playerState = PlayerState.IdleRight;
-                    }
+
                 }
             }
             //Jump
@@ -1258,21 +1835,41 @@ namespace Party_Tower_Main
                 bounceLockout = false;
                 //Gravity
                 Accelerate(verticalVelocity, 2, 30, true);
-
-                if (kb.IsKeyDown(bindableKb["left"]))
+                if (hasGamepad)
                 {
-                    //temp used to return isFacingRight to original state
-                    bool temp = isFacingRight;
-                    isFacingRight = false;
-                    Accelerate(horizontalVelocity, 1, 10, false);
-                    isFacingRight = temp;
+                    if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
+                    {
+                        //temp used to return isFacingRight to original state
+                        bool temp = isFacingRight;
+                        isFacingRight = false;
+                        Accelerate(horizontalVelocity, 1, 10, false);
+                        isFacingRight = temp;
+                    }
+                    if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
+                    {
+                        bool temp = isFacingRight;
+                        isFacingRight = true;
+                        Accelerate(horizontalVelocity, 1, 10, false);
+                        isFacingRight = temp;
+                    }
                 }
-                if (kb.IsKeyDown(bindableKb["right"]))
+                else
                 {
-                    bool temp = isFacingRight;
-                    isFacingRight = true;
-                    Accelerate(horizontalVelocity, 1, 10, false);
-                    isFacingRight = temp;
+                    if (kb.IsKeyDown(bindableKb["left"]))
+                    {
+                        //temp used to return isFacingRight to original state
+                        bool temp = isFacingRight;
+                        isFacingRight = false;
+                        Accelerate(horizontalVelocity, 1, 10, false);
+                        isFacingRight = temp;
+                    }
+                    if (kb.IsKeyDown(bindableKb["right"]))
+                    {
+                        bool temp = isFacingRight;
+                        isFacingRight = true;
+                        Accelerate(horizontalVelocity, 1, 10, false);
+                        isFacingRight = temp;
+                    }
                 }
             }
             //Down-dash
@@ -1355,6 +1952,86 @@ namespace Party_Tower_Main
                 return false;
             }
         }
+        //###############
+        #region GAMEPAD METHODS
+            /// <summary>
+            /// Check if a button has been pressed for this frame only
+            /// </summary>
+            /// <param name="pressedButton"></param>
+            /// <returns></returns>
+        public bool SingleButtonPress(Buttons pressedButton)
+        {
+            if (gp.IsButtonDown(pressedButton) && previousGp.IsButtonUp(pressedButton))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move left with dpad/leftThumbstick
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadLeft()
+        {
+            if (gp.ThumbSticks.Left.X < -0.5f || gp.IsButtonDown(Buttons.DPadLeft))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move right with dpad/leftThumbstick
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadRight()
+        {
+            if (gp.ThumbSticks.Left.X > 0.5f || gp.IsButtonDown(Buttons.DPadRight))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// Hold down down directional and press x to downdash (This is used for downdash)
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadDownDash()
+        {
+            if ((gp.ThumbSticks.Left.Y < -0.5f || gp.IsButtonDown(Buttons.DPadDown)) && SingleButtonPress(Buttons.X))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move Up with dpad/leftThumbstick, no current use since A is used to jump
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadUp()
+        {
+            if (gp.ThumbSticks.Left.Y > 0.5f || gp.IsButtonDown(Buttons.DPadUp))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion
+        //###############
 
 
         /// <summary>

@@ -54,6 +54,7 @@ namespace Party_Tower_Main
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        //Shared keyboard
         KeyboardState kb;
         KeyboardState previousKb;
 
@@ -67,7 +68,17 @@ namespace Party_Tower_Main
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
 
+        //Gamepad Support
+        GamePadCapabilities capabilities1;
+        GamePadCapabilities capabilities2;
 
+        GamePadState previousGp1;
+        GamePadState gp1;
+        bool workingGamepad1;
+
+        GamePadState previousGp2;
+        GamePadState gp2;
+        bool workingGamepad2;
 
         #endregion
 
@@ -94,13 +105,19 @@ namespace Party_Tower_Main
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, 32, cameraLimiters.MaxWidthDistance);      // Dummy Values that need changed
 
             players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 75, 75), Color.White, Content);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 75, 75), Color.Red, Content);
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 75, 75), Color.White, Content,0);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 75, 75), Color.Red, Content,1);
 
             players.Add(playerOne);
             players.Add(playerTwo);
 
             bothPlayersDead = false;
+
+            previousGp1 = new GamePadState();
+            gp1 = new GamePadState();
+
+            previousGp2 = new GamePadState();
+            gp2 = new GamePadState();
 
             base.Initialize();
         }
@@ -140,6 +157,38 @@ namespace Party_Tower_Main
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            previousKb = kb;
+            kb = Keyboard.GetState();
+
+            capabilities1 = GamePad.GetCapabilities(PlayerIndex.One);
+            capabilities2 = GamePad.GetCapabilities(PlayerIndex.Two);
+
+            //check if there is player one controller
+            if (capabilities1.IsConnected)
+            {
+                if (!capabilities2.IsConnected) //if there is only 1 controller connected
+                {
+                    workingGamepad2 = false;
+                }
+                workingGamepad1 = true;
+                previousGp1 = gp1;
+                gp1 = GamePad.GetState(PlayerIndex.One);
+            }
+
+            //check if there is a player two controller
+            if (capabilities2.IsConnected) //finish trying to get controller support to not crash, keep in mind possibility of only one controller
+            {
+                if (!capabilities1.IsConnected) //if there is only 1 controller connected
+                {
+                    workingGamepad1 = false;
+                }
+                workingGamepad2 = true;
+                previousGp2 = gp2;
+                gp2 = GamePad.GetState(PlayerIndex.Two);
+            }
+
+
+
             UpdateGameState();
 
             //Write logic for each gameState in here
@@ -149,9 +198,21 @@ namespace Party_Tower_Main
                     if (!paused) //do normal stuff
                     {
                         //adjust states and movement of both players
-                        foreach(Player currentPlayer in players)
+                        if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
                         {
-                            currentPlayer.FiniteState();
+                            playerOne.FiniteState(true);
+                        }
+                        else //no controller (so check keyboard input)
+                        {
+                            playerOne.FiniteState(false);
+                        }
+                        if (workingGamepad2) //check if working gamepad, and call corresponding finitestate
+                        {
+                            playerTwo.FiniteState(true);
+                        }
+                        else //no controller (so check keyboard input)
+                        {
+                            playerTwo.FiniteState(false);
                         }
 
                         //Player(s) dying
@@ -327,9 +388,30 @@ namespace Party_Tower_Main
                     break;
             }
         }
+        /// <summary>
+        /// Check if a key has been pressed for this frame only
+        /// </summary>
+        /// <param name="pressedKey"></param>
+        /// <returns></returns>
         public bool SingleKeyPress(Keys pressedKey)
         {
             if (kb.IsKeyDown(pressedKey) && previousKb.IsKeyUp(pressedKey))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// check if a button has been pressed for this frame only
+        /// </summary>
+        /// <param name="pressedButton"></param>
+        /// <returns></returns>
+        public bool SingleButtonPress(Buttons pressedButton)
+        {
+            if (gp1.IsButtonDown(pressedButton) && previousGp1.IsButtonUp(pressedButton))
             {
                 return true;
             }
