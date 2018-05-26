@@ -90,17 +90,22 @@ namespace Party_Tower_Main
             // TODO: Add your initialization logic here
 
             gameState = GameState.Menu;
-            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, new Rectangle(0, 0, 64, 64));
-            camera = new Dynamic_Camera(GraphicsDevice.Viewport, 32, cameraLimiters.MaxWidthDistance);      // Dummy Values that need changed
+
+            #region Player-Initalization
 
             players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 75, 75), Color.White, Content);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 75, 75), Color.Red, Content);
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
 
             players.Add(playerOne);
             players.Add(playerTwo);
 
             bothPlayersDead = false;
+
+            #endregion Player-Initalization
+
+            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
+            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance);
 
             base.Initialize();
         }
@@ -270,10 +275,6 @@ namespace Party_Tower_Main
                     {
                         gameState = GameState.Menu;
                     }
-                    break;
-
-                    //Do we need this?
-                case GameState.LoadLevel:
                     break;
 
             }

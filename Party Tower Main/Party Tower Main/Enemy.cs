@@ -35,12 +35,15 @@ namespace Party_Tower_Main
     }
     class Enemy : GameObject
     {
+
+        #region Fields
+
         // Stuff for enemy pathing
         private Rectangle enemyVision;
         private int visionStandard;
 
         // In the instance enemy's respawn or level restarts if both players die at once
-        private Vector2 enemySpawn; 
+        private Point enemySpawn; 
 
         //Determines if enemy needs drawn
         private bool enemyVisible = false;
@@ -50,20 +53,6 @@ namespace Party_Tower_Main
         private EnemyState enemyState;
         private EnemyState previousEnemyState;
 
-        //Hitpoints
-        private int hitpoints;
-
-        public int Hitpoints
-        {
-            get { return hitpoints; }
-            set { hitpoints = value; }
-        }
-
-        public Enemy()
-        {
-            hitpoints = 3;
-        }
-
         //Sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
         SoundEffect deathSound;
@@ -71,6 +60,32 @@ namespace Party_Tower_Main
         SoundEffect fallSound;
         SoundEffect jumpSound;
         SoundEffect walkSound;
+
+        //Hitpoints
+        private int hitpoints;
+
+        #endregion Fields
+
+        #region Properties
+
+        public int Hitpoints
+        {
+            get { return hitpoints; }
+            set { hitpoints = value; }
+        }
+
+        #endregion Properties
+
+        #region Constructor
+
+        public Enemy()
+        {
+            hitpoints = 3;
+        }
+
+        #endregion Constructor
+
+        #region Methods
 
         public override void CheckColliderAgainstPlayer(Player p)
         {
@@ -100,13 +115,23 @@ namespace Party_Tower_Main
         }
 
         /// <summary>
-        /// Dummy method to update enemy vision. May not need. We'll see
+        /// Use if Enemy has had position drastically changed (IE: Reset)
         /// </summary>
         /// <param name="newPos"></param>
-        private void NewEnemyVision(Vector2 newPos)
+        private void NewEnemyVision()
         {
             enemyVision = new Rectangle(X - visionStandard, Y - visionStandard,
                 Width + (visionStandard * 2), Height + (visionStandard * 2));
         }
+
+        public void EnemyHardReset()
+        {
+            hitpoints = 3;
+            enemyState = EnemyState.IdleRight;
+            hitbox.Location = enemySpawn;
+            NewEnemyVision();
+        }
+
+        #endregion Methods
     }
 }
