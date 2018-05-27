@@ -240,13 +240,15 @@ namespace Party_Tower_Main
 
             respawnTimer = new Timer(3);    // 3 seconds for respawn to occur
 
+            //commented out for now
             //sound
+            /*
             bounceSound = myContent.Load<SoundEffect>("bounce");
             coinSound = myContent.Load<SoundEffect>("coin");
             downDashSound = myContent.Load<SoundEffect>("downdash");
             jumpSound = myContent.Load<SoundEffect>("jump");
             rollSound = myContent.Load<SoundEffect>("roll");
-            walkSound = myContent.Load<SoundEffect>("walk");
+            walkSound = myContent.Load<SoundEffect>("walk");*/
 
             this.playerIndexForGamepad = playerIndexForGamepad;
         }

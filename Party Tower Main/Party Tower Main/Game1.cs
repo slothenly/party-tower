@@ -85,6 +85,11 @@ namespace Party_Tower_Main
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            
+            //temporary
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
             soundEffects = new List<SoundEffect>();
             gameSongs = new List<Song>();
@@ -102,21 +107,9 @@ namespace Party_Tower_Main
 
             gameState = GameState.Menu;
 
-            #region Player-Initalization
-
-            players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content,0);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content,1);
-
-            players.Add(playerOne);
-            players.Add(playerTwo);
-
             bothPlayersDead = false;
 
-            #endregion Player-Initalization
 
-            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
-            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance);
 
             previousGp1 = new GamePadState();
             gp1 = new GamePadState();
@@ -139,6 +132,37 @@ namespace Party_Tower_Main
             //Placeholder textures for now
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
+
+            //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
+            #region Player-Initalization
+            players = new List<Player>();
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content, 0);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content, 1);
+
+            playerOne.BindableKb.Add("left", Keys.A);
+            playerOne.BindableKb.Add("right", Keys.D);
+            playerOne.BindableKb.Add("jump", Keys.Space);
+            playerOne.BindableKb.Add("roll", Keys.LeftShift);
+            playerOne.BindableKb.Add("downDash", Keys.S);
+            playerOne.BindableKb.Add("pause", Keys.P);
+            playerOne.BindableKb.Add("throw", Keys.C);
+
+            playerTwo.BindableKb.Add("left", Keys.Left);
+            playerTwo.BindableKb.Add("right", Keys.Right);
+            playerTwo.BindableKb.Add("jump", Keys.Up);
+            playerTwo.BindableKb.Add("roll", Keys.RightControl);
+            playerTwo.BindableKb.Add("downDash", Keys.Down);
+            playerTwo.BindableKb.Add("pause", Keys.P);
+            playerTwo.BindableKb.Add("throw", Keys.RightShift);
+
+            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
+            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance);
+
+            coopManager = new Coop_Manager(playerOne, playerTwo);
+
+            players.Add(playerOne);
+            players.Add(playerTwo);
+            #endregion Player-Initalization
 
             // TODO: use this.Content to load your game content here
         }
@@ -279,8 +303,6 @@ namespace Party_Tower_Main
         /// <returns></returns>
         private void UpdateGameState()
         {
-            previousKb = kb;
-            kb = Keyboard.GetState();
             switch (gameState)
             {
                 case GameState.Menu:
@@ -362,7 +384,13 @@ namespace Party_Tower_Main
 
                 case GameState.Game:
                     spriteBatch.Begin();
-                    // GameLoop.DrawElements;
+                    //Drawing each player
+                    foreach(Player currentPlayer in players)
+                    {
+                        currentPlayer.Draw(spriteBatch);
+                    }
+                    //a random rectangle, for testing onyl
+                    spriteBatch.Draw(playerOneTexture, new Rectangle(500, 500, 500, 500), Color.Black);
                     spriteBatch.End();
                     break;
 
