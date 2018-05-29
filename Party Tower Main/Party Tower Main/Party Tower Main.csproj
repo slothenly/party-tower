@@ -45,6 +45,7 @@
     <Compile Include="Collectible.cs" />
     <Compile Include="Coop Manager.cs" />
     <Compile Include="Dynamic-Camera.cs" />
+    <Compile Include="Enemy.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="Location.cs" />
