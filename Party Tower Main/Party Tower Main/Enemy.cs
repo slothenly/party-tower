@@ -18,8 +18,6 @@ namespace Party_Tower_Main
     enum EnemyWalkingState
     {
         Idle,               // Enemy is doing nothing     
-        Roaming,            // Enemy is randomly walking about
-        PreFollow,          // Enemy is following a pre-Set path
         Follow              // Enemy is using A* to walk toward the player
     }
     enum EnemyState
@@ -32,6 +30,11 @@ namespace Party_Tower_Main
 
         Fall,
         Die
+    }
+    enum EnemyType
+    {
+        Stationary,
+        Walking
     }
     class Enemy : GameObject
     {
@@ -48,10 +51,15 @@ namespace Party_Tower_Main
         //Determines if enemy needs drawn
         private bool enemyVisible = false;
 
+        //Determines if player and enemy collided.
+        private bool hurtPlayer = false;
+
         //Directionality and FSM
         private bool isFacingRight;
         private EnemyState enemyState;
         private EnemyState previousEnemyState;
+        private EnemyWalkingState walkingState;
+        private EnemyType type;
 
         //Sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
@@ -90,6 +98,23 @@ namespace Party_Tower_Main
         public override void CheckColliderAgainstPlayer(Player p)
         {
             throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Updates the Enemy Appropriately
+        /// </summary>
+        /// <param name="pM"></param>
+        public void UpdateEnemy()
+        {
+            previousEnemyState = enemyState;
+        }
+
+        /// <summary>
+        /// Used to determine where Walking Enemy should move to. 
+        /// </summary>
+        /// <param name="target"></param>
+        private void GoToPoint(Vector2 target)
+        {
+
         }
 
 
