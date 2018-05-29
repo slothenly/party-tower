@@ -49,7 +49,8 @@ namespace Party_Tower_Main
 
         bool bothPlayersDead; //used to determine if game over
 
-
+        CameraLimiters cameraLimiters;
+        Dynamic_Camera camera;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -62,13 +63,6 @@ namespace Party_Tower_Main
         Player playerTwo;
         List<Player> players;
         Coop_Manager coopManager;
-
-        //Enemy Fields
-        PathManager pathManager;
-
-        //Shared Fields
-        CameraLimiters cameraLimiters;
-        Dynamic_Camera camera;
 
 
         Texture2D playerOneTexture;
@@ -161,10 +155,10 @@ namespace Party_Tower_Main
             playerTwo.BindableKb.Add("pause", Keys.P);
             playerTwo.BindableKb.Add("throw", Keys.RightShift);
 
-            coopManager = new Coop_Manager(playerOne, playerTwo);
-            pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
-            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
+            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance);
+
+            coopManager = new Coop_Manager(playerOne, playerTwo);
 
             players.Add(playerOne);
             players.Add(playerTwo);

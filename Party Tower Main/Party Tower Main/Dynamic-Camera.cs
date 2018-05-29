@@ -17,8 +17,6 @@ namespace Party_Tower_Main
         private Matrix transform;                   // Transform matrix
         private Vector2 cameraCenter;               // Center of the Camera
         private Rectangle resolutionBounds;         // Resolution of the Current Chosen Screen
-        private int updateAreaStandard;             // Standard which is used to create the Update Rectangle
-        private Rectangle updateRectangle;          // Rectangle that determines what non-player objects get updated in game
         private Rectangle visibleArea;              // Actual Visible Area of the screen as a Rectangle
         private Texture2D visibleTexture;           // Testable Textures used to make sure the visibleArea is actually the Visible Area
         private float scaleCorrectly;               // Added amount of distance to properly scale the camera with both players within it's bounds
@@ -43,12 +41,10 @@ namespace Party_Tower_Main
         /// <param name="view"></param>
         /// <param name="scaleableAmount"> Equivelant to the width (or height) of the player since they are the same in a 64 x 64 box </param>
         /// <param name="maxWidthDistance"> Equivelant to the maxWidth from CameraLimiter </param>
-        /// <param name="updateAreaStandard"> Equivelant to the widthConstant from PathManager </param>
-        public Dynamic_Camera(Viewport view, int scaleableAmount, int maxWidthDistance, int updateAreaStandard)
+        public Dynamic_Camera(Viewport view, int scaleableAmount, int maxWidthDistance)
         {
             resolutionBounds = view.Bounds;
             scaleCorrectly = scaleableAmount;
-            this.updateAreaStandard = updateAreaStandard;
             zoom = 1.0f;
             minZoom = resolutionBounds.Width / (scaleCorrectly + maxWidthDistance); // Should be .75 if we're using 1/6 the screen of each side
             maxZoom = 1f;
@@ -186,8 +182,6 @@ namespace Party_Tower_Main
                  MathHelper.Max(topL.Y, MathHelper.Max(topR.Y, MathHelper.Max(botL.Y, botL.Y))));
 
             visibleArea = new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
-            updateRectangle = new Rectangle(visibleArea.X - (3 * updateAreaStandard), visibleArea.Y - (3 * updateAreaStandard),
-                    visibleArea.Width + (updateAreaStandard * 6), visibleArea.Height + (updateAreaStandard * 6));
         }
 
         /// <summary>
@@ -250,27 +244,13 @@ namespace Party_Tower_Main
         }
 
         /// <summary>
-        /// Determines if a GameObject should be drawn to the screen
+        /// Determines if a GameObject should be updated and drawn to the screen
         /// </summary>
         /// <param name="position"> Position of the GameObject being checked</param>
-        /// <returns> True = Draw Object / False = Do Not Draw Object </returns>
+        /// <returns> True = Update and Draw Object / False = Do Not Update or Draw Object </returns>
         public bool IsDrawn(Rectangle position) 
         {
             if (visibleArea.Intersects(position))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Determines if a GameObject should be updated to the screen
-        /// </summary>
-        /// <param name="position"> Position of the GameObject being checked</param>
-        /// <returns> True = Update Object / False = Do Not Update Object </returns>
-        public bool UpdateObject(Rectangle position)
-        {
-            if (updateRectangle.Intersects(position))
             {
                 return true;
             }
