@@ -90,6 +90,7 @@ namespace Party_Tower_Main
         private bool carrying;
         private bool inCarry;
 
+        private Rectangle previousHitbox;
         private Vector2 previousPosition; //positions used to check if the player is going up or down
         private Vector2 position;
 
@@ -176,6 +177,11 @@ namespace Party_Tower_Main
         public PlayerState PreviousPlayerState
         {
             get { return previousPlayerState; }
+        }
+        public Rectangle PreviousHitbox
+        {
+            get { return PreviousHitbox; }
+            set { previousHitbox = value; }
         }
         public bool GoingUp
         {
@@ -647,6 +653,7 @@ namespace Party_Tower_Main
         {
             //previousPosition tracks player from previous frame
             previousPosition = position;
+            previousHitbox = hitbox;
             previousPlayerState = PlayerState;
             position = new Vector2(X, Y); //player position of current frame
 

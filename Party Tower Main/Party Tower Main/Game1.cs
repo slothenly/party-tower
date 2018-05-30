@@ -72,7 +72,8 @@ namespace Party_Tower_Main
         //Shared Fields
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
-
+        Rectangle[] tempRects;
+        Viewport view; //used to update camera
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
@@ -113,6 +114,12 @@ namespace Party_Tower_Main
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            view = new Viewport();
+            view.X = 0;
+            view.Y = 0;
+            view.Width = graphics.PreferredBackBufferWidth;
+            view.Height = graphics.PreferredBackBufferHeight;
 
             gameState = GameState.Menu;
             enemyList = new List<Enemy>(); //when you instantiate any enemy, add it to this list
@@ -247,7 +254,7 @@ namespace Party_Tower_Main
                         }
 
                         //PLAYER MOVEMENT
-                        //adjust states and movement of both players
+                        //first adjust the needed coop manager states, then adjust states and movement of both players
 
                         //One Player Carrying another
                         if (playerOne.DownDashOn(playerTwo) || playerOne.InCarry) //Player one on top
@@ -289,11 +296,34 @@ namespace Party_Tower_Main
 
                         //CAMERA LIMITERS
                         //DO CAMERA LIMITER STUFF HERE, BEFORE COLLISION, THIS WILL JUST OVERRITE MOVEMENT ALREADY DONE
-
-                        //WRITE METHOD IN COOP MANAGER THAT PASSES INFORMATION FROM CAMERA LIMITERS INTO PLAYER THROUGH THIS UPDATE LOOP SO THAT PLAYER IS ADJUSTED CORRECTLY
-                        //ACCORDINGLY TO CAMERA LIMIT/WALLS
+                        tempRects = cameraLimiters.RepositionPlayers(playerOne.Hitbox, playerTwo.Hitbox, playerOne.PreviousHitbox, playerTwo.PreviousHitbox); //get the adjusted rectangles
+                        for (int i = 0; i < 2; i++) 
+                        {
+                            players[i].Hitbox = tempRects[i]; //adjust each hitbox accordingly
+                        }
 
                         //PLAYER/ENEMY COLLISION
+
+                        //might need to optimize this if there are too many enemies
+                        //check player colliding with enemy
+                        foreach (Player currentPlayer in players)
+                        {
+                            foreach (Enemy currentEnemy in enemyList)
+                            {
+                                currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
+                            }
+                        }
+
+                        //check enemy colliding with player
+                        foreach (Enemy currentEnemy in enemyList)
+                        {
+                            foreach (Player currentPlayer in players)
+                            {
+                                currentEnemy.CheckColliderAgainstPlayer(currentPlayer);
+                            }
+
+                        }
+
                         //Player(s) dying
                         if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
                         {
@@ -305,9 +335,11 @@ namespace Party_Tower_Main
                         }
 
                         //UPDATE ENEMY
-                        //UPDATE PLAYER
+                        //UPDATE PLAYER not sure what to exactly update here
 
                         //DYNAMIC CAMERA / UPDATE CAMERA
+                        camera.UpdateCamera(view, playerOne.Hitbox, playerTwo.Hitbox);
+
 
                     }
                     else //paused
