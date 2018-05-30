@@ -88,7 +88,11 @@ namespace Party_Tower_Main
             get { return hitpoints; }
             set { hitpoints = value; }
         }
-
+        public EnemyType Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
         #endregion Properties
 
         #region Constructor

@@ -57,6 +57,9 @@ namespace Party_Tower_Main
         KeyboardState kb;
         KeyboardState previousKb;
 
+        //enemy list
+        List<Enemy> enemyList;
+
         //Player fields
         Player playerOne;
         Player playerTwo;
@@ -112,6 +115,7 @@ namespace Party_Tower_Main
             // TODO: Add your initialization logic here
 
             gameState = GameState.Menu;
+            enemyList = new List<Enemy>(); //when you instantiate any enemy, add it to this list
 
             bothPlayersDead = false;
 
@@ -233,6 +237,14 @@ namespace Party_Tower_Main
                     if (!paused) //do normal stuff
                     {
                         //ENEMY MOVEMENT
+                        foreach (Enemy currentEnemy in enemyList)
+                        {
+                            if (currentEnemy.Type == EnemyType.Alive) //only type of enemy with movement
+                            {
+                                //currentEnemy.FiniteStateFollowing(pathManager.Target);
+                            }
+                            //there shouldn't be any other type of movement
+                        }
 
                         //PLAYER MOVEMENT
                         //adjust states and movement of both players
