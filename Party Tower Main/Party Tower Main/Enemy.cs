@@ -17,7 +17,7 @@ namespace Party_Tower_Main
     /// </summary>
     enum EnemyWalkingState
     {
-        Idle,               // Enemy is doing nothing     
+        Waiting,            // Enemy is doing nothing     
         Follow              // Enemy is using A* to walk toward the player
     }
     enum EnemyState
@@ -28,13 +28,23 @@ namespace Party_Tower_Main
         WalkLeft,
         WalkRight,
 
-        Fall,
+        JumpLeft,
+        JumpRight,
+        JumpStraight,
+
+        FallLeft,
+        FallRight,
+        FallStraight,
+
         Die
     }
+    /// <summary>
+    /// Subject to Change. Two Core Types = Stationary [Static] & Walking
+    /// </summary>
     enum EnemyType
     {
         Stationary,
-        Walking
+        Alive
     }
     class Enemy : GameObject
     {
@@ -47,9 +57,6 @@ namespace Party_Tower_Main
 
         // In the instance enemy's respawn or level restarts if both players die at once
         private Point enemySpawn;
-
-        //Determines if enemy needs drawn
-        private bool enemyVisible = false;
 
         //Determines if player and enemy collided.
         private bool hurtPlayer = false;
@@ -109,42 +116,93 @@ namespace Party_Tower_Main
         }
 
         /// <summary>
-        /// Used to determine where Walking Enemy should move to. 
+        /// Determines the new Finite State of the enemy.
         /// </summary>
         /// <param name="target"></param>
-        private void GoToPoint(Vector2 target)
+        public void FiniteStateFollowing(Vector2 target)
+        {
+
+            if (target.X != hitbox.X && target.Y!= hitbox.Y)
+            {
+
+                // Jump Right
+                if (target.X > hitbox.X && target.Y < hitbox.Y)
+                {
+                    enemyState = EnemyState.JumpRight;
+                }
+
+                // Jump Left
+                else if (target.X < hitbox.X && target.Y < hitbox.Y)
+                {
+                    enemyState = EnemyState.JumpLeft;
+                }
+
+                // Jump Straight Up
+                else if (target.X == hitbox.X && target.Y < hitbox.Y)
+                {
+                    enemyState = EnemyState.JumpStraight;
+                }
+
+                // Fall Right
+                else if (target.X > hitbox.X && target.Y > hitbox.Y)
+                {
+                    enemyState = EnemyState.FallRight;
+                }
+
+                // Fall Left
+                else if (target.X < hitbox.X && target.Y > hitbox.Y)
+                {
+                    enemyState = EnemyState.FallLeft;
+                }
+
+                // Fall Straight Down
+                else if (target.X == hitbox.X && target.Y > hitbox.Y)
+                {
+                    enemyState = EnemyState.FallStraight;
+                }
+
+                // Right Only
+                else if (target.X > hitbox.X && target.Y == hitbox.Y)
+                {
+                    enemyState = EnemyState.WalkRight;
+                }
+
+                // Left Only
+                else 
+                {
+                    enemyState = EnemyState.WalkLeft;
+                }
+
+                FollowMovementLogic(target);
+
+            }
+
+            //Target and Enemy are already at same Position
+            else
+            {
+                if(previousEnemyState == EnemyState.WalkLeft || previousEnemyState == EnemyState.JumpLeft || previousEnemyState == EnemyState.FallLeft || previousEnemyState == EnemyState.IdleLeft)
+                {
+                    enemyState = EnemyState.IdleLeft;
+                }
+                else if(previousEnemyState == EnemyState.WalkRight || previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.FallRight || previousEnemyState == EnemyState.IdleRight)
+                {
+                    enemyState = EnemyState.IdleRight;
+                }
+            } 
+        }
+
+        private void FollowMovementLogic(Vector2 target)
         {
 
         }
 
-
         public override void Draw(SpriteBatch sb)
         {
-            if (hitpoints > 0)
+            if (isDrawn == true && enemyState != EnemyState.Die)
             {
                 sb.Draw(defaultSprite, hitbox, Color.White);
             }
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void FiniteState()
-        {
-            //FILL UP WITH CODE FROM PLAYER LIKE ACCELRATE() AND MOVEMENT()
-        }
-
-        public void IsEnemyVisible(Rectangle visibleArea)
-        {
-            if (hitbox.Intersects(visibleArea))
-            {
-                enemyVisible = true;
-            }
-            else
-            {
-                enemyVisible = false;
-            }
         }
 
         /// <summary>

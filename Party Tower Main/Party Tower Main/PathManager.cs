@@ -17,8 +17,8 @@ namespace Party_Tower_Main
         //fields ------------------------------------------------------------------------
         private List<Location> openList;            // List of unchecked nodes
         private List<Location> closedList;          // List of checked nodes - final path held in here
-        private Vector2 p1Center;                   // Center point of Player 1 that the enemy may need to move to.
-        private Vector2 p2Center;                   // Center point of Player 2 that the enemy may need to move to.
+        private Vector2 p1RealPosition;             // Cordinates of the Player's True Position
+        private Vector2 p2RealPosition;             // Cordinates of the Players True Position
         private Location p1Location;                // Cordinates of the tile that player1 rests in
         private Location p2Location;                // Cordinates of the tile that player2 rests
         private string[] p1Map;                     // Curent Array of Strings that depicts the map of the level with Player 1
@@ -110,8 +110,9 @@ namespace Party_Tower_Main
         /// <param name="player2"> Hitbox of Player 2 </param>
         public void UpdatePlayersOnMap(string[] newMap, Rectangle player1, Rectangle player2)
         {
-            p1Center = new Vector2(player1.Center.X, player1.Center.Y);
-            p2Center = new Vector2(player2.Center.X, player2.Center.Y);
+            // Center point of player
+            Vector2 p1RealPosition = new Vector2(player1.X, player1.Y);
+            Vector2 p2RealPosition = new Vector2(player2.X, player2.Y);
 
             //Records the correct tile cordinates based on the location of the player
             p1Location = new Location { X = (player1.Center.X / widthConstant), Y =  (player1.Center.Y / heightConstant) };
@@ -242,10 +243,11 @@ namespace Party_Tower_Main
             float yReturn;  // Y value of point this Enemy needs to move to
 
             // The next square of which the enemy must move to.
+            // Returns the mid point of the width of tile, and the height of the enemy sprite to set the point to which the enemy should move to.
             if (closedList.Count > 1)
             {
                 xReturn = closedList[1].X * widthConstant + (widthConstant / 2);
-                yReturn = closedList[1].Y * heightConstant + (heightConstant / 2);
+                yReturn = closedList[1].Y * heightConstant + (heightConstant - e.Height);
                 return new Vector2(xReturn, yReturn);
             }
 
@@ -254,11 +256,11 @@ namespace Party_Tower_Main
             // This instance of A* used P2, so travel to the center of Player 2
             if (!usePlayer1)
             {
-                return p2Center;
+                return p2RealPosition;
             }
 
             // This instance of A* used P1, so travel to the center of Player 1
-            return p1Center;
+            return p1RealPosition;
         }
 
         /// <summary>

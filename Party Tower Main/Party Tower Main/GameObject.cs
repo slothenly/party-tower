@@ -16,6 +16,7 @@ namespace Party_Tower_Main
             protected Texture2D defaultSprite;
             protected int drawLevel;
             protected bool isActive;
+            protected bool isDrawn;
             protected bool hasGravity;
 
             /// <summary>
@@ -81,6 +82,15 @@ namespace Party_Tower_Main
             {
                 get { return this.isActive; }
                 set { this.isActive = value; }
+            }
+
+            /// <summary>
+            /// Returns true if the object is meant to be drawn this frame.
+            /// </summary>
+            public bool IsDrawn
+            {
+                get { return isDrawn; }
+                set { isDrawn = value; }
             }
 
             /// <summary>

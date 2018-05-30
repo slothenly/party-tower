@@ -216,6 +216,7 @@ namespace Party_Tower_Main
             this.color = color;
             myContent = content;
             isActive = true;
+            isDrawn = true;
 
             hasGravity = true; //no point other than it must be implement since it inherets GameObject
 
