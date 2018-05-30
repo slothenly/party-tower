@@ -127,6 +127,14 @@ namespace Party_Tower_Main
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void FiniteState()
+        {
+            //FILL UP WITH CODE FROM PLAYER LIKE ACCELRATE() AND MOVEMENT()
+        }
+
         public void IsEnemyVisible(Rectangle visibleArea)
         {
             if (hitbox.Intersects(visibleArea))

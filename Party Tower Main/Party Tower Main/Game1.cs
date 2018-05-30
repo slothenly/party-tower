@@ -232,34 +232,11 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused) //do normal stuff
                     {
-                        //adjust states and movement of both players
-                        if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
-                        {
-                            playerOne.FiniteState(true);
-                        }
-                        else //no controller (so check keyboard input)
-                        {
-                            playerOne.FiniteState(false);
-                        }
-                        if (workingGamepad2) //check if working gamepad, and call corresponding finitestate
-                        {
-                            playerTwo.FiniteState(true);
-                        }
-                        else //no controller (so check keyboard input)
-                        {
-                            playerTwo.FiniteState(false);
-                        }
+                        //ENEMY MOVEMENT
 
-                        //Player(s) dying
-                        if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
-                        {
-                            bothPlayersDead = true;
-                        }
-                        else //both players not dead
-                        {
-                            bothPlayersDead = false;
-                        }
-                        
+                        //PLAYER MOVEMENT
+                        //adjust states and movement of both players
+
                         //One Player Carrying another
                         if (playerOne.DownDashOn(playerTwo) || playerOne.InCarry) //Player one on top
                         {
@@ -279,6 +256,47 @@ namespace Party_Tower_Main
 
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
+
+                        if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
+                        {
+                            playerOne.FiniteState(true);
+                        }
+                        else //no controller (so check keyboard input)
+                        {
+                            playerOne.FiniteState(false);
+                        }
+                        if (workingGamepad2) //check if working gamepad, and call corresponding finitestate
+                        {
+                            playerTwo.FiniteState(true);
+                        }
+                        else //no controller (so check keyboard input)
+                        {
+                            playerTwo.FiniteState(false);
+                        }
+
+
+                        //CAMERA LIMITERS
+                        //DO CAMERA LIMITER STUFF HERE, BEFORE COLLISION, THIS WILL JUST OVERRITE MOVEMENT ALREADY DONE
+
+                        //WRITE METHOD IN COOP MANAGER THAT PASSES INFORMATION FROM CAMERA LIMITERS INTO PLAYER THROUGH THIS UPDATE LOOP SO THAT PLAYER IS ADJUSTED CORRECTLY
+                        //ACCORDINGLY TO CAMERA LIMIT/WALLS
+
+                        //PLAYER/ENEMY COLLISION
+                        //Player(s) dying
+                        if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
+                        {
+                            bothPlayersDead = true;
+                        }
+                        else //both players not dead
+                        {
+                            bothPlayersDead = false;
+                        }
+
+                        //UPDATE ENEMY
+                        //UPDATE PLAYER
+
+                        //DYNAMIC CAMERA / UPDATE CAMERA
+
                     }
                     else //paused
                     {
