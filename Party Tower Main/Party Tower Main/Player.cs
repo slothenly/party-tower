@@ -70,6 +70,7 @@ namespace Party_Tower_Main
         private bool playerVisible = true;
         private bool bounceLockout = false;
         private bool shouldBounce = false;
+        private bool goingdown = false; //used to make sure player can jump through platforms correctly
         //Tile temp; //used to make sure player checks collision against only 
         //1 tile when necessary (as opposed to all of them each frame like usual)
 
@@ -443,28 +444,32 @@ namespace Party_Tower_Main
             if (sideChecker.Intersects(t.Hitbox))
             {
                 #region Default
-                horizontalVelocity = 0; //stop player from moving through wall
-                if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
+                if (t.Type != TileType.platform) //only do wall collision if the tile isn't a platform
                 {
-                    hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
-                }
-                else if (t.X < hitbox.X) //player facing left and tile is to the left of player
-                {
-                    hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
-                }
-
-                if (playerState == PlayerState.Fall)
-                {
-                    if (isFacingRight)
+                    horizontalVelocity = 0; //stop player from moving through wall
+                    if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
                     {
-                        hitbox.X -= 1;
+                        hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
                     }
-                    else
+                    else if (t.X < hitbox.X) //player facing left and tile is to the left of player
                     {
-                        hitbox.X += 1;
+                        hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
                     }
 
+                    if (playerState == PlayerState.Fall)
+                    {
+                        if (isFacingRight)
+                        {
+                            hitbox.X -= 1;
+                        }
+                        else
+                        {
+                            hitbox.X += 1;
+                        }
+
+                    }
                 }
+
                 #endregion
 
             }
@@ -474,14 +479,25 @@ namespace Party_Tower_Main
                 #region Default
                 if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
                 {
-                    hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
+                    //only do ceiling collision if the tile isn't a platform
+                    if (t.Type != TileType.platform)
+                    {
+                        hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
+                    }
                 }
-                topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
-                verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
+                //only launch the player downwards if the tile isn't a platform
+                if (t.type != TileType.platform)
+                {
+                    topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
+                    verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
+                }
+
                 #endregion
             }
             //floor collision (collision box below player)
-            else if (bottomChecker.Intersects(t.Hitbox))
+            else if (bottomChecker.Intersects(t.Hitbox) && goingdown) //only want ground collision to happen if the player is going downwards, 
+                                                                      //otherwise the player should just not check, so that way the player can jump through from below 
+                                                                      //but not from above
             {
                 #region Default
                 if (!(playerState == PlayerState.BounceLeft || playerState == PlayerState.BounceRight))
@@ -493,8 +509,6 @@ namespace Party_Tower_Main
                 {
                     hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
                 }
-
-
                 hasRolledInAir = false;
                 bottomIntersects = true;
                 if (hasGamepad) //this is done to prevent crashing if there isn't a controller
@@ -657,6 +671,14 @@ namespace Party_Tower_Main
             previousPlayerState = PlayerState;
             position = new Vector2(X, Y); //player position of current frame
 
+            if (previousPosition.Y < position.Y) //player is going downwards relative to last frame
+            {
+                goingdown = true;
+            }
+            else //the player is standing normally or going upwards
+            {
+                goingdown = false;
+            }
 
             //previousKb used to prevent jump spamming (holding down space) 
             previousKb = kb;
