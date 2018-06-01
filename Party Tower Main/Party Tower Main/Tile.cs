@@ -15,20 +15,38 @@ namespace Party_Tower_Main
 {
     class Tile : GameObject
     {
-        //fields
-        public TileType type;
+        #region Determines collisionary info & visual info about the tiles
+        //collisionary info
+        bool isPlatform;
+        bool isBackground;
+        bool isDamaging;
 
-        //properties
-        public TileType Type
-        {
-            get { return type; }
-        }
+        //visual displaying info
+        bool contactTop = false;
+        bool contactBot = false;
+        bool contactLeft = false;
+        bool contactRight = false;
 
-        //constructor
-        public Tile(TileType type)
+        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, string TBLR)
         {
-            this.type = type;
+            isPlatform = IsPlatform;
+            isBackground = IsBackground;
+            isDamaging = IsDamaging;
+
+            //determines which tiles will contact with the current tile based on the string passed in
+            //TBLR stands for top, bottom, left, and right respectively.
+            string[] temp = TBLR.Split();
+            if (temp[0] == "t")
+                contactTop = true;
+            if (temp[1] == "t")
+                contactBot = true;
+            if (temp[2] == "t")
+                contactLeft = true;
+            if (temp[3] == "t")
+                contactRight = true;
         }
+        #endregion
+
         //Fill up as we develop
         public override void CheckColliderAgainstPlayer(Player p)
         {

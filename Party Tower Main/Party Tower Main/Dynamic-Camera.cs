@@ -224,7 +224,7 @@ namespace Party_Tower_Main
              * 
              * Thus, the camera is now on screen.
              */
-
+             /*
             if(visibleArea.X < 0)
             {
                 mustAdjust = true;
@@ -245,7 +245,7 @@ namespace Party_Tower_Main
                 mustAdjust = true;
                 cameraCenter.Y = mapEdge.Y - visibleArea.Height / 2;
             }
-
+            */
             return mustAdjust;
         }
 

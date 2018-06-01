@@ -48,6 +48,7 @@
     <Compile Include="Enemy.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
+    <Compile Include="LevelMapCoordinator.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="PathManager.cs" />
     <Compile Include="Player.cs" />
