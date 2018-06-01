@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
-
+using System;
 
 enum GameState
 {
@@ -53,6 +53,11 @@ namespace Party_Tower_Main
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        //Testing stuff
+        Tile testPlatform = new Tile(TileType.platform);
+        Tile testWall = new Tile(TileType.wall);
+        SpriteFont testFont;
+
         //Shared keyboard
         KeyboardState kb;
         KeyboardState previousKb;
@@ -73,7 +78,6 @@ namespace Party_Tower_Main
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
         Rectangle[] tempRects;
-        Viewport view; //used to update camera
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
@@ -90,13 +94,17 @@ namespace Party_Tower_Main
         GamePadState gp2;
         bool workingGamepad2;
 
+        List<string[]> levelMap;
+
         #endregion
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            
+
             //temporary
+            testPlatform.Hitbox = new Rectangle(400, 400, 800, 100);
+            testWall.Hitbox = new Rectangle(300, 100, 100, 500);
             graphics.PreferredBackBufferWidth = 1920;
             graphics.PreferredBackBufferHeight = 1080;
             graphics.ApplyChanges();
@@ -115,14 +123,9 @@ namespace Party_Tower_Main
         {
             // TODO: Add your initialization logic here
 
-            view = new Viewport();
-            view.X = 0;
-            view.Y = 0;
-            view.Width = graphics.PreferredBackBufferWidth;
-            view.Height = graphics.PreferredBackBufferHeight;
-
             gameState = GameState.Menu;
-            enemyList = new List<Enemy>(); //when you instantiate any enemy, add it to this list
+            levelMap = new List<string[]>();
+            enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
 
             bothPlayersDead = false;
 
@@ -149,6 +152,8 @@ namespace Party_Tower_Main
             //Placeholder textures for now
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
+
+            testFont = Content.Load<SpriteFont>("DefaultText");
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
@@ -243,17 +248,8 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused) //do normal stuff
                     {
-                        //ENEMY MOVEMENT
-                        foreach (Enemy currentEnemy in enemyList)
-                        {
-                            if (currentEnemy.Type == EnemyType.Alive) //only type of enemy with movement
-                            {
-                                //currentEnemy.FiniteStateFollowing(pathManager.Target);
-                            }
-                            //there shouldn't be any other type of movement
-                        }
 
-                        //PLAYER MOVEMENT
+                        #region UPDATE PLAYER
                         //first adjust the needed coop manager states, then adjust states and movement of both players
 
                         //One Player Carrying another
@@ -293,16 +289,51 @@ namespace Party_Tower_Main
                             playerTwo.FiniteState(false);
                         }
 
+                        #endregion
 
-                        //CAMERA LIMITERS
-                        //DO CAMERA LIMITER STUFF HERE, BEFORE COLLISION, THIS WILL JUST OVERRITE MOVEMENT ALREADY DONE
-                        tempRects = cameraLimiters.RepositionPlayers(playerOne.Hitbox, playerTwo.Hitbox, playerOne.PreviousHitbox, playerTwo.PreviousHitbox); //get the adjusted rectangles
-                        for (int i = 0; i < 2; i++) 
+                        #region CAMERA / UPDATE A* MAP / ACTIVE GAMEOBJECTS
+
+                        //only adjust players if they are beyond the camera limiter's designated max values
+                        if (Math.Abs(playerOne.X - playerTwo.X) > cameraLimiters.MaxWidthDistance || Math.Abs(playerOne.Y - playerTwo.Y) > cameraLimiters.MaxHeightDistance)
                         {
-                            players[i].Hitbox = tempRects[i]; //adjust each hitbox accordingly
+                            tempRects = cameraLimiters.RepositionPlayers(playerOne.Hitbox, playerTwo.Hitbox, playerOne.PreviousHitbox, playerTwo.PreviousHitbox); //get the adjusted rectangles
+                            for (int i = 0; i < 2; i++)
+                            {
+                                players[i].Hitbox = tempRects[i]; //adjust each hitbox accordingly
+                            }
                         }
 
-                        //PLAYER/ENEMY COLLISION
+                        // Update A* Map of current players
+                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+
+                        // Update Camera's
+                        camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
+
+                        if (enemyList != null)
+                        {
+                            foreach (Enemy e in enemyList)
+                            {
+                                e.IsDrawn = camera.IsDrawn(e.Hitbox);
+                                e.IsActive = camera.IsUpdated(e.Hitbox);
+                            }
+                        }
+
+                        #endregion
+
+                        #region UPDATE ENEMY
+
+                        foreach (Enemy currentEnemy in enemyList)
+                        {
+                            if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
+                            {
+                                currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
+                            }
+                            //there shouldn't be any other type of movement
+                        }
+
+                        #endregion
+
+                        #region PLAYER-ENEMY COLLISIONS
 
                         //might need to optimize this if there are too many enemies
                         //check player colliding with enemy
@@ -310,7 +341,10 @@ namespace Party_Tower_Main
                         {
                             foreach (Enemy currentEnemy in enemyList)
                             {
-                                currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
+                                if (currentEnemy.IsActive)
+                                {
+                                    currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
+                                }
                             }
                         }
 
@@ -324,6 +358,10 @@ namespace Party_Tower_Main
 
                         }
 
+                        #endregion
+
+                        #region PLAYERS DYING
+
                         //Player(s) dying
                         if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
                         {
@@ -334,12 +372,7 @@ namespace Party_Tower_Main
                             bothPlayersDead = false;
                         }
 
-                        //UPDATE ENEMY
-                        //UPDATE PLAYER not sure what to exactly update here
-
-                        //DYNAMIC CAMERA / UPDATE CAMERA
-                        camera.UpdateCamera(view, playerOne.Hitbox, playerTwo.Hitbox);
-
+                        #endregion
 
                     }
                     else //paused
@@ -440,7 +473,9 @@ namespace Party_Tower_Main
             {
                 case GameState.Menu:
                     spriteBatch.Begin();
-                    // Menu.DrawElements();
+                    spriteBatch.DrawString(testFont, "MENU", new Vector2(400, 400), Color.Black);
+
+                    spriteBatch.DrawString(testFont, "Press Enter to go to game", new Vector2(300, 600), Color.Black);
                     spriteBatch.End();
                     break;
 
@@ -458,7 +493,8 @@ namespace Party_Tower_Main
                         currentPlayer.Draw(spriteBatch);
                     }
                     //a random rectangle, for testing onyl
-                    spriteBatch.Draw(playerOneTexture, new Rectangle(500, 500, 500, 500), Color.Black);
+                    spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
+                    spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
                     spriteBatch.End();
                     break;
 

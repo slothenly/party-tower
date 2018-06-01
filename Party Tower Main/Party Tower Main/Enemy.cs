@@ -65,6 +65,7 @@ namespace Party_Tower_Main
         private bool isFacingRight;
         private EnemyState enemyState;
         private EnemyState previousEnemyState;
+        private EnemyWalkingState previousWalkingState;
         private EnemyWalkingState walkingState;
         private EnemyType type;
 
@@ -114,9 +115,38 @@ namespace Party_Tower_Main
         /// Updates the Enemy Appropriately
         /// </summary>
         /// <param name="pM"></param>
-        public void UpdateEnemy()
+        public void UpdateEnemy(Player p1, Player p2, Vector2 target)
         {
             previousEnemyState = enemyState;
+            previousWalkingState = walkingState;
+
+            // Determines if the enemy should be following the player
+
+            if(enemyVision.Intersects(p1.Hitbox) || enemyVision.Intersects(p2.Hitbox))
+            {
+                walkingState = EnemyWalkingState.Follow;
+            }
+            else
+            {
+                walkingState = EnemyWalkingState.Waiting;
+            }
+
+            // Determines Enemy Logic based on current walking state
+
+            if (walkingState == EnemyWalkingState.Follow)
+            {
+                FiniteStateFollowing(target);
+            }
+
+            // If enemy was following and now is not, needs logic to finish it's type of movement and wait. 
+            // IE: Was jumping and following the player last frame. Is not following the player this frame.
+            // Therefore, the enemy needs to complete its jump and relax.
+
+            else if (previousWalkingState == EnemyWalkingState.Follow)
+            {
+
+            }
+
         }
 
         /// <summary>
@@ -184,14 +214,7 @@ namespace Party_Tower_Main
             //Target and Enemy are already at same Position
             else
             {
-                if(previousEnemyState == EnemyState.WalkLeft || previousEnemyState == EnemyState.JumpLeft || previousEnemyState == EnemyState.FallLeft || previousEnemyState == EnemyState.IdleLeft)
-                {
-                    enemyState = EnemyState.IdleLeft;
-                }
-                else if(previousEnemyState == EnemyState.WalkRight || previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.FallRight || previousEnemyState == EnemyState.IdleRight)
-                {
-                    enemyState = EnemyState.IdleRight;
-                }
+                enemyState = previousEnemyState;
             } 
         }
 
