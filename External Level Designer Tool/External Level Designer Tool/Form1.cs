@@ -104,7 +104,7 @@ namespace External_Level_Designer_Tool
 
             Button btnPlace = new Button();
             btnPlace.Width = leftP.Width / 2;
-            btnPlace.Height = 1 * (btnSelector.Height / 7);
+            btnPlace.Height = 1 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             btnPlace.Top = 1 * (btnSelector.Height / 7);
             btnPlace.BackColor = Color.Green;
             btnPlace.ForeColor = Color.White;
@@ -117,10 +117,10 @@ namespace External_Level_Designer_Tool
 
             Button btnRemove = new Button();
             btnRemove.Width = leftP.Width / 2;
-            btnRemove.Height = 1 * (btnSelector.Height / 7);
+            btnRemove.Height = 1 * (btnSelector.Height / 14) + 5 * (btnSelector.Height / 100);
             btnRemove.Top = 1 * (btnSelector.Height / 7);
             btnRemove.Left = btnPlace.Width;
-            btnRemove.BackColor = Color.Red;
+            btnRemove.BackColor = Color.DarkRed;
             btnRemove.ForeColor = Color.White;
             btnRemove.FlatStyle = FlatStyle.Flat;
             btnRemove.FlatAppearance.BorderColor = Color.Red;
@@ -128,17 +128,30 @@ namespace External_Level_Designer_Tool
             btnRemove.Text = "Remove";
             btnRemove.Click += SetPlacing;
 
+            Button btnClear = new Button();
+            btnClear.Width = leftP.Width / 2;
+            btnClear.Height = 1 * (btnSelector.Height / 14) + 5 * (btnSelector.Height / 100);
+            btnClear.Top = btnRemove.Height + btnRemove.Top;
+            btnClear.Left = btnPlace.Width;
+            btnClear.BackColor = Color.DarkRed;
+            btnClear.ForeColor = Color.White;
+            btnClear.FlatStyle = FlatStyle.Flat;
+            btnClear.FlatAppearance.BorderColor = Color.Red;
+            btnClear.FlatAppearance.MouseDownBackColor = Color.DarkRed;
+            btnClear.Text = "Clear All";
+            btnClear.Click += Clear;
+
             fileName = new TextBox();
             fileName.Multiline = true;
             fileName.Height = btnSelector.Height / 7;   //technically 2/7 because multiLine is turned on
             fileName.Width = btnSelector.Width;
-            fileName.Top = 2 * (btnSelector.Height / 7);
+            fileName.Top = 2 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             fileName.Text = @"<exported file name>";
 
             Button btnImport = new Button();
-            btnImport.Height = 40 * (btnSelector.Height / 100);
+            btnImport.Height = 30 * (btnSelector.Height / 100);
             btnImport.Width = btnSelector.Width / 2;
-            btnImport.Top = 3 * (btnSelector.Height / 7);
+            btnImport.Top = 3 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             btnImport.BackColor = Color.LemonChiffon;
             btnImport.FlatStyle = FlatStyle.Flat;
             btnImport.FlatAppearance.BorderColor = Color.LemonChiffon;
@@ -147,9 +160,9 @@ namespace External_Level_Designer_Tool
             btnImport.Click += Import;
 
             Button btnExport = new Button();
-            btnExport.Height = 40 * (btnSelector.Height / 100);
+            btnExport.Height = 30 * (btnSelector.Height / 100);
             btnExport.Width = btnSelector.Width / 2;
-            btnExport.Top = 3 * (btnSelector.Height / 7);
+            btnExport.Top = 3 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             btnExport.Left = btnSelector.Width / 2;
             btnExport.BackColor = Color.BurlyWood;
             btnExport.FlatStyle = FlatStyle.Flat;
@@ -171,6 +184,7 @@ namespace External_Level_Designer_Tool
             btnSelector.Controls.Add(chkDamaging);
             btnSelector.Controls.Add(btnPlace);
             btnSelector.Controls.Add(btnRemove);
+            btnSelector.Controls.Add(btnClear);
             btnSelector.Controls.Add(fileName);
             btnSelector.Controls.Add(btnImport);
             btnSelector.Controls.Add(btnExport);
@@ -277,6 +291,16 @@ namespace External_Level_Designer_Tool
         }
 
         /// <summary>
+        /// Clears all tiles currently set into the tablet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Clear(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
         /// Takes the information of the current tablet and prints it to an external text file
         /// </summary>
         /// <param name="sender"></param>
@@ -298,11 +322,22 @@ namespace External_Level_Designer_Tool
                     {
                         if (btn.Tag != null)
                         {
-                            exported += textTranslater[btn.Tag.ToString()] + ",";
+                            char[] splitTags = btn.Tag.ToString().ToCharArray();
+                            string tileType = "";
+                            for (int i = 0; i < splitTags.Length - 2; i++)
+                            {
+                                tileType += splitTags[i];
+                            }
+                            string extraTags = "";
+                            for (int i = splitTags.Length - 2; i < splitTags.Length; i++)
+                            {
+                                extraTags += splitTags[i].ToString();
+                            }
+                            exported += textTranslater[tileType] + extraTags + ",";
                         }
                         else
                         {
-                            exported += "00,";
+                            exported += "0000,";
                         }
                     }
                 }
@@ -438,20 +473,20 @@ namespace External_Level_Designer_Tool
                 //add damaging or platform tags as needed
                 if (chkDamaging.Checked == true)
                 {
-                    temp.Tag += "D";
+                    temp.Tag += "T";
                 }
                 else
                 {
-                    temp.Tag += "0";
+                    temp.Tag += "F";
                 }
 
                 if (chkPlatform.Checked == true)
                 {
-                    temp.Tag += "P";
+                    temp.Tag += "T";
                 }
                 else
                 {
-                    temp.Tag += "0";
+                    temp.Tag += "F";
                 }
             }
             else
