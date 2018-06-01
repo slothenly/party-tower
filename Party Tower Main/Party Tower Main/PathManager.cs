@@ -25,8 +25,6 @@ namespace Party_Tower_Main
         private string[] p2Map;                     // Curent Array of Strings that depicts the map of the level with Player 2
         private string[] correctMap;                // Field that gets set to either p1Map or p2Map based on what player the enemy is looking for. 
         private Location current;                   // Current Location being checked
-        private Location start;                     // Starting Location - The location of the enemy during an update
-        private Location target;                    // Target Location - The location of the Player during an update
         private bool usePlayer1;                    // Bool that determines if the most recent player checked for this enemy was Player 1 or Player 2
 
         int g = 0;                                  
@@ -303,7 +301,7 @@ namespace Party_Tower_Main
         /// <returns></returns>
         private int ComputeHScore(int x, int y, int targetX, int targetY)
         {
-            return Math.Abs(target.X - x) + Math.Abs(target.Y - y);
+            return Math.Abs(targetX - x) + Math.Abs(targetY - y);
         }
 
 
