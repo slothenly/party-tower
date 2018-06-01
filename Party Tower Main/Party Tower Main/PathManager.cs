@@ -70,6 +70,16 @@ namespace Party_Tower_Main
             };
          */
 
+        /*
+         * PATHMANAGER KEY
+         * P = Player
+         * E = Enemy
+         * |, +, - = "OUT OF BOUNDS"
+         * _ = "PLATFORM"
+         * X = "DAMAGING PLATFORM"
+         * ^, >, <. ~ = MOVEABLE PLATFORMS IN CERTAIN DIRECTIONS
+         */
+
         //constructor -------------------------------------------------------------------
         public PathManager(Viewport view)
         {
