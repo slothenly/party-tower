@@ -297,7 +297,11 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void Clear(object sender, EventArgs e)
         {
+            //clears the parent controls
+            rightP.Controls.Clear();
 
+            //replaces all of the buttons
+            TabletSetup(Rows, Columns, rightP);
         }
 
         /// <summary>
