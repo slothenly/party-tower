@@ -15,7 +15,7 @@ namespace External_Level_Designer_Tool
     {
         List<ImageBox> Selectables = new List<ImageBox>();
         List<List<ImageBox>> RowList = new List<List<ImageBox>>();
-        Dictionary<string, string> translator = new Dictionary<string, string>();
+        Dictionary<string, string> textTranslater = new Dictionary<string, string>();
         Panel leftP = new Panel();
         Panel rightP = new Panel();
         Button addBottomRow;
@@ -23,6 +23,8 @@ namespace External_Level_Designer_Tool
         Button addLeftColumn;
         Button addRightColumn;
         TextBox fileName;
+        CheckBox chkPlatform;
+        CheckBox chkDamaging;
 
         int Rows;
         int Columns;
@@ -89,9 +91,21 @@ namespace External_Level_Designer_Tool
             //************** Button Panel Buttons ****************
             //****************************************************
 
+            chkPlatform = new CheckBox();
+            chkPlatform.Top = 1 * (btnSelector.Height / 25);
+            chkPlatform.Text = "Platform";
+            chkPlatform.Left = 2 * (leftP.Width / 3);
+
+            chkDamaging = new CheckBox();
+            chkDamaging.Top = 1 * (btnSelector.Height / 25);
+            chkDamaging.Text = "Damaging";
+            chkDamaging.Left = leftP.Width / 9;
+
+
             Button btnPlace = new Button();
             btnPlace.Width = leftP.Width / 2;
-            btnPlace.Height = 2 * (btnSelector.Height / 7);
+            btnPlace.Height = 1 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
+            btnPlace.Top = 1 * (btnSelector.Height / 7);
             btnPlace.BackColor = Color.Green;
             btnPlace.ForeColor = Color.White;
             btnPlace.FlatStyle = FlatStyle.Flat;
@@ -103,9 +117,10 @@ namespace External_Level_Designer_Tool
 
             Button btnRemove = new Button();
             btnRemove.Width = leftP.Width / 2;
-            btnRemove.Height = 2 * (btnSelector.Height / 7);
+            btnRemove.Height = 1 * (btnSelector.Height / 14) + 5 * (btnSelector.Height / 100);
+            btnRemove.Top = 1 * (btnSelector.Height / 7);
             btnRemove.Left = btnPlace.Width;
-            btnRemove.BackColor = Color.Red;
+            btnRemove.BackColor = Color.DarkRed;
             btnRemove.ForeColor = Color.White;
             btnRemove.FlatStyle = FlatStyle.Flat;
             btnRemove.FlatAppearance.BorderColor = Color.Red;
@@ -113,17 +128,30 @@ namespace External_Level_Designer_Tool
             btnRemove.Text = "Remove";
             btnRemove.Click += SetPlacing;
 
+            Button btnClear = new Button();
+            btnClear.Width = leftP.Width / 2;
+            btnClear.Height = 1 * (btnSelector.Height / 14) + 5 * (btnSelector.Height / 100);
+            btnClear.Top = btnRemove.Height + btnRemove.Top;
+            btnClear.Left = btnPlace.Width;
+            btnClear.BackColor = Color.DarkRed;
+            btnClear.ForeColor = Color.White;
+            btnClear.FlatStyle = FlatStyle.Flat;
+            btnClear.FlatAppearance.BorderColor = Color.Red;
+            btnClear.FlatAppearance.MouseDownBackColor = Color.DarkRed;
+            btnClear.Text = "Clear All";
+            btnClear.Click += Clear;
+
             fileName = new TextBox();
             fileName.Multiline = true;
             fileName.Height = btnSelector.Height / 7;   //technically 2/7 because multiLine is turned on
             fileName.Width = btnSelector.Width;
-            fileName.Top = 2 * (btnSelector.Height / 7);
+            fileName.Top = 2 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             fileName.Text = @"<exported file name>";
 
             Button btnImport = new Button();
-            btnImport.Height = 40 * (btnSelector.Height / 100);
+            btnImport.Height = 30 * (btnSelector.Height / 100);
             btnImport.Width = btnSelector.Width / 2;
-            btnImport.Top = 3 * (btnSelector.Height / 7);
+            btnImport.Top = 3 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             btnImport.BackColor = Color.LemonChiffon;
             btnImport.FlatStyle = FlatStyle.Flat;
             btnImport.FlatAppearance.BorderColor = Color.LemonChiffon;
@@ -132,9 +160,9 @@ namespace External_Level_Designer_Tool
             btnImport.Click += Import;
 
             Button btnExport = new Button();
-            btnExport.Height = 40 * (btnSelector.Height / 100);
+            btnExport.Height = 30 * (btnSelector.Height / 100);
             btnExport.Width = btnSelector.Width / 2;
-            btnExport.Top = 3 * (btnSelector.Height / 7);
+            btnExport.Top = 3 * (btnSelector.Height / 7) + 10 * (btnSelector.Height / 100);
             btnExport.Left = btnSelector.Width / 2;
             btnExport.BackColor = Color.BurlyWood;
             btnExport.FlatStyle = FlatStyle.Flat;
@@ -152,8 +180,11 @@ namespace External_Level_Designer_Tool
             leftP.Controls.Add(typeSelector);
             leftP.Controls.Add(btnSelector);
 
+            btnSelector.Controls.Add(chkPlatform);
+            btnSelector.Controls.Add(chkDamaging);
             btnSelector.Controls.Add(btnPlace);
             btnSelector.Controls.Add(btnRemove);
+            btnSelector.Controls.Add(btnClear);
             btnSelector.Controls.Add(fileName);
             btnSelector.Controls.Add(btnImport);
             btnSelector.Controls.Add(btnExport);
@@ -178,11 +209,12 @@ namespace External_Level_Designer_Tool
 
             #region Translator Dictionaly Initialization
 
-            translator.Add("Brick", "br");
-            translator.Add("Dirt", "di");
-            translator.Add("Grass", "gr");
-            translator.Add("Moss", "mo");
-
+            textTranslater.Add("Brick", "br");
+            textTranslater.Add("Dirt", "di");
+            textTranslater.Add("Grass", "gr");
+            textTranslater.Add("Moss", "mo");
+            
+            
             #endregion
         }
         //  #############################################################################
@@ -259,6 +291,20 @@ namespace External_Level_Designer_Tool
         }
 
         /// <summary>
+        /// Clears all tiles currently set into the tablet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Clear(object sender, EventArgs e)
+        {
+            //clears the parent controls
+            rightP.Controls.Clear();
+
+            //replaces all of the buttons
+            TabletSetup(Rows, Columns, rightP);
+        }
+
+        /// <summary>
         /// Takes the information of the current tablet and prints it to an external text file
         /// </summary>
         /// <param name="sender"></param>
@@ -280,11 +326,22 @@ namespace External_Level_Designer_Tool
                     {
                         if (btn.Tag != null)
                         {
-                            exported += translator[btn.Tag.ToString()] + ",";
+                            char[] splitTags = btn.Tag.ToString().ToCharArray();
+                            string tileType = "";
+                            for (int i = 0; i < splitTags.Length - 2; i++)
+                            {
+                                tileType += splitTags[i];
+                            }
+                            string extraTags = "";
+                            for (int i = splitTags.Length - 2; i < splitTags.Length; i++)
+                            {
+                                extraTags += splitTags[i].ToString();
+                            }
+                            exported += textTranslater[tileType] + extraTags + ",";
                         }
                         else
                         {
-                            exported += "00,";
+                            exported += "0000,";
                         }
                     }
                 }
@@ -317,6 +374,72 @@ namespace External_Level_Designer_Tool
         /// <param name="e"></param>
         private void Import(object sender, EventArgs e)
         {
+            int rowNum = 0;
+            string line;
+            string tempString = "";
+            string[] split;
+            string filePath = fileName.Text.ToString();
+            string[,] tempArray;
+            StreamReader r;
+
+            //initial import setup
+            //make sure the name they chose is valid
+            try
+            {
+                r = new StreamReader(@"..\..\Resources\levelExports\" + filePath + ".txt");
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("Invalid naming convention." + Environment.NewLine +
+                                "Only alphanumeric characters accepted.");
+                return;
+            }
+            line = r.ReadLine();
+            split = line.Split(',');
+            Rows = int.Parse(split[0]);
+            Columns = int.Parse(split[1]);
+
+            //sets up tablet to be the same size and width as determined by the text file
+            rightP.Controls.Clear();
+            tempArray = new string[Rows, Columns];
+            TabletSetup(Rows, Columns, rightP);
+
+            //getting rid of "\r\n"
+            for (int i = 0; i <= split.Length - 2; i++)
+            {
+                tempString = split[i]; //fixes everything going null 
+                char[] temp = split[i].ToCharArray(); //creates a char array
+
+                //cleaning tile names which contain '\r\n'
+                if (temp.Length > 4)
+                {
+                    tempString = ""; //clears tempString so we dont get \r\nb1nt b1nt
+                    char space = ' ';
+                    //make first two char spaces
+                    temp[0] = space;
+                    temp[1] = space;
+                    foreach (var item in temp) //go through every char in temp
+                    {
+                        if (item != ' ') tempString += item.ToString(); //if char is not a space add it to tile ID temp string
+                    }
+                }
+                split[i] = tempString;
+            }
+
+            //actually sets all of the individual tiles into the 2d array
+            for (int i = 0; i <= Rows - 1; i++)
+            {
+
+                for (int j = 0; j <= Columns - 1; j++)
+                {
+
+                    tempArray[i, j] = split[rowNum]; //sets tileID in level array 
+
+                    rowNum++; //increments c because it is seperate array of different dimensions
+                }
+
+            }
+            r.Close();
 
         }
 
@@ -350,6 +473,25 @@ namespace External_Level_Designer_Tool
             {
                 temp.Image = ImageSelect(currentTile + "Tileset");
                 temp.Tag = currentTile;
+
+                //add damaging or platform tags as needed
+                if (chkDamaging.Checked == true)
+                {
+                    temp.Tag += "T";
+                }
+                else
+                {
+                    temp.Tag += "F";
+                }
+
+                if (chkPlatform.Checked == true)
+                {
+                    temp.Tag += "T";
+                }
+                else
+                {
+                    temp.Tag += "F";
+                }
             }
             else
             {
