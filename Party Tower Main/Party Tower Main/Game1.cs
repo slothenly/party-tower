@@ -78,7 +78,6 @@ namespace Party_Tower_Main
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
         Rectangle[] tempRects;
-        Viewport view; //used to update camera
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
@@ -123,12 +122,6 @@ namespace Party_Tower_Main
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
-            view = new Viewport();
-            view.X = 0;
-            view.Y = 0;
-            view.Width = graphics.PreferredBackBufferWidth;
-            view.Height = graphics.PreferredBackBufferHeight;
 
             gameState = GameState.Menu;
             levelMap = new List<string[]>();
@@ -256,7 +249,7 @@ namespace Party_Tower_Main
                     if (!paused) //do normal stuff
                     {
 
-                        //PLAYER MOVEMENT
+                        #region UPDATE PLAYER
                         //first adjust the needed coop manager states, then adjust states and movement of both players
 
                         //One Player Carrying another
@@ -296,8 +289,9 @@ namespace Party_Tower_Main
                             playerTwo.FiniteState(false);
                         }
 
+                        #endregion
 
-                        //CAMERA AND PATHING STUFF
+                        #region CAMERA / UPDATE A* MAP / ACTIVE GAMEOBJECTS
 
                         //only adjust players if they are beyond the camera limiter's designated max values
                         if (Math.Abs(playerOne.X - playerTwo.X) > cameraLimiters.MaxWidthDistance || Math.Abs(playerOne.Y - playerTwo.Y) > cameraLimiters.MaxHeightDistance)
@@ -309,12 +303,25 @@ namespace Party_Tower_Main
                             }
                         }
 
-
+                        // Update A* Map of current players
                         pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
-                        camera.UpdateCamera(view, playerOne.Hitbox, playerTwo.Hitbox);
+                        // Update Camera's
+                        camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
 
-                        //ENEMY MOVEMENT
+                        if (enemyList != null)
+                        {
+                            foreach (Enemy e in enemyList)
+                            {
+                                e.IsDrawn = camera.IsDrawn(e.Hitbox);
+                                e.IsActive = camera.IsUpdated(e.Hitbox);
+                            }
+                        }
+
+                        #endregion
+
+                        #region UPDATE ENEMY
+
                         foreach (Enemy currentEnemy in enemyList)
                         {
                             if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
@@ -324,7 +331,9 @@ namespace Party_Tower_Main
                             //there shouldn't be any other type of movement
                         }
 
-                        //PLAYER/ENEMY COLLISION
+                        #endregion
+
+                        #region PLAYER-ENEMY COLLISIONS
 
                         //might need to optimize this if there are too many enemies
                         //check player colliding with enemy
@@ -349,6 +358,10 @@ namespace Party_Tower_Main
 
                         }
 
+                        #endregion
+
+                        #region PLAYERS DYING
+
                         //Player(s) dying
                         if (!coopManager.CheckAndRespawnPlayer(gameTime)) //if this call is false, that means both players are dead
                         {
@@ -358,6 +371,8 @@ namespace Party_Tower_Main
                         {
                             bothPlayersDead = false;
                         }
+
+                        #endregion
 
                     }
                     else //paused

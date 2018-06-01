@@ -255,7 +255,7 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="position"> Position of the GameObject being checked</param>
         /// <returns> True = Draw Object / False = Do Not Draw Object </returns>
-        public bool DrawObject(Rectangle position) 
+        public bool IsDrawn(Rectangle position) 
         {
             if (visibleArea.Intersects(position))
             {
@@ -269,7 +269,7 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="position"> Position of the GameObject being checked</param>
         /// <returns> True = Update Object / False = Do Not Update Object </returns>
-        public bool UpdateObject(Rectangle position)
+        public bool IsUpdated(Rectangle position)
         {
             if (updateRectangle.Intersects(position))
             {
