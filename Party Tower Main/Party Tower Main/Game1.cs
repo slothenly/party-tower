@@ -90,6 +90,8 @@ namespace Party_Tower_Main
         GamePadState gp2;
         bool workingGamepad2;
 
+        List<string[]> levelMap;
+
         #endregion
 
         public Game1()
@@ -122,7 +124,8 @@ namespace Party_Tower_Main
             view.Height = graphics.PreferredBackBufferHeight;
 
             gameState = GameState.Menu;
-            enemyList = new List<Enemy>(); //when you instantiate any enemy, add it to this list
+            levelMap = new List<string[]>();
+            enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
 
             bothPlayersDead = false;
 
@@ -243,15 +246,6 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused) //do normal stuff
                     {
-                        //ENEMY MOVEMENT
-                        foreach (Enemy currentEnemy in enemyList)
-                        {
-                            if (currentEnemy.Type == EnemyType.Alive) //only type of enemy with movement
-                            {
-                                //currentEnemy.FiniteStateFollowing(pathManager.Target);
-                            }
-                            //there shouldn't be any other type of movement
-                        }
 
                         //PLAYER MOVEMENT
                         //first adjust the needed coop manager states, then adjust states and movement of both players
@@ -294,12 +288,25 @@ namespace Party_Tower_Main
                         }
 
 
-                        //CAMERA LIMITERS
-                        //DO CAMERA LIMITER STUFF HERE, BEFORE COLLISION, THIS WILL JUST OVERRITE MOVEMENT ALREADY DONE
+                        //CAMERA AND PATHING STUFF
                         tempRects = cameraLimiters.RepositionPlayers(playerOne.Hitbox, playerTwo.Hitbox, playerOne.PreviousHitbox, playerTwo.PreviousHitbox); //get the adjusted rectangles
                         for (int i = 0; i < 2; i++) 
                         {
                             players[i].Hitbox = tempRects[i]; //adjust each hitbox accordingly
+                        }
+
+                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+
+                        camera.UpdateCamera(view, playerOne.Hitbox, playerTwo.Hitbox);
+
+                        //ENEMY MOVEMENT
+                        foreach (Enemy currentEnemy in enemyList)
+                        {
+                            if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
+                            {
+                                currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
+                            }
+                            //there shouldn't be any other type of movement
                         }
 
                         //PLAYER/ENEMY COLLISION
@@ -310,7 +317,10 @@ namespace Party_Tower_Main
                         {
                             foreach (Enemy currentEnemy in enemyList)
                             {
-                                currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
+                                if (currentEnemy.IsActive)
+                                {
+                                    currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
+                                }
                             }
                         }
 
@@ -333,13 +343,6 @@ namespace Party_Tower_Main
                         {
                             bothPlayersDead = false;
                         }
-
-                        //UPDATE ENEMY
-                        //UPDATE PLAYER not sure what to exactly update here
-
-                        //DYNAMIC CAMERA / UPDATE CAMERA
-                        camera.UpdateCamera(view, playerOne.Hitbox, playerTwo.Hitbox);
-
 
                     }
                     else //paused
