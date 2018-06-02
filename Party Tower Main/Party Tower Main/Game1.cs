@@ -54,8 +54,8 @@ namespace Party_Tower_Main
         SpriteBatch spriteBatch;
 
         //Testing stuff
-        Tile testPlatform = new Tile(TileType.platform);
-        Tile testWall = new Tile(TileType.wall);
+        Tile testPlatform = new Tile(false, true, false, false, "ffff");
+        Tile testWall = new Tile(false, false, false, true, "ffff");
         SpriteFont testFont;
 
         //Shared keyboard
@@ -94,7 +94,11 @@ namespace Party_Tower_Main
         GamePadState gp2;
         bool workingGamepad2;
 
+        //Level & Tile Information
+        List<Texture2D> tileTextures = new List<Texture2D>();
+        LevelMapCoordinator LvlCoordinator;
         List<string[]> levelMap;
+        Texture2D defaultTile;
 
         #endregion
 
@@ -152,8 +156,21 @@ namespace Party_Tower_Main
             //Placeholder textures for now
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
-
             testFont = Content.Load<SpriteFont>("DefaultText");
+
+            #region Tile Textures
+            //###############################################
+            //########### Add Tile Textures Here ############
+            //###############################################
+            defaultTile = Content.Load<Texture2D>("default");
+
+            //###############################################
+            //########## Add to Texture Lists Here ###########
+            //###############################################
+            tileTextures.Add(defaultTile);
+            #endregion
+
+            LvlCoordinator = new LevelMapCoordinator("default", tileTextures);
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
