@@ -17,9 +17,14 @@ namespace Party_Tower_Main
     {
         #region Determines collisionary info & visual info about the tiles
         //collisionary info
-        bool isPlatform;
-        bool isBackground;
-        bool isDamaging;
+        public bool IsPlatform
+        {
+            get { return isPlatform; }
+            set { isPlatform = value; }
+        }
+        public bool isBackground { get; set; }
+        public bool isDamaging { get; set; }
+        public bool isWall { get; set; }
 
         //visual displaying info
         bool contactTop = false;
@@ -27,28 +32,23 @@ namespace Party_Tower_Main
         bool contactLeft = false;
         bool contactRight = false;
 
-        public bool IsPlatform
-        {
-            get { return isPlatform; }
-            set { isPlatform = value; }
-        }
-
-        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, string TBLR)
+        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall, string TBLR)
         {
             isPlatform = IsPlatform;
             isBackground = IsBackground;
             isDamaging = IsDamaging;
+            isWall = IsWall;
 
             //determines which tiles will contact with the current tile based on the string passed in
             //TBLR stands for top, bottom, left, and right respectively.
-            string[] temp = TBLR.Split();
-            if (temp[0] == "t")
+            char[] temp = TBLR.ToCharArray();
+            if (temp[0].ToString() == "t")
                 contactTop = true;
-            if (temp[1] == "t")
+            if (temp[1].ToString() == "t")
                 contactBot = true;
-            if (temp[2] == "t")
+            if (temp[2].ToString() == "t")
                 contactLeft = true;
-            if (temp[3] == "t")
+            if (temp[3].ToString() == "t")
                 contactRight = true;
         }
         #endregion

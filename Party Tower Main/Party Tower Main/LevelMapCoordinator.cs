@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,15 +17,28 @@ namespace Party_Tower_Main
             get { return currentMap; }
         }
 
+        private string[,] currentMapRaw;    //raw, unsorted version of the current map for possible later use
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
+
+        List<Texture2D> textureList;
+
+        Dictionary<string, int> translator = new Dictionary<string, int>();
 
         /// <summary>
         /// Constructor which pulls the initial path to take tile info from
         /// </summary>
         /// <param name="initialPath"></param>
-        public LevelMapCoordinator(string initialPath)
+        public LevelMapCoordinator(string initialPath, List<Texture2D> TextureList)
         {
+            #region Translator Info
+            translator.Add("br", 0);    //brick
+            translator.Add("di", 1);    //dirt
+            translator.Add("gr", 2);    //grass
+            translator.Add("mo", 3);    //moss
+            #endregion
+
+            textureList = TextureList;
             UpdateMapFromPath(initialPath);
         }
 
@@ -43,7 +57,8 @@ namespace Party_Tower_Main
             string tempString = "";
             string[] infoTempHolder;
 
-            StreamReader interpreter = new StreamReader(@"..\..\Resources\levelExports\" + path + ".txt");
+            #region Reading in info from text tile and plopping it into a 2d array
+            StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
 
             //Setup for creating the level's 2d array (pulls Row and Column counts, splits the rest into a 2D array)
             line = interpreter.ReadLine(); 
@@ -68,6 +83,7 @@ namespace Party_Tower_Main
                     char space = ' ';
                     //make first two char spaces
                     individualTileString[0] = space;
+
                     individualTileString[1] = space;
                     foreach (var item in individualTileString) //go through every char in temp
                     {
@@ -91,6 +107,68 @@ namespace Party_Tower_Main
 
             }
             interpreter.Close();
+            currentMapRaw = importedTileInfo;
+            #endregion
+
+            //At this point, the file has been read into the 2D array 'currentMapRaw'
+
+            #region Interpreting raw text file
+
+            //  #####################################
+            //  ########## Texture Section ##########
+            //  #####################################
+
+            //initialize all spots in the 2D array and sets x & y positions
+            currentMap = new Tile[Rows, Columns];
+            for (int rows = 0; rows < Rows; rows++)
+            {
+                for (int columns = 0; columns < Columns; columns++)
+                {
+                    currentMap[rows, columns] = new Tile(false, false, false, false, "FFFF");
+                    currentMap[rows, columns].X = (columns + 1) * currentMap[rows, columns].Width;  //x pos
+                    currentMap[rows, columns].Y = (rows + 1) * currentMap[rows, columns].Height;    //y pos
+                }
+            }
+
+
+            //main 2d loop that pulls tile data from raw and sets it into currentMap tile position
+            for (int rows = 0; rows < Rows; rows++)
+            {
+                for (int columns = 0; columns < Columns; columns++)
+                {
+                    //if there is a tile in this slot, fill it with the given information
+                    if (currentMapRaw[rows, columns] != "0000")
+                    {
+                        //first, split up the raw, then distribute the info into the tile's slots
+                        char[] currentRawSplit = currentMapRaw[rows, columns].ToCharArray();
+                        int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
+
+                        //check damaging and platform conditions
+                        if (currentRawSplit[2].ToString() == "T")
+                        {
+                            currentMap[rows, columns].isDamaging = true;
+                        }
+                        if (currentRawSplit[3].ToString() == "T")
+                        {
+                            currentMap[rows, columns].isPlatform = true;
+                        }
+
+                        //set texture
+                        currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+                    }
+                    //otherwise clean out the preset
+                    else
+                    {
+                        currentMap[rows, columns] = null;
+                    }
+                    
+                }
+            }
+
+            #endregion
         }
+
+        #region Helper Functions
+        #endregion
     }
 }
