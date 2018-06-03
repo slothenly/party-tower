@@ -46,6 +46,18 @@ namespace Party_Tower_Main
                 contactLeft = true;
             if (temp[3].ToString() == "t")
                 contactRight = true;
+
+            //determining tile heights/widths based on if its platform
+            if (isPlatform != true)
+            {
+                Width = 1920 / 16;
+                Height = Width;
+            }
+            else
+            {
+                Width = 1080 / 9;
+                Height = Width / 2;
+            }
         }
         #endregion
 

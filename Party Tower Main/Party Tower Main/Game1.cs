@@ -503,16 +503,23 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
-                    spriteBatch.Begin();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque); //setup for keeping pixel art nice
+                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;  //sets interpolation to nearest neighbor
+
                     //Drawing each player
-                    foreach(Player currentPlayer in players)
+                    foreach (Player currentPlayer in players)
                     {
                         currentPlayer.Draw(spriteBatch);
                     }
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
+
+                    //drawing out level tiles
+                    LvlCoordinator.Draw(spriteBatch);
+
                     spriteBatch.End();
+
                     break;
 
                 case GameState.Pause:

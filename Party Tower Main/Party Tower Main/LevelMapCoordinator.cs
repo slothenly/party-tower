@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,10 +115,6 @@ namespace Party_Tower_Main
 
             #region Interpreting raw text file
 
-            //  #####################################
-            //  ########## Texture Section ##########
-            //  #####################################
-
             //initialize all spots in the 2D array and sets x & y positions
             currentMap = new Tile[Rows, Columns];
             for (int rows = 0; rows < Rows; rows++)
@@ -125,8 +122,8 @@ namespace Party_Tower_Main
                 for (int columns = 0; columns < Columns; columns++)
                 {
                     currentMap[rows, columns] = new Tile(false, false, false, false, "FFFF");
-                    currentMap[rows, columns].X = (columns + 1) * currentMap[rows, columns].Width;  //x pos
-                    currentMap[rows, columns].Y = (rows + 1) * currentMap[rows, columns].Height;    //y pos
+                    currentMap[rows, columns].X = columns * currentMap[rows, columns].Width;  //x pos
+                    currentMap[rows, columns].Y = rows * currentMap[rows, columns].Height;    //y pos
                 }
             }
 
@@ -166,6 +163,18 @@ namespace Party_Tower_Main
             }
 
             #endregion
+        }
+
+        public void Draw(SpriteBatch sb)
+        {
+            foreach (Tile t in CurrentMap)
+            {
+                if (t != null)
+                {
+                    Rectangle rect = new Rectangle(t.X, t.Y, t.Width, t.Height);
+                    sb.Draw(t.DefaultSprite, rect, Color.White);
+                }
+            }
         }
 
         #region Helper Functions
