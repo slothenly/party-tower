@@ -54,8 +54,8 @@ namespace Party_Tower_Main
         SpriteBatch spriteBatch;
 
         //Testing stuff
-        Tile testPlatform = new Tile(TileType.platform);
-        Tile testWall = new Tile(TileType.wall);
+        Tile testPlatform = new Tile(false, true, false,"t");
+        Tile testWall = new Tile(false, false, false, "r");
         SpriteFont testFont;
 
         //Shared keyboard

@@ -27,6 +27,12 @@ namespace Party_Tower_Main
         bool contactLeft = false;
         bool contactRight = false;
 
+        public bool IsPlatform
+        {
+            get { return isPlatform; }
+            set { isPlatform = value; }
+        }
+
         public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, string TBLR)
         {
             isPlatform = IsPlatform;
