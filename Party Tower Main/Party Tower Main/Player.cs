@@ -444,7 +444,7 @@ namespace Party_Tower_Main
             if (sideChecker.Intersects(t.Hitbox))
             {
                 #region Default
-                if (t.isPlatform != true) //only do wall collision if the tile isn't a platform
+                if (!t.IsPlatform) //only do wall collision if the tile isn't a platform
                 {
                     horizontalVelocity = 0; //stop player from moving through wall
                     if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
@@ -480,13 +480,13 @@ namespace Party_Tower_Main
                 if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
                 {
                     //only do ceiling collision if the tile isn't a platform
-                    if (t.isPlatform != true)
+                    if (!t.IsPlatform)
                     {
                         hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
                     }
                 }
                 //only launch the player downwards if the tile isn't a platform
-                if (t.isPlatform != true)
+                if (!t.IsPlatform)
                 {
                     topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
                     verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards

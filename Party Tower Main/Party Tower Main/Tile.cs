@@ -17,7 +17,11 @@ namespace Party_Tower_Main
     {
         #region Determines collisionary info & visual info about the tiles
         //collisionary info
-        public bool isPlatform { get; set; }
+        public bool IsPlatform
+        {
+            get { return isPlatform; }
+            set { isPlatform = value; }
+        }
         public bool isBackground { get; set; }
         public bool isDamaging { get; set; }
         public bool isWall { get; set; }
