@@ -147,7 +147,7 @@ namespace Party_Tower_Main
                         }
                         if (currentRawSplit[3].ToString() == "T")
                         {
-                            currentMap[rows, columns].isPlatform = true;
+                            currentMap[rows, columns].IsPlatform = true;
                         }
 
                         //set texture
