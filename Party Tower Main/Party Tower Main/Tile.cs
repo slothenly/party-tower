@@ -16,6 +16,7 @@ namespace Party_Tower_Main
     class Tile : GameObject
     {
         #region Determines collisionary info & visual info about the tiles
+        private bool isPlatform;
         //collisionary info
         public bool IsPlatform
         {

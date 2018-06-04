@@ -19,12 +19,17 @@ namespace Party_Tower_Main
         }
 
         private string[,] currentMapRaw;    //raw, unsorted version of the current map for possible later use
+        public string[,] CurrentMapRaw
+        {
+            get { return currentMapRaw; }
+        }
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
 
         List<Texture2D> textureList;
 
         Dictionary<string, int> translator = new Dictionary<string, int>();
+        Dictionary<string, Texture2D> tileRetriever = new Dictionary<string, Texture2D>();
 
         /// <summary>
         /// Constructor which pulls the initial path to take tile info from
@@ -147,7 +152,7 @@ namespace Party_Tower_Main
                         }
                         if (currentRawSplit[3].ToString() == "T")
                         {
-                            currentMap[rows, columns].isPlatform = true;
+                            currentMap[rows, columns].IsPlatform = true;
                         }
 
                         //set texture
@@ -165,6 +170,10 @@ namespace Party_Tower_Main
             #endregion
         }
 
+        /// <summary>
+        /// Draws all current tiles onto the screen
+        /// </summary>
+        /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
         {
             foreach (Tile t in CurrentMap)
@@ -178,6 +187,18 @@ namespace Party_Tower_Main
         }
 
         #region Helper Functions
+        /*
+        private Texture2D tileOrienter(Tile t, int rowNumber, int colNumber)
+        {
+            string tileConnections = "";
+
+            switch (tileConnections)
+            {
+                default:
+                    return 
+            }
+        }
+        */
         #endregion
     }
 }
