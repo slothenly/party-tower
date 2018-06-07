@@ -175,7 +175,8 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
-        {
+        
+{
             foreach (Tile t in CurrentMap)
             {
                 if (t != null)
