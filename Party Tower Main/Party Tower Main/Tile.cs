@@ -27,8 +27,6 @@ namespace Party_Tower_Main
         public bool isDamaging { get; set; }
         public bool isWall { get; set; }
 
-        bool isPlatform;
-
         //visual displaying info
         bool contactTop = false;
         bool contactBot = false;
