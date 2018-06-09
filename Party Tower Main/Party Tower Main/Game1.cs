@@ -514,8 +514,9 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque); //setup for keeping pixel art nice
-                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;  //sets interpolation to nearest neighbor
+                    // (NULL, NULL, NULL, NULL, CAMERA.TRANSFORM IS HOW YOU USE THE CAMERA IN THE GAME! :D)
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
+                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
 
                     //Drawing each player
                     foreach (Player currentPlayer in players)
