@@ -109,7 +109,7 @@ namespace Party_Tower_Main
             graphics = new GraphicsDeviceManager(this);
 
             //temporary
-            testPlatform.Hitbox = new Rectangle(400, 400, 800, 100);
+            testPlatform.Hitbox = new Rectangle(0, 400, 2000, 100);
             secondTestPlatform.Hitbox = new Rectangle(400, 600, 1000, 100);
             testWall.Hitbox = new Rectangle(300, 500, 100, 500);
             graphics.PreferredBackBufferWidth = 1920;
@@ -291,8 +291,15 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        //throw gets priority over bounce, so that way a player can be thrown if they roll into a throw
+
+                        //Player bouncing
+                        coopManager.CheckForRollAndThenBounce();
+
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
+
+
 
                         if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
                         {
@@ -527,6 +534,22 @@ namespace Party_Tower_Main
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
                     spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
+
+                    //debugging text for bug stomping
+                    if (playerOne.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerOne.HorizontalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 500), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerOne.VerticalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 465), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Player State: " + playerOne.PlayerState, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 430), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Facing right?: " + playerOne.IsFacingRight, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 395), Color.Cyan);
+                    }
+                    if (playerTwo.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerTwo.HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 500), Color.Red);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerTwo.VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 465), Color.Red);
+                        spriteBatch.DrawString(testFont, "Player State: " + playerTwo.PlayerState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 430), Color.Red);
+                        spriteBatch.DrawString(testFont, "Facing right?: " + playerTwo.IsFacingRight, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 395), Color.Red);
+                    }
 
                     //drawing out level tiles
                     LvlCoordinator.Draw(spriteBatch);

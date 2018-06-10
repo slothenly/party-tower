@@ -92,8 +92,50 @@ namespace Party_Tower_Main
             onTopPlayer.InCarry = true;
 
             //The onTopPlayer follows the movement of the other player, but is on top
-            onTopPlayer.Position =  new Vector2(carryingPlayer.Position.X, carryingPlayer.Position.Y - 75);
+            onTopPlayer.X = (int)carryingPlayer.Position.X;
+            onTopPlayer.Y = (int)carryingPlayer.Position.Y - 75;
 
+        }
+
+        /// <summary>
+        /// Check if a player is rolling into another, then bounce accordinly
+        /// </summary>
+        public void CheckForRollAndThenBounce()
+        {
+            //player one is rolling
+            if (playerOne.PlayerState == PlayerState.RollLeft || playerOne.PlayerState == PlayerState.RollRight)
+            {
+                //player one hits player two
+                if (playerOne.Hitbox.Intersects(playerTwo.Hitbox))
+                {
+                    //determine correct bounce based on direction
+                    if (playerOne.PlayerState == PlayerState.RollRight)
+                    {
+                        playerOne.PlayerState = PlayerState.BounceLeft;
+                    }
+                    else
+                    {
+                        playerOne.PlayerState = PlayerState.BounceRight;
+                    }
+                }
+            }
+            //player two is rolling
+            else if (playerTwo.PlayerState == PlayerState.RollLeft || playerTwo.PlayerState == PlayerState.RollRight)
+            {
+                //player two hits player one
+                if (playerTwo.Hitbox.Intersects(playerOne.Hitbox))
+                {
+                    //determine correct bounce based on direction
+                    if (playerTwo.PlayerState == PlayerState.RollRight)
+                    {
+                        playerTwo.PlayerState = PlayerState.BounceLeft;
+                    }
+                    else
+                    {
+                        playerTwo.PlayerState = PlayerState.BounceRight;
+                    }
+                }
+            }
         }
 
         /// <summary>
