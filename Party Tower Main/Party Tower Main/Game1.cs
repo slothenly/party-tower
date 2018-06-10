@@ -471,6 +471,7 @@ namespace Party_Tower_Main
                         if (SingleKeyPress(player.BindableKb["pause"]))
                         {
                             paused = !paused; //pause / unpause the game
+                            break;
                         }
                     }
 
@@ -486,8 +487,6 @@ namespace Party_Tower_Main
                         }
                     }
                     break;
-
-                    //Don't need a state for pause
 
                 case GameState.GameOver:
                     if (SingleKeyPress(Keys.Enter))
@@ -524,6 +523,11 @@ namespace Party_Tower_Main
                     // (NULL, NULL, NULL, NULL, CAMERA.TRANSFORM IS HOW YOU USE THE CAMERA IN THE GAME! :D)
                     spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
                     GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
+
+                    if (paused)
+                    {
+                        spriteBatch.DrawString(testFont, "PAUSED", new Vector2(camera.CameraCenter.X - 100, camera.CameraCenter.Y - 20), Color.White);
+                    }
 
                     //Drawing each player
                     foreach (Player currentPlayer in players)
