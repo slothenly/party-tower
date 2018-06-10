@@ -388,7 +388,7 @@ namespace External_Level_Designer_Tool
             {
                 r = new StreamReader(@"..\..\Resources\levelExports\" + filePath + ".txt");
             }
-            catch (ArgumentException)
+            catch (Exception)
             {
                 MessageBox.Show("Invalid naming convention." + Environment.NewLine +
                                 "Only alphanumeric characters accepted.");

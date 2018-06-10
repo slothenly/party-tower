@@ -55,6 +55,7 @@ namespace Party_Tower_Main
 
         //Testing stuff
         Tile testPlatform = new Tile(false, true, false, false, "ffff");
+        Tile secondTestPlatform = new Tile(false, true, false, false, "ffff");
         Tile testWall = new Tile(false, false, false, true, "ffff");
         SpriteFont testFont;
 
@@ -99,6 +100,7 @@ namespace Party_Tower_Main
         LevelMapCoordinator LvlCoordinator;
         List<string[]> levelMap;
         Texture2D defaultTile;
+        List<Tile> tilesOnScreen = new List<Tile>();
 
         #endregion
 
@@ -108,7 +110,8 @@ namespace Party_Tower_Main
 
             //temporary
             testPlatform.Hitbox = new Rectangle(400, 400, 800, 100);
-            testWall.Hitbox = new Rectangle(300, 100, 100, 500);
+            secondTestPlatform.Hitbox = new Rectangle(400, 600, 1000, 100);
+            testWall.Hitbox = new Rectangle(300, 500, 100, 500);
             graphics.PreferredBackBufferWidth = 1920;
             graphics.PreferredBackBufferHeight = 1080;
             graphics.ApplyChanges();
@@ -133,7 +136,9 @@ namespace Party_Tower_Main
 
             bothPlayersDead = false;
 
-
+            tilesOnScreen.Add(testPlatform);
+            tilesOnScreen.Add(secondTestPlatform);
+            tilesOnScreen.Add(testWall);
 
             previousGp1 = new GamePadState();
             gp1 = new GamePadState();
@@ -306,6 +311,12 @@ namespace Party_Tower_Main
                             playerTwo.FiniteState(false);
                         }
 
+                        //check collision with each tile for each player
+                        foreach (Tile t in tilesOnScreen)
+                        {
+                            playerOne.CollisionCheck(t, workingGamepad1);
+                            playerTwo.CollisionCheck(t, workingGamepad2);
+                        }
                         #endregion
 
                         #region CAMERA / UPDATE A* MAP / ACTIVE GAMEOBJECTS
@@ -321,7 +332,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        //pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
@@ -503,8 +514,9 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque); //setup for keeping pixel art nice
-                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;  //sets interpolation to nearest neighbor
+                    // (NULL, NULL, NULL, NULL, CAMERA.TRANSFORM IS HOW YOU USE THE CAMERA IN THE GAME! :D)
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
+                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
 
                     //Drawing each player
                     foreach (Player currentPlayer in players)
@@ -514,6 +526,7 @@ namespace Party_Tower_Main
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
+                    spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
 
                     //drawing out level tiles
                     LvlCoordinator.Draw(spriteBatch);
