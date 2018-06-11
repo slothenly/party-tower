@@ -109,7 +109,7 @@ namespace Party_Tower_Main
             graphics = new GraphicsDeviceManager(this);
 
             //temporary
-            testPlatform.Hitbox = new Rectangle(0, 400, 2000, 100);
+            testPlatform.Hitbox = new Rectangle(0, 400, 1000, 100);
             secondTestPlatform.Hitbox = new Rectangle(400, 600, 1000, 100);
             testWall.Hitbox = new Rectangle(300, 500, 100, 500);
             graphics.PreferredBackBufferWidth = 1920;

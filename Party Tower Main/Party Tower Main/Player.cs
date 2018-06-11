@@ -1843,12 +1843,7 @@ namespace Party_Tower_Main
                     verticalVelocity = -40;
                     jumpBoost = false; 
                 }
-                else //normal jump
-                {
-                    verticalVelocity = -30;
-                }
-
-                if (carrying) //smaller boost since carrying
+                else if (carrying) //weaker jump
                 {
                     verticalVelocity = -20;
                 }

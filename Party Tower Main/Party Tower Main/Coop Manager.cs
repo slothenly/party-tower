@@ -92,8 +92,8 @@ namespace Party_Tower_Main
             onTopPlayer.InCarry = true;
 
             //The onTopPlayer follows the movement of the other player, but is on top
-            onTopPlayer.X = (int)carryingPlayer.Position.X;
-            onTopPlayer.Y = (int)carryingPlayer.Position.Y - 75;
+            onTopPlayer.X = (int)carryingPlayer.Position.X + carryingPlayer.HorizontalVelocity * 2; //add on velocity to avoid sluggish delay when carrying player is moving
+            onTopPlayer.Y = (int)carryingPlayer.Position.Y - 75 + carryingPlayer.VerticalVelocity * 1;
 
         }
 
