@@ -32,6 +32,7 @@ namespace Party_Tower_Main
 
         public Matrix Transform { get { return transform; } }
         public Texture2D VisibleTexture { set { visibleTexture = value; } }
+        public Vector2 CameraCenter { get { return cameraCenter; } }
 
         #endregion Properties
         //#############################################################################################

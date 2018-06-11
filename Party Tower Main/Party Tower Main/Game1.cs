@@ -55,6 +55,7 @@ namespace Party_Tower_Main
 
         //Testing stuff
         Tile testPlatform = new Tile(false, true, false, false, "ffff");
+        Tile secondTestPlatform = new Tile(false, true, false, false, "ffff");
         Tile testWall = new Tile(false, false, false, true, "ffff");
         SpriteFont testFont;
 
@@ -99,7 +100,7 @@ namespace Party_Tower_Main
         LevelMapCoordinator LvlCoordinator;
         List<string[]> levelMap;
         Texture2D defaultTile;
-        
+        List<Tile> tilesOnScreen = new List<Tile>();
 
         #endregion
 
@@ -108,8 +109,9 @@ namespace Party_Tower_Main
             graphics = new GraphicsDeviceManager(this);
 
             //temporary
-            testPlatform.Hitbox = new Rectangle(400, 400, 800, 100);
-            testWall.Hitbox = new Rectangle(300, 100, 100, 500);
+            testPlatform.Hitbox = new Rectangle(0, 400, 1000, 100);
+            secondTestPlatform.Hitbox = new Rectangle(400, 600, 1000, 100);
+            testWall.Hitbox = new Rectangle(300, 500, 100, 500);
             graphics.PreferredBackBufferWidth = 1920;
             graphics.PreferredBackBufferHeight = 1080;
             graphics.ApplyChanges();
@@ -134,7 +136,9 @@ namespace Party_Tower_Main
 
             bothPlayersDead = false;
 
-
+            tilesOnScreen.Add(testPlatform);
+            tilesOnScreen.Add(secondTestPlatform);
+            tilesOnScreen.Add(testWall);
 
             previousGp1 = new GamePadState();
             gp1 = new GamePadState();
@@ -287,8 +291,15 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        //throw gets priority over bounce, so that way a player can be thrown if they roll into a throw
+
+                        //Player bouncing
+                        coopManager.CheckForRollAndThenBounce();
+
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
+
+
 
                         if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
                         {
@@ -307,6 +318,12 @@ namespace Party_Tower_Main
                             playerTwo.FiniteState(false);
                         }
 
+                        //check collision with each tile for each player
+                        foreach (Tile t in tilesOnScreen)
+                        {
+                            playerOne.CollisionCheck(t, workingGamepad1);
+                            playerTwo.CollisionCheck(t, workingGamepad2);
+                        }
                         #endregion
 
                         #region CAMERA / UPDATE A* MAP / ACTIVE GAMEOBJECTS
@@ -454,6 +471,7 @@ namespace Party_Tower_Main
                         if (SingleKeyPress(player.BindableKb["pause"]))
                         {
                             paused = !paused; //pause / unpause the game
+                            break;
                         }
                     }
 
@@ -469,8 +487,6 @@ namespace Party_Tower_Main
                         }
                     }
                     break;
-
-                    //Don't need a state for pause
 
                 case GameState.GameOver:
                     if (SingleKeyPress(Keys.Enter))
@@ -504,8 +520,14 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque); //setup for keeping pixel art nice
-                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;  //sets interpolation to nearest neighbor
+                    // (NULL, NULL, NULL, NULL, CAMERA.TRANSFORM IS HOW YOU USE THE CAMERA IN THE GAME! :D)
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
+                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
+
+                    if (paused)
+                    {
+                        spriteBatch.DrawString(testFont, "PAUSED", new Vector2(camera.CameraCenter.X - 100, camera.CameraCenter.Y - 20), Color.White);
+                    }
 
                     //Drawing each player
                     foreach (Player currentPlayer in players)
@@ -515,6 +537,23 @@ namespace Party_Tower_Main
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
+                    spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
+
+                    //debugging text for bug stomping
+                    if (playerOne.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerOne.HorizontalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 500), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerOne.VerticalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 465), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Player State: " + playerOne.PlayerState, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 430), Color.Cyan);
+                        spriteBatch.DrawString(testFont, "Facing right?: " + playerOne.IsFacingRight, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 395), Color.Cyan);
+                    }
+                    if (playerTwo.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerTwo.HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 500), Color.Red);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerTwo.VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 465), Color.Red);
+                        spriteBatch.DrawString(testFont, "Player State: " + playerTwo.PlayerState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 430), Color.Red);
+                        spriteBatch.DrawString(testFont, "Facing right?: " + playerTwo.IsFacingRight, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 395), Color.Red);
+                    }
 
                     //drawing out level tiles
                     LvlCoordinator.Draw(spriteBatch);
