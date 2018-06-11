@@ -188,18 +188,130 @@ namespace Party_Tower_Main
         }
 
         #region Helper Functions
-        /*
-        private Texture2D tileOrienter(Tile t, int rowNumber, int colNumber)
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentTile"></param>
+        /// <param name="rowNumber"></param>
+        /// <param name="colNumber"></param>
+        /// <returns></returns>
+        private Tile orientTiles(Tile currentTile, int rowNumber, int colNumber)
         {
             string tileConnections = "";
 
-            switch (tileConnections)
+            bool dc1 = false;   //tags telling the checkers to assume that spot is empty
+            bool dc2 = false;   //dc means "don't check"
+            bool dc3 = false;
+            bool dc4 = false;               // 1 2 3
+            bool dc6 = false;               // 4 X 6    <-- X marks the current tile
+            bool dc7 = false;               // 7 8 9
+            bool dc8 = false;
+            bool dc9 = false;
+
+            #region Special cases for tiles around the edges
+            
+            //invalidates checking for the spots that don't exist so the program doesn't break
+            if (rowNumber - 1 < 0)
             {
-                default:
-                    return 
+                dc1 = true;
+                dc2 = true;
+                dc3 = true;
             }
+            if (rowNumber + 1 > Rows)
+            {
+                dc7 = true;
+                dc8 = true;
+                dc9 = true;
+            }
+            if (colNumber - 1 < 0)
+            {
+                dc1 = true;
+                dc4 = true;
+                dc7 = true;
+            }
+            if (rowNumber + 1 > Columns)
+            {
+                dc3 = true;
+                dc6 = true;
+                dc9 = true;                
+            }
+            #endregion
+
+            #region Check through all viable surrounding tiles
+            if (dc1 != true)
+            {
+                if (currentMap[rowNumber--, colNumber--] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+
+            if (dc2 != true)
+            {
+                if (currentMap[rowNumber--, colNumber] != null)
+                {
+                    tileConnections += "2";
+                }
+            }
+
+            if (dc3 != true)
+            {
+                if (currentMap[rowNumber--, colNumber++] != null)
+                {
+                    tileConnections += "3";
+                }
+            }
+
+            if (dc4 != true)
+            {
+                if (currentMap[rowNumber, colNumber--] != null)
+                {
+                    tileConnections += "4";
+                }
+            }
+
+            //dc5 doesn't exist on purpose -- no need to check if the current tile exists
+
+            if (dc6 != true)
+            {
+                if (currentMap[rowNumber, colNumber++] != null)
+                {
+                    tileConnections += "6";
+                }
+            }
+
+            if (dc7 != true)
+            {
+                if (currentMap[rowNumber++, colNumber--] != null)
+                {
+                    tileConnections += "7";
+                }
+            }
+
+            if (dc8 != true)
+            {
+                if (currentMap[rowNumber++, colNumber] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+
+            if (dc9 != true)
+            {
+                if (currentMap[rowNumber++, colNumber++] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+            #endregion
+
+            //Based on the concatenated result, pull the correct tile from the tile bank
+
+            //Return null if something is broken
+            return null;
         }
-        */
+        
         #endregion
     }
 }
