@@ -23,6 +23,14 @@ namespace Party_Tower_Main
         {
             get { return currentMapRaw; }
         }
+
+        //Creates a readible map for the pathmanager
+        private string[] pathManagerMap;
+        public string[] PathManagerMap
+        {
+            get { return pathManagerMap; }
+        }
+
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
 
@@ -57,8 +65,6 @@ namespace Party_Tower_Main
         {
             //fields & initialization logic
             string line;
-            int row;
-            int column;
             int c = 0;
             string tempString = "";
             string[] infoTempHolder;
@@ -67,11 +73,12 @@ namespace Party_Tower_Main
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
 
             //Setup for creating the level's 2d array (pulls Row and Column counts, splits the rest into a 2D array)
-            line = interpreter.ReadLine(); 
+            line = interpreter.ReadLine();
             infoTempHolder = line.Split(',');
-            Rows = int.Parse(infoTempHolder[0]); 
+            Rows = int.Parse(infoTempHolder[0]);
             Columns = int.Parse(infoTempHolder[1]);
             string[,] importedTileInfo = new string[Rows, Columns];
+            pathManagerMap = new string[Rows];
 
             //Reading in the tiles from the file and placing them into the a holder string
             string tileInfoString = interpreter.ReadToEnd();
@@ -82,7 +89,7 @@ namespace Party_Tower_Main
             {
                 tempString = infoTempHolder[i];
                 char[] individualTileString = infoTempHolder[i].ToCharArray();
-                
+
                 if (individualTileString.Length > 4)
                 {
                     tempString = "";    //clears tempString so we dont get \r\nb1nt b1nt
@@ -163,8 +170,63 @@ namespace Party_Tower_Main
                     {
                         currentMap[rows, columns] = null;
                     }
-                    
+
                 }
+            }
+
+            //Creates a Map needed for Path Manager based on the tiles
+
+            /* Example of Map as String[]
+    {
+                 "+------+",
+                 "|      |",
+                 "|E X   |",
+                 "|XXX   |",
+                 "|   X  |",
+                 "| P    |",
+                 "|      |",
+                 "+------+",
+
+             * PATHMANAGER KEY
+             * P = Player
+             * E = Enemy
+             * + = "CORNER PIECE WALL"
+             * _ = "WALL"
+             * X = "DAMAGING WALL"
+             * ~ = CAN JUMP FROM BELOW
+             */
+
+            for (int rows = 0; rows < Rows; rows++)
+            {
+                string tempRow = "";
+
+                for (int col = 0; col < Columns; col++)
+                {
+                    if (currentMap[rows, col] != null)
+                    {
+                        if (currentMap[rows, col].isDamaging == true)
+                        {
+                            tempRow += "X";
+                        }
+                        else if (currentMap[rows, col].IsPlatform == true)
+                        {
+                            tempRow += "~";
+                        }
+                        else if (currentMap[rows, col].isWall == true)
+                        {
+                            tempRow += "_";
+                        }
+                        else
+                        {
+                            tempRow += " ";
+                        }
+                    }
+                    else
+                    {
+                        tempRow += " ";
+                    }
+                }
+                pathManagerMap[rows] = tempRow;
             }
 
             #endregion
@@ -175,8 +237,8 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
-        
-{
+
+        {
             foreach (Tile t in CurrentMap)
             {
                 if (t != null)
@@ -188,7 +250,7 @@ namespace Party_Tower_Main
         }
 
         #region Helper Functions
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -210,7 +272,7 @@ namespace Party_Tower_Main
             bool dc9 = false;
 
             #region Special cases for tiles around the edges
-            
+
             //invalidates checking for the spots that don't exist so the program doesn't break
             if (rowNumber - 1 < 0)
             {
@@ -234,7 +296,7 @@ namespace Party_Tower_Main
             {
                 dc3 = true;
                 dc6 = true;
-                dc9 = true;                
+                dc9 = true;
             }
             #endregion
 
@@ -311,7 +373,7 @@ namespace Party_Tower_Main
             //Return null if something is broken
             return null;
         }
-        
+
         #endregion
     }
 }

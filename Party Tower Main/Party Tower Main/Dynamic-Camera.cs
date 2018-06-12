@@ -58,27 +58,6 @@ namespace Party_Tower_Main
         #endregion Constructor
         //#############################################################################################
         #region Methods
-        /// <summary>
-        /// Updates the Camera based on the singular position of a single player in the game
-        /// </summary>
-        /// <param name="bounds"> The bounds of the screen the camera must remain in </param>
-        /// <param name="player1"> The Rectangle of the first player used to determine positioning </param>
-        public void UpdateCamera(Viewport bounds, Rectangle player1)
-        {
-            /*
-             * Determines the Camera based on the midpoint of the singular player
-             * Likely to be used to effectively make sure our camera is at least working.
-             * 
-             * Prevent Camera Going Off Map Should Always be done last.
-             */
-
-            resolutionBounds = bounds.Bounds;
-            Vector2 p1 = player1.Center.ToVector2();
-            cameraCenter = p1;
-            TransformMatrix();
-            UpdateVisibleArea();
-        }
-    
 
         /// <summary>
         /// Updates the Camera based on the positions of two players and the current Screen Resoltion

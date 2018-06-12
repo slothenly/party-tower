@@ -72,10 +72,10 @@ namespace Party_Tower_Main
          * PATHMANAGER KEY
          * P = Player
          * E = Enemy
-         * |, +, - = "OUT OF BOUNDS"
-         * _ = "PLATFORM"
-         * X = "DAMAGING PLATFORM"
-         * ^, >, <. ~ = MOVEABLE PLATFORMS IN CERTAIN DIRECTIONS
+         * + = "CORNER PIECE WALL"
+         * _ = "WALL"
+         * X = "DAMAGING WALL"
+         * ~ = CAN JUMP FROM BELOW
          */
 
         //constructor -------------------------------------------------------------------
@@ -123,8 +123,8 @@ namespace Party_Tower_Main
             Vector2 p2RealPosition = new Vector2(player2.X, player2.Y);
 
             //Records the correct tile cordinates based on the location of the player
-            p1Location = new Location { X = (player1.Center.X / widthConstant) + 1, Y =  (player1.Center.Y / heightConstant) + 1 };
-            p2Location = new Location { X = (player2.Center.X / widthConstant) + 1, Y = (player2.Center.Y / heightConstant) + 1};
+            p1Location = new Location { X = (player1.Center.X / widthConstant), Y =  (player1.Center.Y / heightConstant)};
+            p2Location = new Location { X = (player2.Center.X / widthConstant), Y = (player2.Center.Y / heightConstant)};
 
             //Creates new "original" maps for player1 and player2 to be set in
             p1Map = newMap;
@@ -185,7 +185,7 @@ namespace Party_Tower_Main
         /// <returns> Returns the Vector2 of the point to which the Enemy should move to!</returns>
         public Vector2 Following(Enemy e)
         {
-            var start = new Location { X = (e.Hitbox.Center.X / widthConstant) + 1, Y = (e.Hitbox.Center.Y / heightConstant) + 1 };
+            var start = new Location { X = (e.Hitbox.Center.X / widthConstant), Y = (e.Hitbox.Center.Y / heightConstant)};
             var target = DetermineTarget(start.X, start.Y);
             var openList = new List<Location>();
             var closedList = new List<Location>();
@@ -254,8 +254,8 @@ namespace Party_Tower_Main
             // Returns the mid point of the width of tile, and the height of the enemy sprite to set the point to which the enemy should move to.
             if (closedList.Count > 1)
             {
-                xReturn = (closedList[1].X - 1) * widthConstant + (widthConstant / 2);
-                yReturn = (closedList[1].Y - 1) * heightConstant + (heightConstant - e.Height);
+                xReturn = (closedList[1].X) * widthConstant + (widthConstant / 2);
+                yReturn = (closedList[1].Y) * heightConstant + (heightConstant - e.Height);
                 return new Vector2(xReturn, yReturn);
             }
 

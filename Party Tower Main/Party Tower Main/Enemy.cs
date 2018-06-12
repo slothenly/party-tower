@@ -301,15 +301,32 @@ namespace Party_Tower_Main
             {
                 FiniteStateFollowing(target);
             }
-
-            // If enemy was following and now is not, needs logic to finish it's type of movement and wait. 
-            // IE: Was jumping and following the player last frame. Is not following the player this frame.
-            // Therefore, the enemy needs to complete its jump and relax.
-
-            else if (previousWalkingState == EnemyWalkingState.Follow)
+            else if(previousWalkingState == EnemyWalkingState.Follow && walkingState == EnemyWalkingState.Waiting)
             {
-
+                if(previousEnemyState == EnemyState.Fall)
+                {
+                    FinishFalling();
+                }
+                if (previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.JumpLeft)
+                {
+                    FinishJumping();
+                }
             }
+
+        }
+
+        /// <summary>
+        /// Helps Enemy to finish falling 
+        /// </summary>
+        private void FinishFalling()
+        {
+
+        }
+        /// <summary>
+        /// Helps Enemy finish Jumping
+        /// </summary>
+        private void FinishJumping()
+        {
 
         }
 
@@ -319,6 +336,7 @@ namespace Party_Tower_Main
         /// <param name="target"></param>
         public void FiniteStateFollowing(Vector2 target)
         {
+
             //this isn't in exact same spot as target
             if (target.X != hitbox.X && target.Y != hitbox.Y)
             {
@@ -360,10 +378,14 @@ namespace Party_Tower_Main
             //Target and Enemy are already at same Position
             else
             {
-                enemyState = previousEnemyState;
+                
             }
         }
 
+        /// <summary>
+        /// Logic of Enemy movement based on its enemyState enum
+        /// </summary>
+        /// <param name="target"></param>
         private void FollowMovementLogic(Vector2 target)
         {
             //Idle
@@ -418,14 +440,14 @@ namespace Party_Tower_Main
                 {
                     //temp used to return isFacingRight to original state
                     bool temp = isFacingRight;
-                    isFacingRight = false;
+                    isFacingRight = true;
                     Accelerate(horizontalVelocity, 1, 10, false);
                     isFacingRight = temp;
                 }
                 else if (target.X < hitbox.X)
                 {
                     bool temp = isFacingRight;
-                    isFacingRight = true;
+                    isFacingRight = false;
                     Accelerate(horizontalVelocity, 1, 10, false);
                     isFacingRight = temp;
                 }
@@ -449,14 +471,6 @@ namespace Party_Tower_Main
         {
             enemyVision = new Rectangle(X - visionStandard, Y - visionStandard,
                 Width + (visionStandard * 2), Height + (visionStandard * 2));
-        }
-
-        public void EnemyHardReset()
-        {
-            hitpoints = 3;
-            enemyState = EnemyState.IdleRight;
-            hitbox.Location = enemySpawn;
-            NewEnemyVision();
         }
 
         #endregion Methods
