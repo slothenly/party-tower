@@ -16,6 +16,7 @@ namespace Party_Tower_Main
 
         private Matrix transform;                   // Transform matrix
         private Vector2 cameraCenter;               // Center of the Camera
+        private Vector2 mapEdge;                  // Furthest point allowed on map
         private Rectangle resolutionBounds;         // Resolution of the Current Chosen Screen
         private int updateAreaStandard;             // Standard which is used to create the Update Rectangle
         private Rectangle updateRectangle;          // Rectangle that determines what non-player objects get updated in game
@@ -153,8 +154,8 @@ namespace Party_Tower_Main
         {
             var inverseViewMatrix = Matrix.Invert(transform);
             var topL = Vector2.Transform(Vector2.Zero, inverseViewMatrix);
-            var topR = Vector2.Transform(new Vector2(resolutionBounds.X, 0), inverseViewMatrix);
-            var botL = Vector2.Transform(new Vector2(0, resolutionBounds.Y), inverseViewMatrix);
+            var topR = Vector2.Transform(new Vector2(resolutionBounds.Width, 0), inverseViewMatrix);
+            var botL = Vector2.Transform(new Vector2(0, resolutionBounds.Height), inverseViewMatrix);
             var botR = Vector2.Transform(new Vector2(resolutionBounds.Width, resolutionBounds.Height), inverseViewMatrix);
 
             var min = new Vector2(
@@ -203,9 +204,9 @@ namespace Party_Tower_Main
              * visible are will not intersect my edges of the game map.
              * 
              * Thus, the camera is now on screen.
-             
-             
-            if(visibleArea.X < 0)
+             */
+
+            if (visibleArea.X < 0)
             {
                 mustAdjust = true;
                 cameraCenter.X = visibleArea.Width / 2;
@@ -225,9 +226,17 @@ namespace Party_Tower_Main
                 mustAdjust = true;
                 cameraCenter.Y = mapEdge.Y - visibleArea.Height / 2;
             }
-            */
+            
 
             return mustAdjust;
+        }
+
+        /// <summary>
+        /// Sets the map edges for the camera to never extend past.
+        /// </summary>
+        public void SetMapEdge(Vector2 mapEdge)
+        {
+            this.mapEdge = mapEdge;
         }
 
         /// <summary>

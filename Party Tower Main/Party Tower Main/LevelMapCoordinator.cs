@@ -31,6 +31,12 @@ namespace Party_Tower_Main
             get { return pathManagerMap; }
         }
 
+        private Vector2 mapEdge;
+        public Vector2 MapEdge
+        {
+            get { return mapEdge; }
+        }
+
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
 
@@ -139,6 +145,9 @@ namespace Party_Tower_Main
                 }
             }
 
+            //Sets Map Edge stuff to give to Path Manager
+            mapEdge = new Vector2((currentMap[Rows - 1, Columns - 1].X + currentMap[Rows - 1, Columns - 1].Width), (currentMap[Rows - 1, Columns - 1].Y + currentMap[Rows - 1, Columns - 1].Height));
+
 
             //main 2d loop that pulls tile data from raw and sets it into currentMap tile position
             for (int rows = 0; rows < Rows; rows++)
@@ -228,6 +237,7 @@ namespace Party_Tower_Main
                 }
                 pathManagerMap[rows] = tempRow;
             }
+
 
             #endregion
         }

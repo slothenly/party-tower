@@ -203,6 +203,7 @@ namespace Party_Tower_Main
             pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
+            camera.SetMapEdge(LvlCoordinator.MapEdge);
 
             players.Add(playerOne);
             players.Add(playerTwo);
