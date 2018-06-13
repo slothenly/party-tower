@@ -101,6 +101,11 @@ namespace Party_Tower_Main
         List<string[]> levelMap;
         Texture2D defaultTile;
         List<Tile> tilesOnScreen = new List<Tile>();
+        Texture2D tileBrick;
+        Texture2D tileDirt;
+        Texture2D tileGrass;
+        Texture2D tileMoss;
+        Texture2D tileEnemy;
 
         #endregion
 
@@ -167,15 +172,26 @@ namespace Party_Tower_Main
             //###############################################
             //########### Add Tile Textures Here ############
             //###############################################
+            tileBrick = Content.Load<Texture2D>("brick");
+            tileDirt = Content.Load<Texture2D>("dirt");
+            tileGrass = Content.Load<Texture2D>("grass");
+            tileMoss = Content.Load<Texture2D>("moss");
+            //tileEnemy = Content.Load<Texture2D>("enemy");
             defaultTile = Content.Load<Texture2D>("default");
+
 
             //###############################################
             //########## Add to Texture Lists Here ###########
             //###############################################
+            tileTextures.Add(tileBrick);
+            tileTextures.Add(tileDirt);
+            tileTextures.Add(tileGrass);
+            tileTextures.Add(tileMoss);
+            //tileTextures.Add(tileEnemy);
             tileTextures.Add(defaultTile);
             #endregion
 
-            LvlCoordinator = new LevelMapCoordinator("default", tileTextures);
+            LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures);
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization

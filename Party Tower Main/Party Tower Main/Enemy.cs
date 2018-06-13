@@ -107,11 +107,31 @@ namespace Party_Tower_Main
 
         #region Constructor
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Enemy()
         {
             hitpoints = 3;
             verticalVelocity = 0;
             horizontalVelocity = 0;
+        }
+
+        /// <summary>
+        /// Constructor for pulling enemies from level map coordinator
+        /// </summary>
+        /// <param name="xPos"></param>
+        /// <param name="yPos"></param>
+        public Enemy(int xPos, int yPos, EnemyType type)
+        {
+            hitpoints = 3;
+            verticalVelocity = 0;
+            horizontalVelocity = 0;
+
+            X = xPos;
+            Y = yPos;
+
+            Type = type;
         }
 
         #endregion Constructor

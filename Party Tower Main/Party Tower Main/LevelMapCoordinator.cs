@@ -56,6 +56,8 @@ namespace Party_Tower_Main
             translator.Add("di", 1);    //dirt
             translator.Add("gr", 2);    //grass
             translator.Add("mo", 3);    //moss
+            //translator.Add("e1", 4);    //default enemy
+            translator.Add("default", 5);
             #endregion
 
             textureList = TextureList;
@@ -74,6 +76,7 @@ namespace Party_Tower_Main
             int c = 0;
             string tempString = "";
             string[] infoTempHolder;
+            List<Enemy> enemyHolder = new List<Enemy>();
 
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
@@ -148,7 +151,6 @@ namespace Party_Tower_Main
             //Sets Map Edge stuff to give to Path Manager
             mapEdge = new Vector2((currentMap[Rows - 1, Columns - 1].X + currentMap[Rows - 1, Columns - 1].Width), (currentMap[Rows - 1, Columns - 1].Y + currentMap[Rows - 1, Columns - 1].Height));
 
-
             //main 2d loop that pulls tile data from raw and sets it into currentMap tile position
             for (int rows = 0; rows < Rows; rows++)
             {
@@ -157,22 +159,37 @@ namespace Party_Tower_Main
                     //if there is a tile in this slot, fill it with the given information
                     if (currentMapRaw[rows, columns] != "0000")
                     {
+
                         //first, split up the raw, then distribute the info into the tile's slots
                         char[] currentRawSplit = currentMapRaw[rows, columns].ToCharArray();
-                        int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
 
-                        //check damaging and platform conditions
-                        if (currentRawSplit[2].ToString() == "T")
+                        //if the string indicates an enemy, add them to a list then add that list to the main list at the end
+                        if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "e1")
                         {
-                            currentMap[rows, columns].isDamaging = true;
-                        }
-                        if (currentRawSplit[3].ToString() == "T")
-                        {
-                            currentMap[rows, columns].IsPlatform = true;
+                            enemyHolder.Add(GetEnemy(CurrentMap[rows, columns].X, currentMap[rows, columns].Y));
+                            currentMap[rows, columns] = null;
+                            CurrentMapRaw[rows, columns] = null;
                         }
 
-                        //set texture
-                        currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+                        //in the case where the string doesn't indicate an enemy, it's a tile
+                        else
+                        {
+                            int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
+
+                            //check damaging and platform conditions
+                            if (currentRawSplit[2].ToString() == "T")
+                            {
+                                currentMap[rows, columns].isDamaging = true;
+                            }
+                            if (currentRawSplit[3].ToString() == "T")
+                            {
+                                currentMap[rows, columns].IsPlatform = true;
+                            }
+
+                            //set texture
+                            currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+                        }
+
                     }
                     //otherwise clean out the preset
                     else
@@ -238,7 +255,7 @@ namespace Party_Tower_Main
                 pathManagerMap[rows] = tempRow;
             }
 
-
+            //add enemies to the main list here from the temp list enemyHolder
             #endregion
         }
 
@@ -259,10 +276,17 @@ namespace Party_Tower_Main
             }
         }
 
+        public Enemy GetEnemy (int xPos, int yPos)
+        {
+            Enemy tempE = new Enemy(xPos, yPos, EnemyType.Alive);
+            return tempE;
+        }
+
         #region Helper Functions
 
         /// <summary>
-        /// 
+        /// Replaces the tile's current texture with a correctly oriented texture
+        /// currently on hold until we get more of the game working
         /// </summary>
         /// <param name="currentTile"></param>
         /// <param name="rowNumber"></param>
