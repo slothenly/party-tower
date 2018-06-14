@@ -42,6 +42,7 @@ namespace Party_Tower_Main
 
         List<Texture2D> textureList;
         List<Enemy> enemyHolder;
+        Texture2D defaultEnemy;
         Dictionary<string, int> translator = new Dictionary<string, int>();
         Dictionary<string, Texture2D> tileRetriever = new Dictionary<string, Texture2D>();
 
@@ -49,7 +50,7 @@ namespace Party_Tower_Main
         /// Constructor which pulls the initial path to take tile info from
         /// </summary>
         /// <param name="initialPath"></param>
-        public LevelMapCoordinator(string initialPath, List<Texture2D> TextureList)
+        public LevelMapCoordinator(string initialPath, List<Texture2D> textureList, Texture2D defaultEnemy)
         {
             #region Translator Info
             translator.Add("br", 0);    //brick
@@ -60,7 +61,8 @@ namespace Party_Tower_Main
             translator.Add("default", 5);
             #endregion
 
-            textureList = TextureList;
+            this.textureList = textureList;
+            this.defaultEnemy = defaultEnemy;
             UpdateMapFromPath(initialPath);
         }
 
@@ -422,7 +424,8 @@ namespace Party_Tower_Main
         /// <returns></returns>
         private Enemy GetEnemy(int xPos, int yPos)
         {
-            Enemy tempE = new Enemy(xPos, yPos, EnemyType.Alive);
+            Rectangle hitbox = new Rectangle(xPos, yPos, 64, 64);
+            Enemy tempE = new Enemy(EnemyType.Alive, hitbox, defaultEnemy, 20);
             return tempE;
         }
 

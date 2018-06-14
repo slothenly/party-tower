@@ -82,6 +82,7 @@ namespace Party_Tower_Main
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
+        Texture2D defaultEnemySprite;
 
         //Gamepad Support
         GamePadCapabilities capabilities1;
@@ -105,7 +106,6 @@ namespace Party_Tower_Main
         Texture2D tileDirt;
         Texture2D tileGrass;
         Texture2D tileMoss;
-        Texture2D tileEnemy;
 
         #endregion
 
@@ -166,23 +166,24 @@ namespace Party_Tower_Main
             //Placeholder textures for now
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
+            defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
+            
 
             #region Tile Textures
-            //###############################################
-            //########### Add Tile Textures Here ############
-            //###############################################
+            //################################################
+            //########### Add Tile Textures Here #############
+            //################################################
             tileBrick = Content.Load<Texture2D>("brick");
             tileDirt = Content.Load<Texture2D>("dirt");
             tileGrass = Content.Load<Texture2D>("grass");
             tileMoss = Content.Load<Texture2D>("moss");
-            //tileEnemy = Content.Load<Texture2D>("enemy");
             defaultTile = Content.Load<Texture2D>("default");
 
 
-            //###############################################
+            //################################################
             //########## Add to Texture Lists Here ###########
-            //###############################################
+            //################################################
             tileTextures.Add(tileBrick);
             tileTextures.Add(tileDirt);
             tileTextures.Add(tileGrass);
@@ -191,8 +192,7 @@ namespace Party_Tower_Main
             tileTextures.Add(defaultTile);
             #endregion
 
-            LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures);
-            
+            LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
             Enemy[] tempEnemyList = LvlCoordinator.GetEnemies();
             foreach (Enemy e in tempEnemyList)
             {

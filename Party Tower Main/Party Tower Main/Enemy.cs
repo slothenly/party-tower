@@ -110,8 +110,6 @@ namespace Party_Tower_Main
         /// <summary>
         /// Constructor for pulling enemies from level map coordinator
         /// </summary>
-        /// <param name="xPos"> X Spawn Position of the Enemy </param>
-        /// <param name="yPos"> Y Spawn Position of the Enemy </param>
         /// <param name="type"> Type of Enemy [Stationary = type from Egg / Alive = Following with a*] </param>
         /// <param name="visionStandard"> determines how far away the enemy can "see"  </param>
         public Enemy(EnemyType type, Rectangle hitbox, Texture2D defaultSprite, int visionStandard)
