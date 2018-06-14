@@ -41,7 +41,7 @@ namespace Party_Tower_Main
         int Columns;    //sorry if it irks you
 
         List<Texture2D> textureList;
-
+        List<Enemy> enemyHolder;
         Dictionary<string, int> translator = new Dictionary<string, int>();
         Dictionary<string, Texture2D> tileRetriever = new Dictionary<string, Texture2D>();
 
@@ -76,7 +76,7 @@ namespace Party_Tower_Main
             int c = 0;
             string tempString = "";
             string[] infoTempHolder;
-            List<Enemy> enemyHolder = new List<Enemy>();
+            enemyHolder = new List<Enemy>();
 
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
@@ -276,10 +276,16 @@ namespace Party_Tower_Main
             }
         }
 
-        public Enemy GetEnemy (int xPos, int yPos)
+        /// <summary>
+        /// Acts like a get function for the list of enemies
+        /// </summary>
+        /// <param name="holder"></param>
+        /// <returns></returns>
+        public Enemy[] GetEnemies()
         {
-            Enemy tempE = new Enemy(xPos, yPos, EnemyType.Alive);
-            return tempE;
+            Enemy[] temp = enemyHolder.ToArray();
+            enemyHolder.Clear();
+            return temp;
         }
 
         #region Helper Functions
@@ -406,6 +412,18 @@ namespace Party_Tower_Main
 
             //Return null if something is broken
             return null;
+        }
+
+        /// <summary>
+        /// Used for the creation and storing of enemies
+        /// </summary>
+        /// <param name="xPos"></param>
+        /// <param name="yPos"></param>
+        /// <returns></returns>
+        private Enemy GetEnemy(int xPos, int yPos)
+        {
+            Enemy tempE = new Enemy(xPos, yPos, EnemyType.Alive);
+            return tempE;
         }
 
         #endregion

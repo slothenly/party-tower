@@ -192,6 +192,12 @@ namespace Party_Tower_Main
             #endregion
 
             LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures);
+            
+            Enemy[] tempEnemyList = LvlCoordinator.GetEnemies();
+            foreach (Enemy e in tempEnemyList)
+            {
+                enemyList.Add(e);
+            }
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
