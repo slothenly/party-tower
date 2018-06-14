@@ -198,6 +198,7 @@ namespace Party_Tower_Main
             {
                 enemyList.Add(e);
             }
+            levelMap.Add(LvlCoordinator.PathManagerMap);
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
@@ -362,7 +363,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        //pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
@@ -410,6 +411,7 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        /*
                         //check enemy colliding with player
                         foreach (Enemy currentEnemy in enemyList)
                         {
@@ -419,6 +421,7 @@ namespace Party_Tower_Main
                             }
 
                         }
+                        */
 
                         #endregion
 
