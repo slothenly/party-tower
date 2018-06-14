@@ -114,13 +114,13 @@ namespace Party_Tower_Main
         /// <param name="yPos"> Y Spawn Position of the Enemy </param>
         /// <param name="type"> Type of Enemy [Stationary = type from Egg / Alive = Following with a*] </param>
         /// <param name="visionStandard"> determines how far away the enemy can "see"  </param>
-        public Enemy(int xPos, int yPos, EnemyType type, int visionStandard, Texture2D defaultSprite)
+        public Enemy(EnemyType type, Rectangle hitbox, Texture2D defaultSprite, int visionStandard)
         {
             hitpoints = 3;
             verticalVelocity = 0;
             horizontalVelocity = 0;
 
-            hitbox = new Rectangle(xPos, yPos, 64, 64);
+            this.hitbox = hitbox;
 
             
             Type = type;
@@ -259,6 +259,8 @@ namespace Party_Tower_Main
                 topIntersects = true;
                 #endregion
             }
+
+            UpdateEnemyVision();
         }
         /// <summary>
         /// Decelerate either vertically or horizontally at a specific rate until a specific limit is reached
