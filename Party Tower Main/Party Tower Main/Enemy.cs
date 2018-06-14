@@ -36,7 +36,7 @@ namespace Party_Tower_Main
         Die
     }
     /// <summary>
-    /// Subject to Change. Two Core Types = Stationary [Static] & Walking
+    /// Subject to Change. Two Core Types = Stationary & Alive
     /// </summary>
     enum EnemyType
     {
@@ -108,30 +108,38 @@ namespace Party_Tower_Main
         #region Constructor
 
         /// <summary>
-        /// Default constructor
-        /// </summary>
-        public Enemy()
-        {
-            hitpoints = 3;
-            verticalVelocity = 0;
-            horizontalVelocity = 0;
-        }
-
-        /// <summary>
         /// Constructor for pulling enemies from level map coordinator
         /// </summary>
-        /// <param name="xPos"></param>
-        /// <param name="yPos"></param>
-        public Enemy(int xPos, int yPos, EnemyType type)
+        /// <param name="xPos"> X Spawn Position of the Enemy </param>
+        /// <param name="yPos"> Y Spawn Position of the Enemy </param>
+        /// <param name="type"> Type of Enemy [Stationary = type from Egg / Alive = Following with a*] </param>
+        /// <param name="visionStandard"> determines how far away the enemy can "see"  </param>
+        public Enemy(EnemyType type, Rectangle hitbox, Texture2D defaultSprite, int visionStandard)
         {
             hitpoints = 3;
             verticalVelocity = 0;
             horizontalVelocity = 0;
 
-            X = xPos;
-            Y = yPos;
+            this.hitbox = hitbox;
 
+            
             Type = type;
+
+            this.defaultSprite = defaultSprite;
+            this.visionStandard = visionStandard;
+            UpdateEnemyVision();
+            
+
+
+            // Starts the enemy as inactive and not being drawn. 
+            isActive = false;
+            isDrawn = false;
+            isFacingRight = false;
+
+            // Enemy is facing left
+            isFacingRight = false;
+            enemyState = EnemyState.IdleLeft;
+            walkingState = EnemyWalkingState.Waiting;
         }
 
         #endregion Constructor
@@ -251,6 +259,8 @@ namespace Party_Tower_Main
                 topIntersects = true;
                 #endregion
             }
+
+            UpdateEnemyVision();
         }
         /// <summary>
         /// Decelerate either vertically or horizontally at a specific rate until a specific limit is reached
@@ -332,6 +342,8 @@ namespace Party_Tower_Main
                     FinishJumping();
                 }
             }
+
+            UpdateEnemyVision();
 
         }
 
@@ -487,7 +499,7 @@ namespace Party_Tower_Main
         /// Use if Enemy has had position drastically changed (IE: Reset)
         /// </summary>
         /// <param name="newPos"></param>
-        private void NewEnemyVision()
+        private void UpdateEnemyVision()
         {
             enemyVision = new Rectangle(X - visionStandard, Y - visionStandard,
                 Width + (visionStandard * 2), Height + (visionStandard * 2));

@@ -385,6 +385,10 @@ namespace Party_Tower_Main
                             if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
                             {
                                 currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
+                                foreach (Tile t in tilesOnScreen)
+                                {
+                                    currentEnemy.CollisionCheck(t);
+                                }
                             }
                             //there shouldn't be any other type of movement
                         }
