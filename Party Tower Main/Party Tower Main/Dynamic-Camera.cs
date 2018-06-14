@@ -204,7 +204,8 @@ namespace Party_Tower_Main
              * visible are will not intersect my edges of the game map.
              * 
              * Thus, the camera is now on screen.
-             
+             * */
+
 
             if (visibleArea.X < 0)
             {
@@ -226,7 +227,7 @@ namespace Party_Tower_Main
                 mustAdjust = true;
                 cameraCenter.Y = mapEdge.Y - visibleArea.Height / 2;
             }
-            */
+            
 
             return mustAdjust;
         }

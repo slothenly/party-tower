@@ -564,6 +564,11 @@ namespace Party_Tower_Main
                     {
                         currentPlayer.Draw(spriteBatch);
                     }
+                    foreach (Enemy e in enemyList)
+                    {
+                        e.Draw(spriteBatch);
+                    }
+
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
