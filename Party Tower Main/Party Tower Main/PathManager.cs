@@ -105,7 +105,7 @@ namespace Party_Tower_Main
 
             // So, the logic is to divide the screen size by the total tiles allowed in each direction to get the tile constants of x and y
             heightConstant = resolutionHeight / 9;
-            widthConstant = widthConstant / 16;
+            widthConstant = resolutionWidth / 16;
             
         }
 
