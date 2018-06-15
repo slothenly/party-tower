@@ -372,9 +372,14 @@ namespace Party_Tower_Main
                 {
                     FinishFalling();
                 }
-                if (previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.JumpLeft)
+                else if (previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.JumpLeft)
                 {
                     FinishJumping();
+                }
+                else
+                {
+                    horizontalVelocity = 0;
+                    verticalVelocity = 0;
                 }
             }
 
@@ -427,13 +432,13 @@ namespace Party_Tower_Main
                 }
 
                 //not touching a tile from above
-                if (!bottomIntersects)
+                else if (!bottomIntersects)
                 {
                     enemyState = EnemyState.Fall;
                 }
 
                 //target is directly right of player
-                if (target.X > hitbox.X && target.Y == hitbox.Y)
+                else if (target.X > hitbox.X && target.Y == hitbox.Y)
                 {
                     enemyState = EnemyState.WalkRight;
                 }
