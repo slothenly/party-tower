@@ -196,7 +196,7 @@ namespace Party_Tower_Main
             LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 800, 64, 64), defaultEnemySprite, 200));
+            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 200));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
 
@@ -602,7 +602,7 @@ namespace Party_Tower_Main
                         spriteBatch.DrawString(testFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
                         spriteBatch.DrawString(testFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
                         spriteBatch.DrawString(testFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "P2 Map: \n" + pathManager.P2MapOfLevel, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y + 0), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "C Map: \n" + pathManager.CorrectMap, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y - 300), Color.Yellow);
                     }
 
                     spriteBatch.End();
