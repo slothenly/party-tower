@@ -35,14 +35,47 @@ namespace Party_Tower_Main
 
         //properties --------------------------------------------------------------------
 
-        public string[] P1MapOfLevel
+        public string P1MapOfLevel
         {
-            get { return p1Map; }
+            get
+            {
+                string temp = "";
+                for (int i = 0; i < p1Map.Length; i++)
+                {
+                    temp += p1Map[i];
+                    temp += "\n";
+                }
+                return temp;
+            }
         }
 
-        public string[] P2MapOfLevel
+        public string P2MapOfLevel
         {
-            get { return p1Map; }
+            get
+            {
+                string temp = "";
+                for (int i = 0; i < p2Map.Length; i++)
+                {
+                    temp += p2Map[i];
+                    temp += "\n";
+                }
+                return temp;
+            }
+        }
+
+        public string TargetLocation
+        {
+            get
+            {
+                if (closedList.Count > 1)
+                {
+                    return "" + closedList[0].X + closedList[0].Y;
+                }
+                else
+                {
+                    return "null";
+                }
+            }
         }
 
         public int HeightConstant
@@ -127,8 +160,14 @@ namespace Party_Tower_Main
             p2Location = new Location { X = (player2.Center.X / widthConstant), Y = (player2.Center.Y / heightConstant)};
 
             //Creates new "original" maps for player1 and player2 to be set in
-            p1Map = newMap;
-            p2Map = newMap;
+
+            p1Map = new string[newMap.Length];
+            p2Map = new string[newMap.Length];
+            for (int i = 0; i < newMap.Length; i++)
+            {
+                p1Map[i] = newMap[i];
+                p2Map[i] = newMap[i];
+            }
 
             //Sets the respective char in the respective string within the string array to include Player 1
             var p1mapLine = newMap[p1Location.Y];

@@ -58,6 +58,9 @@ namespace Party_Tower_Main
         //Determines if player and enemy collided.
         private bool hurtPlayer = false;
 
+        //Debug Value showing where enemy is moving too
+        private Vector2 target;
+
         //Directionality and FSM
         private bool isFacingRight;
         private EnemyState enemyState;
@@ -98,11 +101,44 @@ namespace Party_Tower_Main
             get { return hitpoints; }
             set { hitpoints = value; }
         }
+
         public EnemyType Type
         {
             get { return type; }
             set { type = value; }
         }
+
+        public int HorizontalVelocity
+        {
+            get { return horizontalVelocity; }
+        }
+
+        public int VerticalVelocity
+        {
+            get { return verticalVelocity; }
+        }
+
+        public string PositionDebug
+        {
+            get { return "" + X + " , " + Y + ""; }
+        }
+
+        public EnemyState EnemyState
+        {
+            get { return enemyState; }
+        }
+
+        public EnemyWalkingState WalkingState
+        {
+            get { return walkingState; }
+        }
+
+        public string TargetDebug
+        {
+            get { return "" + target.X + " , " + target.Y; }
+        }
+
+
         #endregion Properties
 
         #region Constructor
@@ -309,6 +345,7 @@ namespace Party_Tower_Main
         /// <param name="pM"></param>
         public void UpdateEnemy(Player p1, Player p2, Vector2 target)
         {
+            this.target = target;
             previousEnemyState = enemyState;
             previousWalkingState = walkingState;
 
@@ -340,6 +377,10 @@ namespace Party_Tower_Main
                     FinishJumping();
                 }
             }
+
+            // Applies the Movement
+            X += horizontalVelocity;
+            Y += verticalVelocity;
 
             UpdateEnemyVision();
 

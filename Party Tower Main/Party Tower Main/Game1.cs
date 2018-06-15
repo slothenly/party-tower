@@ -137,6 +137,7 @@ namespace Party_Tower_Main
 
             gameState = GameState.Menu;
             levelMap = new List<string[]>();
+            levelMap.Add(new string[2]);
             enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
 
             bothPlayersDead = false;
@@ -193,12 +194,11 @@ namespace Party_Tower_Main
             #endregion
 
             LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
-            Enemy[] tempEnemyList = LvlCoordinator.GetEnemies();
-            foreach (Enemy e in tempEnemyList)
-            {
-                enemyList.Add(e);
-            }
-            levelMap.Add(LvlCoordinator.PathManagerMap);
+
+            // Test Enemy Manually Made
+            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 800, 64, 64), defaultEnemySprite, 200));
+
+            levelMap[0] = (LvlCoordinator.PathManagerMap);
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
@@ -564,6 +564,7 @@ namespace Party_Tower_Main
                     {
                         currentPlayer.Draw(spriteBatch);
                     }
+
                     foreach (Enemy e in enemyList)
                     {
                         e.Draw(spriteBatch);
@@ -592,6 +593,17 @@ namespace Party_Tower_Main
 
                     //drawing out level tiles
                     LvlCoordinator.Draw(spriteBatch);
+
+                    if (playerTwo.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + enemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + enemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Enemy State: " + enemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "P2 Map: \n" + pathManager.P2MapOfLevel, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y + 0), Color.Yellow);
+                    }
 
                     spriteBatch.End();
 
