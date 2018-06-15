@@ -196,7 +196,7 @@ namespace Party_Tower_Main
             LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 200));
+            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
 

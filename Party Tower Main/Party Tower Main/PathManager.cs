@@ -120,6 +120,9 @@ namespace Party_Tower_Main
         //constructor -------------------------------------------------------------------
         public PathManager(Viewport view)
         {
+            correctMap = new string[1];
+            correctMap[0] = "enemy type \n is stationary\n" +
+                "change enemy \n type to \n Alive to \n check this \n out.";
             targetDebug = new Location { };
             SetMapConstants(view.Height, view.Width);
         }
