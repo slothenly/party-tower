@@ -2026,12 +2026,27 @@ namespace Party_Tower_Main
             }
         }
         /// <summary>
-        /// player trying to move Up with dpad/leftThumbstick, no current use since A is used to jump
+        /// player trying to move Up with dpad/leftThumbstick, used for menu navigation
         /// </summary>
         /// <returns></returns>
         public bool GamepadUp()
         {
             if (gp.ThumbSticks.Left.Y > 0.5f || gp.IsButtonDown(Buttons.DPadUp))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move Down with dpad/leftThumbstick, used for menu navigation
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadDown()
+        {
+            if (gp.ThumbSticks.Left.Y < -0.5f || gp.IsButtonDown(Buttons.DPadDown))
             {
                 return true;
             }

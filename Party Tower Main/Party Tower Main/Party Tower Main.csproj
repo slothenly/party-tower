@@ -41,6 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Button.cs" />
     <Compile Include="CameraLimiters.cs" />
     <Compile Include="Collectible.cs" />
     <Compile Include="Coop Manager.cs" />
