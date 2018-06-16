@@ -83,6 +83,7 @@ namespace Party_Tower_Main
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
+        Texture2D defaultEnemySprite;
 
         //Gamepad Support
         GamePadCapabilities capabilities1;
@@ -102,6 +103,10 @@ namespace Party_Tower_Main
         List<string[]> levelMap;
         Texture2D defaultTile;
         List<Tile> tilesOnScreen = new List<Tile>();
+        Texture2D tileBrick;
+        Texture2D tileDirt;
+        Texture2D tileGrass;
+        Texture2D tileMoss;
 
         //Buttons for Menu
         Button playButton;
@@ -146,6 +151,7 @@ namespace Party_Tower_Main
             // TODO: Add your initialization logic here
 
             levelMap = new List<string[]>();
+            levelMap.Add(new string[2]);
             enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
 
             bothPlayersDead = false;
@@ -205,21 +211,38 @@ namespace Party_Tower_Main
             //Placeholder textures for now
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
+            defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
+            
 
             #region Tile Textures
-            //###############################################
-            //########### Add Tile Textures Here ############
-            //###############################################
+            //################################################
+            //########### Add Tile Textures Here #############
+            //################################################
+            tileBrick = Content.Load<Texture2D>("brick");
+            tileDirt = Content.Load<Texture2D>("dirt");
+            tileGrass = Content.Load<Texture2D>("grass");
+            tileMoss = Content.Load<Texture2D>("moss");
             defaultTile = Content.Load<Texture2D>("default");
 
-            //###############################################
+
+            //################################################
             //########## Add to Texture Lists Here ###########
-            //###############################################
+            //################################################
+            tileTextures.Add(tileBrick);
+            tileTextures.Add(tileDirt);
+            tileTextures.Add(tileGrass);
+            tileTextures.Add(tileMoss);
+            //tileTextures.Add(tileEnemy);
             tileTextures.Add(defaultTile);
             #endregion
 
-            LvlCoordinator = new LevelMapCoordinator("default", tileTextures);
+            LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
+
+            // Test Enemy Manually Made
+            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+
+            levelMap[0] = (LvlCoordinator.PathManagerMap);
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
@@ -249,6 +272,7 @@ namespace Party_Tower_Main
             pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
+            camera.SetMapEdge(LvlCoordinator.MapEdge);
 
             players.Add(playerOne);
             players.Add(playerTwo);
@@ -385,7 +409,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        //pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
@@ -408,6 +432,10 @@ namespace Party_Tower_Main
                             if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
                             {
                                 currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
+                                foreach (Tile t in tilesOnScreen)
+                                {
+                                    currentEnemy.CollisionCheck(t);
+                                }
                             }
                             //there shouldn't be any other type of movement
                         }
@@ -429,6 +457,7 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        /*
                         //check enemy colliding with player
                         foreach (Enemy currentEnemy in enemyList)
                         {
@@ -438,6 +467,7 @@ namespace Party_Tower_Main
                             }
 
                         }
+                        */
 
                         #endregion
 
@@ -600,6 +630,12 @@ namespace Party_Tower_Main
                     {
                         currentPlayer.Draw(spriteBatch);
                     }
+
+                    foreach (Enemy e in enemyList)
+                    {
+                        e.Draw(spriteBatch);
+                    }
+
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
                     spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
@@ -623,6 +659,17 @@ namespace Party_Tower_Main
 
                     //drawing out level tiles
                     LvlCoordinator.Draw(spriteBatch);
+
+                    if (playerTwo.IsDebugging)
+                    {
+                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + enemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + enemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Enemy State: " + enemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
+                        spriteBatch.DrawString(testFont, "C Map: \n" + pathManager.CorrectMap, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y - 300), Color.Yellow);
+                    }
 
                     spriteBatch.End();
 

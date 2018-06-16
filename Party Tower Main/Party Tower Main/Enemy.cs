@@ -36,7 +36,7 @@ namespace Party_Tower_Main
         Die
     }
     /// <summary>
-    /// Subject to Change. Two Core Types = Stationary [Static] & Walking
+    /// Subject to Change. Two Core Types = Stationary & Alive
     /// </summary>
     enum EnemyType
     {
@@ -57,6 +57,9 @@ namespace Party_Tower_Main
 
         //Determines if player and enemy collided.
         private bool hurtPlayer = false;
+
+        //Debug Value showing where enemy is moving too
+        private Vector2 target;
 
         //Directionality and FSM
         private bool isFacingRight;
@@ -98,20 +101,79 @@ namespace Party_Tower_Main
             get { return hitpoints; }
             set { hitpoints = value; }
         }
+
         public EnemyType Type
         {
             get { return type; }
             set { type = value; }
         }
+
+        public int HorizontalVelocity
+        {
+            get { return horizontalVelocity; }
+        }
+
+        public int VerticalVelocity
+        {
+            get { return verticalVelocity; }
+        }
+
+        public string PositionDebug
+        {
+            get { return "" + X + " , " + Y + ""; }
+        }
+
+        public EnemyState EnemyState
+        {
+            get { return enemyState; }
+        }
+
+        public EnemyWalkingState WalkingState
+        {
+            get { return walkingState; }
+        }
+
+        public string TargetDebug
+        {
+            get { return "" + target.X + " , " + target.Y; }
+        }
+
+
         #endregion Properties
 
         #region Constructor
 
-        public Enemy()
+        /// <summary>
+        /// Constructor for pulling enemies from level map coordinator
+        /// </summary>
+        /// <param name="type"> Type of Enemy [Stationary = type from Egg / Alive = Following with a*] </param>
+        /// <param name="visionStandard"> determines how far away the enemy can "see"  </param>
+        public Enemy(EnemyType type, Rectangle hitbox, Texture2D defaultSprite, int visionStandard)
         {
             hitpoints = 3;
             verticalVelocity = 0;
             horizontalVelocity = 0;
+
+            this.hitbox = hitbox;
+
+            
+            Type = type;
+
+            this.defaultSprite = defaultSprite;
+            this.visionStandard = visionStandard;
+            UpdateEnemyVision();
+            
+
+
+            // Starts the enemy as inactive and not being drawn. 
+            isActive = false;
+            isDrawn = false;
+            isFacingRight = false;
+
+            // Enemy is facing left
+            isFacingRight = false;
+            enemyState = EnemyState.IdleLeft;
+            walkingState = EnemyWalkingState.Waiting;
         }
 
         #endregion Constructor
@@ -231,6 +293,8 @@ namespace Party_Tower_Main
                 topIntersects = true;
                 #endregion
             }
+
+            UpdateEnemyVision();
         }
         /// <summary>
         /// Decelerate either vertically or horizontally at a specific rate until a specific limit is reached
@@ -281,6 +345,7 @@ namespace Party_Tower_Main
         /// <param name="pM"></param>
         public void UpdateEnemy(Player p1, Player p2, Vector2 target)
         {
+            this.target = target;
             previousEnemyState = enemyState;
             previousWalkingState = walkingState;
 
@@ -301,15 +366,43 @@ namespace Party_Tower_Main
             {
                 FiniteStateFollowing(target);
             }
-
-            // If enemy was following and now is not, needs logic to finish it's type of movement and wait. 
-            // IE: Was jumping and following the player last frame. Is not following the player this frame.
-            // Therefore, the enemy needs to complete its jump and relax.
-
-            else if (previousWalkingState == EnemyWalkingState.Follow)
+            else if(previousWalkingState == EnemyWalkingState.Follow && walkingState == EnemyWalkingState.Waiting)
             {
-
+                if(previousEnemyState == EnemyState.Fall)
+                {
+                    FinishFalling();
+                }
+                else if (previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.JumpLeft)
+                {
+                    FinishJumping();
+                }
+                else
+                {
+                    horizontalVelocity = 0;
+                    verticalVelocity = 0;
+                }
             }
+
+            // Applies the Movement
+            X += horizontalVelocity;
+            Y += verticalVelocity;
+
+            UpdateEnemyVision();
+
+        }
+
+        /// <summary>
+        /// Helps Enemy to finish falling 
+        /// </summary>
+        private void FinishFalling()
+        {
+
+        }
+        /// <summary>
+        /// Helps Enemy finish Jumping
+        /// </summary>
+        private void FinishJumping()
+        {
 
         }
 
@@ -319,6 +412,7 @@ namespace Party_Tower_Main
         /// <param name="target"></param>
         public void FiniteStateFollowing(Vector2 target)
         {
+
             //this isn't in exact same spot as target
             if (target.X != hitbox.X && target.Y != hitbox.Y)
             {
@@ -338,13 +432,13 @@ namespace Party_Tower_Main
                 }
 
                 //not touching a tile from above
-                if (!bottomIntersects)
+                else if (!bottomIntersects)
                 {
                     enemyState = EnemyState.Fall;
                 }
 
                 //target is directly right of player
-                if (target.X > hitbox.X && target.Y == hitbox.Y)
+                else if (target.X > hitbox.X && target.Y == hitbox.Y)
                 {
                     enemyState = EnemyState.WalkRight;
                 }
@@ -360,10 +454,14 @@ namespace Party_Tower_Main
             //Target and Enemy are already at same Position
             else
             {
-                enemyState = previousEnemyState;
+                
             }
         }
 
+        /// <summary>
+        /// Logic of Enemy movement based on its enemyState enum
+        /// </summary>
+        /// <param name="target"></param>
         private void FollowMovementLogic(Vector2 target)
         {
             //Idle
@@ -418,14 +516,14 @@ namespace Party_Tower_Main
                 {
                     //temp used to return isFacingRight to original state
                     bool temp = isFacingRight;
-                    isFacingRight = false;
+                    isFacingRight = true;
                     Accelerate(horizontalVelocity, 1, 10, false);
                     isFacingRight = temp;
                 }
                 else if (target.X < hitbox.X)
                 {
                     bool temp = isFacingRight;
-                    isFacingRight = true;
+                    isFacingRight = false;
                     Accelerate(horizontalVelocity, 1, 10, false);
                     isFacingRight = temp;
                 }
@@ -445,18 +543,10 @@ namespace Party_Tower_Main
         /// Use if Enemy has had position drastically changed (IE: Reset)
         /// </summary>
         /// <param name="newPos"></param>
-        private void NewEnemyVision()
+        private void UpdateEnemyVision()
         {
             enemyVision = new Rectangle(X - visionStandard, Y - visionStandard,
                 Width + (visionStandard * 2), Height + (visionStandard * 2));
-        }
-
-        public void EnemyHardReset()
-        {
-            hitpoints = 3;
-            enemyState = EnemyState.IdleRight;
-            hitbox.Location = enemySpawn;
-            NewEnemyVision();
         }
 
         #endregion Methods

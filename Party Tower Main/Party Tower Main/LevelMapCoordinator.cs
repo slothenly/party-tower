@@ -23,11 +23,26 @@ namespace Party_Tower_Main
         {
             get { return currentMapRaw; }
         }
+
+        //Creates a readible map for the pathmanager
+        private string[] pathManagerMap;
+        public string[] PathManagerMap
+        {
+            get { return pathManagerMap; }
+        }
+
+        private Vector2 mapEdge;
+        public Vector2 MapEdge
+        {
+            get { return mapEdge; }
+        }
+
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
 
         List<Texture2D> textureList;
-
+        List<Enemy> enemyHolder;
+        Texture2D defaultEnemy;
         Dictionary<string, int> translator = new Dictionary<string, int>();
         Dictionary<string, Texture2D> tileRetriever = new Dictionary<string, Texture2D>();
 
@@ -35,16 +50,19 @@ namespace Party_Tower_Main
         /// Constructor which pulls the initial path to take tile info from
         /// </summary>
         /// <param name="initialPath"></param>
-        public LevelMapCoordinator(string initialPath, List<Texture2D> TextureList)
+        public LevelMapCoordinator(string initialPath, List<Texture2D> textureList, Texture2D defaultEnemy)
         {
             #region Translator Info
             translator.Add("br", 0);    //brick
             translator.Add("di", 1);    //dirt
             translator.Add("gr", 2);    //grass
             translator.Add("mo", 3);    //moss
+            //translator.Add("e1", 4);    //default enemy
+            translator.Add("default", 5);
             #endregion
 
-            textureList = TextureList;
+            this.textureList = textureList;
+            this.defaultEnemy = defaultEnemy;
             UpdateMapFromPath(initialPath);
         }
 
@@ -57,21 +75,21 @@ namespace Party_Tower_Main
         {
             //fields & initialization logic
             string line;
-            int row;
-            int column;
             int c = 0;
             string tempString = "";
             string[] infoTempHolder;
+            enemyHolder = new List<Enemy>();
 
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
 
             //Setup for creating the level's 2d array (pulls Row and Column counts, splits the rest into a 2D array)
-            line = interpreter.ReadLine(); 
+            line = interpreter.ReadLine();
             infoTempHolder = line.Split(',');
-            Rows = int.Parse(infoTempHolder[0]); 
+            Rows = int.Parse(infoTempHolder[0]);
             Columns = int.Parse(infoTempHolder[1]);
             string[,] importedTileInfo = new string[Rows, Columns];
+            pathManagerMap = new string[Rows];
 
             //Reading in the tiles from the file and placing them into the a holder string
             string tileInfoString = interpreter.ReadToEnd();
@@ -82,7 +100,7 @@ namespace Party_Tower_Main
             {
                 tempString = infoTempHolder[i];
                 char[] individualTileString = infoTempHolder[i].ToCharArray();
-                
+
                 if (individualTileString.Length > 4)
                 {
                     tempString = "";    //clears tempString so we dont get \r\nb1nt b1nt
@@ -132,6 +150,8 @@ namespace Party_Tower_Main
                 }
             }
 
+            //Sets Map Edge stuff to give to Path Manager
+            mapEdge = new Vector2((currentMap[Rows - 1, Columns - 1].X + currentMap[Rows - 1, Columns - 1].Width), (currentMap[Rows - 1, Columns - 1].Y + currentMap[Rows - 1, Columns - 1].Height));
 
             //main 2d loop that pulls tile data from raw and sets it into currentMap tile position
             for (int rows = 0; rows < Rows; rows++)
@@ -141,32 +161,103 @@ namespace Party_Tower_Main
                     //if there is a tile in this slot, fill it with the given information
                     if (currentMapRaw[rows, columns] != "0000")
                     {
+
                         //first, split up the raw, then distribute the info into the tile's slots
                         char[] currentRawSplit = currentMapRaw[rows, columns].ToCharArray();
-                        int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
 
-                        //check damaging and platform conditions
-                        if (currentRawSplit[2].ToString() == "T")
+                        //if the string indicates an enemy, add them to a list then add that list to the main list at the end
+                        if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "e1")
                         {
-                            currentMap[rows, columns].isDamaging = true;
-                        }
-                        if (currentRawSplit[3].ToString() == "T")
-                        {
-                            currentMap[rows, columns].IsPlatform = true;
+                            enemyHolder.Add(GetEnemy(CurrentMap[rows, columns].X, currentMap[rows, columns].Y));
+                            currentMap[rows, columns] = null;
+                            CurrentMapRaw[rows, columns] = null;
                         }
 
-                        //set texture
-                        currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+                        //in the case where the string doesn't indicate an enemy, it's a tile
+                        else
+                        {
+                            int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
+
+                            //check damaging and platform conditions
+                            if (currentRawSplit[2].ToString() == "T")
+                            {
+                                currentMap[rows, columns].isDamaging = true;
+                            }
+                            if (currentRawSplit[3].ToString() == "T")
+                            {
+                                currentMap[rows, columns].IsPlatform = true;
+                            }
+
+                            //set texture
+                            currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+                        }
+
                     }
                     //otherwise clean out the preset
                     else
                     {
                         currentMap[rows, columns] = null;
                     }
-                    
+
                 }
             }
 
+            //Creates a Map needed for Path Manager based on the tiles
+
+            /* Example of Map as String[]
+    {
+                 "+------+",
+                 "|      |",
+                 "|E X   |",
+                 "|XXX   |",
+                 "|   X  |",
+                 "| P    |",
+                 "|      |",
+                 "+------+",
+
+             * PATHMANAGER KEY
+             * P = Player
+             * E = Enemy
+             * + = "CORNER PIECE WALL"
+             * _ = "WALL"
+             * X = "DAMAGING WALL"
+             * ~ = CAN JUMP FROM BELOW
+             */
+
+            for (int rows = 0; rows < Rows; rows++)
+            {
+                string tempRow = "";
+
+                for (int col = 0; col < Columns; col++)
+                {
+                    if (currentMap[rows, col] != null)
+                    {
+                        if (currentMap[rows, col].isDamaging == true)
+                        {
+                            tempRow += "X";
+                        }
+                        else if (currentMap[rows, col].IsPlatform == true)
+                        {
+                            tempRow += "~";
+                        }
+                        else if (currentMap[rows, col].isWall == true)
+                        {
+                            tempRow += "_";
+                        }
+                        else
+                        {
+                            tempRow += " ";
+                        }
+                    }
+                    else
+                    {
+                        tempRow += " ";
+                    }
+                }
+                pathManagerMap[rows] = tempRow;
+            }
+
+            //add enemies to the main list here from the temp list enemyHolder
             #endregion
         }
 
@@ -175,8 +266,8 @@ namespace Party_Tower_Main
         /// </summary>
         /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
-        
-{
+
+        {
             foreach (Tile t in CurrentMap)
             {
                 if (t != null)
@@ -187,19 +278,157 @@ namespace Party_Tower_Main
             }
         }
 
+        /// <summary>
+        /// Acts like a get function for the list of enemies
+        /// </summary>
+        /// <param name="holder"></param>
+        /// <returns></returns>
+        public Enemy[] GetEnemies()
+        {
+            Enemy[] temp = enemyHolder.ToArray();
+            enemyHolder.Clear();
+            return temp;
+        }
+
         #region Helper Functions
-        /*
-        private Texture2D tileOrienter(Tile t, int rowNumber, int colNumber)
+
+        /// <summary>
+        /// Replaces the tile's current texture with a correctly oriented texture
+        /// currently on hold until we get more of the game working
+        /// </summary>
+        /// <param name="currentTile"></param>
+        /// <param name="rowNumber"></param>
+        /// <param name="colNumber"></param>
+        /// <returns></returns>
+        private Tile orientTiles(Tile currentTile, int rowNumber, int colNumber)
         {
             string tileConnections = "";
 
-            switch (tileConnections)
+            bool dc1 = false;   //tags telling the checkers to assume that spot is empty
+            bool dc2 = false;   //dc means "don't check"
+            bool dc3 = false;
+            bool dc4 = false;               // 1 2 3
+            bool dc6 = false;               // 4 X 6    <-- X marks the current tile
+            bool dc7 = false;               // 7 8 9
+            bool dc8 = false;
+            bool dc9 = false;
+
+            #region Special cases for tiles around the edges
+
+            //invalidates checking for the spots that don't exist so the program doesn't break
+            if (rowNumber - 1 < 0)
             {
-                default:
-                    return 
+                dc1 = true;
+                dc2 = true;
+                dc3 = true;
             }
+            if (rowNumber + 1 > Rows)
+            {
+                dc7 = true;
+                dc8 = true;
+                dc9 = true;
+            }
+            if (colNumber - 1 < 0)
+            {
+                dc1 = true;
+                dc4 = true;
+                dc7 = true;
+            }
+            if (rowNumber + 1 > Columns)
+            {
+                dc3 = true;
+                dc6 = true;
+                dc9 = true;
+            }
+            #endregion
+
+            #region Check through all viable surrounding tiles
+            if (dc1 != true)
+            {
+                if (currentMap[rowNumber--, colNumber--] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+
+            if (dc2 != true)
+            {
+                if (currentMap[rowNumber--, colNumber] != null)
+                {
+                    tileConnections += "2";
+                }
+            }
+
+            if (dc3 != true)
+            {
+                if (currentMap[rowNumber--, colNumber++] != null)
+                {
+                    tileConnections += "3";
+                }
+            }
+
+            if (dc4 != true)
+            {
+                if (currentMap[rowNumber, colNumber--] != null)
+                {
+                    tileConnections += "4";
+                }
+            }
+
+            //dc5 doesn't exist on purpose -- no need to check if the current tile exists
+
+            if (dc6 != true)
+            {
+                if (currentMap[rowNumber, colNumber++] != null)
+                {
+                    tileConnections += "6";
+                }
+            }
+
+            if (dc7 != true)
+            {
+                if (currentMap[rowNumber++, colNumber--] != null)
+                {
+                    tileConnections += "7";
+                }
+            }
+
+            if (dc8 != true)
+            {
+                if (currentMap[rowNumber++, colNumber] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+
+            if (dc9 != true)
+            {
+                if (currentMap[rowNumber++, colNumber++] != null)
+                {
+                    tileConnections += "1";
+                }
+            }
+            #endregion
+
+            //Based on the concatenated result, pull the correct tile from the tile bank
+
+            //Return null if something is broken
+            return null;
         }
-        */
+
+        /// <summary>
+        /// Used for the creation and storing of enemies
+        /// </summary>
+        /// <param name="xPos"></param>
+        /// <param name="yPos"></param>
+        /// <returns></returns>
+        private Enemy GetEnemy(int xPos, int yPos)
+        {
+            Rectangle hitbox = new Rectangle(xPos, yPos, 64, 64);
+            Enemy tempE = new Enemy(EnemyType.Alive, hitbox, defaultEnemy, 20);
+            return tempE;
+        }
+
         #endregion
     }
 }

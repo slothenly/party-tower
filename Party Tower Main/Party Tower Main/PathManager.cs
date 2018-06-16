@@ -15,8 +15,6 @@ namespace Party_Tower_Main
         ///</summary>
 
         //fields ------------------------------------------------------------------------
-        private List<Location> openList;            // List of unchecked nodes
-        private List<Location> closedList;          // List of checked nodes - final path held in here
         private Vector2 p1RealPosition;             // Cordinates of the Player's True Position
         private Vector2 p2RealPosition;             // Cordinates of the Players True Position
         private Location p1Location;                // Cordinates of the tile that player1 rests in
@@ -25,6 +23,7 @@ namespace Party_Tower_Main
         private string[] p2Map;                     // Curent Array of Strings that depicts the map of the level with Player 2
         private string[] correctMap;                // Field that gets set to either p1Map or p2Map based on what player the enemy is looking for. 
         private Location current;                   // Current Location being checked
+        private Location targetDebug;               // Target Location for Debug
         private bool usePlayer1;                    // Bool that determines if the most recent player checked for this enemy was Player 1 or Player 2
 
         int g = 0;                                  
@@ -35,14 +34,54 @@ namespace Party_Tower_Main
 
         //properties --------------------------------------------------------------------
 
-        public string[] P1MapOfLevel
+        public string P1MapOfLevel
         {
-            get { return p1Map; }
+            get
+            {
+                string temp = "";
+                for (int i = 0; i < p1Map.Length; i++)
+                {
+                    temp += p1Map[i];
+                    temp += "\n";
+                }
+                return temp;
+            }
         }
 
-        public string[] P2MapOfLevel
+        public string P2MapOfLevel
         {
-            get { return p1Map; }
+            get
+            {
+                string temp = "";
+                for (int i = 0; i < p2Map.Length; i++)
+                {
+                    temp += p2Map[i];
+                    temp += "\n";
+                }
+                return temp;
+            }
+        }
+
+        public string CorrectMap
+        {
+            get
+            {
+                string temp = "";
+                for (int i = 0; i < correctMap.Length; i++)
+                {
+                    temp += correctMap[i];
+                    temp += "\n";
+                }
+                return temp;
+            }
+        }
+
+        public string TargetLocation
+        {
+            get
+            {
+                return "" + targetDebug.X + " , " + targetDebug.Y;
+            }
         }
 
         public int HeightConstant
@@ -72,19 +111,19 @@ namespace Party_Tower_Main
          * PATHMANAGER KEY
          * P = Player
          * E = Enemy
-         * |, +, - = "OUT OF BOUNDS"
-         * _ = "PLATFORM"
-         * X = "DAMAGING PLATFORM"
-         * ^, >, <. ~ = MOVEABLE PLATFORMS IN CERTAIN DIRECTIONS
+         * + = "CORNER PIECE WALL"
+         * _ = "WALL"
+         * X = "DAMAGING WALL"
+         * ~ = CAN JUMP FROM BELOW
          */
 
         //constructor -------------------------------------------------------------------
         public PathManager(Viewport view)
         {
-            openList = new List<Location>();
-            closedList = new List<Location>();
-            p1Map = new string[] { };
-            p2Map = new string[] { };
+            correctMap = new string[1];
+            correctMap[0] = "enemy type \n is stationary\n" +
+                "change enemy \n type to \n Alive to \n check this \n out.";
+            targetDebug = new Location { };
             SetMapConstants(view.Height, view.Width);
         }
 
@@ -105,7 +144,7 @@ namespace Party_Tower_Main
 
             // So, the logic is to divide the screen size by the total tiles allowed in each direction to get the tile constants of x and y
             heightConstant = resolutionHeight / 9;
-            widthConstant = widthConstant / 16;
+            widthConstant = resolutionWidth / 16;
             
         }
 
@@ -123,12 +162,18 @@ namespace Party_Tower_Main
             Vector2 p2RealPosition = new Vector2(player2.X, player2.Y);
 
             //Records the correct tile cordinates based on the location of the player
-            p1Location = new Location { X = (player1.Center.X / widthConstant) + 1, Y =  (player1.Center.Y / heightConstant) + 1 };
-            p2Location = new Location { X = (player2.Center.X / widthConstant) + 1, Y = (player2.Center.Y / heightConstant) + 1};
+            p1Location = new Location { X = (player1.Center.X / widthConstant), Y =  (player1.Center.Y / heightConstant)};
+            p2Location = new Location { X = (player2.Center.X / widthConstant), Y = (player2.Center.Y / heightConstant)};
 
             //Creates new "original" maps for player1 and player2 to be set in
-            p1Map = newMap;
-            p2Map = newMap;
+
+            p1Map = new string[newMap.Length];
+            p2Map = new string[newMap.Length];
+            for (int i = 0; i < newMap.Length; i++)
+            {
+                p1Map[i] = newMap[i];
+                p2Map[i] = newMap[i];
+            }
 
             //Sets the respective char in the respective string within the string array to include Player 1
             var p1mapLine = newMap[p1Location.Y];
@@ -162,7 +207,7 @@ namespace Party_Tower_Main
             // Calculates H scores before hand
 
             int p1H = ComputeHScore(enemyX, enemyY, p1Location.X, p1Location.Y);
-            int p2H = ComputeHScore(enemyX, enemyY, p1Location.X, p1Location.Y);
+            int p2H = ComputeHScore(enemyX, enemyY, p2Location.X, p2Location.Y);
 
             // If P2 is further , then enemy follows P1
             if (p2H > p1H)
@@ -185,7 +230,7 @@ namespace Party_Tower_Main
         /// <returns> Returns the Vector2 of the point to which the Enemy should move to!</returns>
         public Vector2 Following(Enemy e)
         {
-            var start = new Location { X = (e.Hitbox.Center.X / widthConstant) + 1, Y = (e.Hitbox.Center.Y / heightConstant) + 1 };
+            var start = new Location { X = (e.Hitbox.Center.X / widthConstant), Y = (e.Hitbox.Center.Y / heightConstant)};
             var target = DetermineTarget(start.X, start.Y);
             var openList = new List<Location>();
             var closedList = new List<Location>();
@@ -254,13 +299,16 @@ namespace Party_Tower_Main
             // Returns the mid point of the width of tile, and the height of the enemy sprite to set the point to which the enemy should move to.
             if (closedList.Count > 1)
             {
-                xReturn = (closedList[1].X - 1) * widthConstant + (widthConstant / 2);
-                yReturn = (closedList[1].Y - 1) * heightConstant + (heightConstant - e.Height);
+                targetDebug.X = closedList[1].X;
+                targetDebug.Y = closedList[1].Y;
+                xReturn = (closedList[1].X) * widthConstant + (widthConstant / 2);
+                yReturn = (closedList[1].Y) * heightConstant + (heightConstant - e.Height);
                 return new Vector2(xReturn, yReturn);
             }
 
             // This case occurs if the enemy and player are in the same square.
-
+            targetDebug.X = target.X;
+            targetDebug.Y = target.Y;
             // This instance of A* used P2, so travel to the center of Player 2
             if (!usePlayer1)
             {

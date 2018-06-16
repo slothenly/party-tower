@@ -194,6 +194,7 @@ namespace External_Level_Designer_Tool
             AddNewTile("brick", "Brick", typeSelector);
             AddNewTile("grass", "Grass", typeSelector);
             AddNewTile("moss", "Moss", typeSelector);                //            <=== Add Tilesets here
+            AddNewTile("enemy", "Enemy", typeSelector);
             //AddNewTile("path",   "display name", container); 
             #endregion
 
@@ -213,6 +214,7 @@ namespace External_Level_Designer_Tool
             textTranslater.Add("Dirt", "di");
             textTranslater.Add("Grass", "gr");
             textTranslater.Add("Moss", "mo");
+            textTranslater.Add("Enemy", "e1");
             
             
             #endregion
