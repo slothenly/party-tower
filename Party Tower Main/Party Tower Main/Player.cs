@@ -113,9 +113,6 @@ namespace Party_Tower_Main
         SoundEffect walkSound;
         SoundEffect checkpointSound;
 
-        //Coop
-        Vector2 playerSpawn; //position at which the dead player will spawn at
-
 
         GameTime gameTime;
         #endregion
@@ -137,7 +134,7 @@ namespace Party_Tower_Main
         public int HorizontalVelocity
         {
             get { return horizontalVelocity; }
-            set { verticalVelocity = value; }
+            set { horizontalVelocity = value; }
         }
         public bool IsDebugging
         {
@@ -160,11 +157,6 @@ namespace Party_Tower_Main
         {
             get { return position; }
             set { position = value; }
-        }
-        public Vector2 PlayerSpawn
-        {
-            get { return playerSpawn; }
-            set { playerSpawn = value; }
         }
         public Dictionary<string, Keys> BindableKb
         {
@@ -362,6 +354,7 @@ namespace Party_Tower_Main
                     playerState != PlayerState.BounceLeft && playerState != PlayerState.BounceRight)
                 {
                     playerState = PlayerState.Die;
+                    debugEnemyCollision = false;
                 }
 
                 bounceLockout = true;

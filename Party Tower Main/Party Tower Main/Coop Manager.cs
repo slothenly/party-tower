@@ -16,8 +16,6 @@ namespace Party_Tower_Main
         private Player playerOne;
         private Player playerTwo;
 
-        private Vector2 checkpointPosition;
-
         //Class
         public Coop_Manager(Player playerOne, Player playerTwo)
         {
@@ -48,9 +46,13 @@ namespace Party_Tower_Main
                 //Added delay using timer
                 if (playerOne.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
-                    checkpointPosition = GetAlivePlayerPosition(playerTwo);
-                    playerOne.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                    playerOne.Position = GetAlivePlayerPosition(playerTwo); //put dead player at alive player's position
                     playerOne.PlayerState = PlayerState.IdleRight;
+                    playerOne.X = (int)playerOne.Position.X;
+                    playerOne.Y = (int)playerOne.Position.Y;
+                    playerOne.HorizontalVelocity = 0;
+                    playerOne.VerticalVelocity = 0;
+
                     return true;
                 }
                 else if (playerTwo.PlayerState == PlayerState.Die) //both players are dead
@@ -64,9 +66,12 @@ namespace Party_Tower_Main
                 //Added delay using timer
                 if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
-                    checkpointPosition = GetAlivePlayerPosition(playerOne);
-                    playerTwo.PlayerSpawn = checkpointPosition; //put dead player at alive player's position
+                    playerTwo.Position = GetAlivePlayerPosition(playerOne); //put dead player at alive player's position
                     playerTwo.PlayerState = PlayerState.IdleRight;
+                    playerTwo.X = (int)playerTwo.Position.X;
+                    playerTwo.Y = (int)playerTwo.Position.Y;
+                    playerTwo.HorizontalVelocity = 0;
+                    playerTwo.HorizontalVelocity = 0;
                 }
                 else if (playerOne.PlayerState == PlayerState.Die) //both players are dead
                 {

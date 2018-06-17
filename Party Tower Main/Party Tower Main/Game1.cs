@@ -370,7 +370,6 @@ namespace Party_Tower_Main
                         coopManager.CheckForThrowAndThenThrow();
 
 
-
                         if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
                         {
                             playerOne.FiniteState(true);
@@ -450,24 +449,12 @@ namespace Party_Tower_Main
                         {
                             foreach (Enemy currentEnemy in enemyList)
                             {
-                                if (currentEnemy.IsActive)
+                                if (currentEnemy.Hitpoints > 0 && currentPlayer.PlayerState != PlayerState.Die)
                                 {
                                     currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
                                 }
                             }
                         }
-
-                        /*
-                        //check enemy colliding with player
-                        foreach (Enemy currentEnemy in enemyList)
-                        {
-                            foreach (Player currentPlayer in players)
-                            {
-                                currentEnemy.CheckColliderAgainstPlayer(currentPlayer);
-                            }
-
-                        }
-                        */
 
                         #endregion
 
@@ -628,12 +615,20 @@ namespace Party_Tower_Main
                     //Drawing each player
                     foreach (Player currentPlayer in players)
                     {
-                        currentPlayer.Draw(spriteBatch);
+                        if (currentPlayer.PlayerState != PlayerState.Die)
+                        {
+                            currentPlayer.Draw(spriteBatch);
+                        }
+
                     }
+
 
                     foreach (Enemy e in enemyList)
                     {
-                        e.Draw(spriteBatch);
+                        if (e.Hitpoints > 0)
+                        {
+                            e.Draw(spriteBatch);
+                        }
                     }
 
                     //a random rectangle, for testing onyl

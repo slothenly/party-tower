@@ -532,11 +532,7 @@ namespace Party_Tower_Main
 
         public override void Draw(SpriteBatch sb)
         {
-            if (isDrawn == true && enemyState != EnemyState.Die)
-            {
                 sb.Draw(defaultSprite, hitbox, Color.White);
-            }
-
         }
 
         /// <summary>
