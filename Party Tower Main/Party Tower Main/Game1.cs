@@ -237,12 +237,18 @@ namespace Party_Tower_Main
             tileTextures.Add(defaultTile);
             #endregion
 
+            //Instantiate level coordinator and add the starter tiles to the list
             LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
+            foreach (Tile currentTile in LvlCoordinator.CurrentMap)
+            {
+                tilesOnScreen.Add(currentTile);
+            }
 
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
+            
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization
@@ -576,8 +582,8 @@ namespace Party_Tower_Main
             switch (gameState)
             {
                 case GameState.Menu:
-                    spriteBatch.Begin();
-
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                  //sets interpolation to nearest neighbor
                     //draw the main menu background image
                     spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
 
