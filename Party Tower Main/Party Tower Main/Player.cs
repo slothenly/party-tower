@@ -402,157 +402,160 @@ namespace Party_Tower_Main
         /// </summary>
         public void CollisionCheck(Tile t, bool hasGamepad)
         {
-            //wall collision (collision box next to player depending on direction facing)
-            if (sideChecker.Intersects(t.Hitbox))
+            if (t != null)
             {
-                #region Default
-                if (!t.IsPlatform) //only do wall collision if the tile isn't a platform
-                {
-                    horizontalVelocity = 0; //stop player from moving through wall
-                    if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
-                    {
-                        hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
-                    }
-                    else if (t.X < hitbox.X) //player facing left and tile is to the left of player
-                    {
-                        hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
-                    }
-
-                    if (playerState == PlayerState.Fall)
-                    {
-                        if (isFacingRight)
-                        {
-                            hitbox.X -= 1;
-                        }
-                        else
-                        {
-                            hitbox.X += 1;
-                        }
-
-                    }
-                }
-
-                #endregion
-
-            }
-            //ceiling collision (collision box above player)
-            if (topChecker.Intersects(t.Hitbox))
-            {
-                #region Default
-                if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
-                {
-                    //only do ceiling collision if the tile isn't a platform
-                    if (!t.IsPlatform)
-                    {
-                        hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
-                    }
-                }
-                //only launch the player downwards if the tile isn't a platform
-                if (!t.IsPlatform)
-                {
-                    topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
-                    verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
-                }
-
-                #endregion
-            }
-            //floor collision (collision box below player)
-            else if (bottomChecker.Intersects(t.Hitbox))
-            {
-                bottomIntersects = true;
-                if (goingdown)
+                //wall collision (collision box next to player depending on direction facing)
+                if (sideChecker.Intersects(t.Hitbox))
                 {
                     #region Default
-                    if (!(playerState == PlayerState.BounceLeft || playerState == PlayerState.BounceRight))
+                    if (!t.IsPlatform) //only do wall collision if the tile isn't a platform
                     {
-                        verticalVelocity = 0; //stop the player from falling
-                        hitbox.Y = t.Y - hitbox.Height; //place the player on top of tile
-                    }
-                    else
-                    {
-                        hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
-                    }
-                    hasRolledInAir = false;
-                    bottomIntersects = true;
-                    if (hasGamepad) //this is done to prevent crashing if there isn't a controller
-                    {
-                        //FSM states are changed here so that the player can move after touching the ground
-                        //Roll Left
-                        if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                        horizontalVelocity = 0; //stop player from moving through wall
+                        if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
                         {
-                            playerState = PlayerState.RollLeft;
+                            hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
                         }
-                        //Walk Left
-                        else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
+                        else if (t.X < hitbox.X) //player facing left and tile is to the left of player
                         {
-                            playerState = PlayerState.WalkLeft;
+                            hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
                         }
-                        //Roll Right
-                        else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+
+                        if (playerState == PlayerState.Fall)
                         {
-                            playerState = PlayerState.RollRight;
-                        }
-                        //Walk Right
-                        else if ((kb.IsKeyDown(bindableKb["right"]) || GamepadRight()) && !isRolling)
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        //Idle Right
-                        else if (isFacingRight && (kb.IsKeyUp(bindableKb["right"]) || !GamepadRight()) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
-                        {
-                            playerState = PlayerState.IdleRight;
-                        }
-                        //Idle Left
-                        else if (!isFacingRight && (kb.IsKeyUp(bindableKb["left"]) || !GamepadLeft()) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
-                        {
-                            playerState = PlayerState.IdleLeft;
+                            if (isFacingRight)
+                            {
+                                hitbox.X -= 1;
+                            }
+                            else
+                            {
+                                hitbox.X += 1;
+                            }
+
                         }
                     }
-                    else //Doesn't have gamepad
+
+                    #endregion
+
+                }
+                //ceiling collision (collision box above player)
+                if (topChecker.Intersects(t.Hitbox))
+                {
+                    #region Default
+                    if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
                     {
-                        //FSM states are changed here so that the player can move after touching the ground
-                        //Roll Left
-                        if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                        //only do ceiling collision if the tile isn't a platform
+                        if (!t.IsPlatform)
                         {
-                            playerState = PlayerState.RollLeft;
-                        }
-                        //Walk Left
-                        else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
-                        {
-                            playerState = PlayerState.WalkLeft;
-                        }
-                        //Roll Right
-                        else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
-                        {
-                            playerState = PlayerState.RollRight;
-                        }
-                        //Walk Right
-                        else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
-                        {
-                            playerState = PlayerState.WalkRight;
-                        }
-                        //Idle Right
-                        else if (isFacingRight && kb.IsKeyUp(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
-                        {
-                            playerState = PlayerState.IdleRight;
-                        }
-                        //Idle Left
-                        else if (!isFacingRight && kb.IsKeyUp(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
-                        {
-                            playerState = PlayerState.IdleLeft;
+                            hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
                         }
                     }
-                    singleTile = t;
-                    //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
-                    topIntersects = true;
+                    //only launch the player downwards if the tile isn't a platform
+                    if (!t.IsPlatform)
+                    {
+                        topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
+                        verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
+                    }
 
                     #endregion
                 }
+                //floor collision (collision box below player)
+                else if (bottomChecker.Intersects(t.Hitbox))
+                {
+                    bottomIntersects = true;
+                    if (goingdown)
+                    {
+                        #region Default
+                        if (!(playerState == PlayerState.BounceLeft || playerState == PlayerState.BounceRight))
+                        {
+                            verticalVelocity = 0; //stop the player from falling
+                            hitbox.Y = t.Y - hitbox.Height; //place the player on top of tile
+                        }
+                        else
+                        {
+                            hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
+                        }
+                        hasRolledInAir = false;
+                        bottomIntersects = true;
+                        if (hasGamepad) //this is done to prevent crashing if there isn't a controller
+                        {
+                            //FSM states are changed here so that the player can move after touching the ground
+                            //Roll Left
+                            if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                            {
+                                playerState = PlayerState.RollLeft;
+                            }
+                            //Walk Left
+                            else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            //Roll Right
+                            else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+                            {
+                                playerState = PlayerState.RollRight;
+                            }
+                            //Walk Right
+                            else if ((kb.IsKeyDown(bindableKb["right"]) || GamepadRight()) && !isRolling)
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            //Idle Right
+                            else if (isFacingRight && (kb.IsKeyUp(bindableKb["right"]) || !GamepadRight()) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            //Idle Left
+                            else if (!isFacingRight && (kb.IsKeyUp(bindableKb["left"]) || !GamepadLeft()) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                        }
+                        else //Doesn't have gamepad
+                        {
+                            //FSM states are changed here so that the player can move after touching the ground
+                            //Roll Left
+                            if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !isFacingRight) || ((isRolling && !isFacingRight) && !rollEnd))
+                            {
+                                playerState = PlayerState.RollLeft;
+                            }
+                            //Walk Left
+                            else if ((kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()) && (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) && !isRolling)
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            //Roll Right
+                            else if (((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && isFacingRight) || ((isRolling && isFacingRight) && !rollEnd))
+                            {
+                                playerState = PlayerState.RollRight;
+                            }
+                            //Walk Right
+                            else if (kb.IsKeyDown(bindableKb["right"]) && !isRolling)
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            //Idle Right
+                            else if (isFacingRight && kb.IsKeyUp(bindableKb["right"]) && playerState != PlayerState.BounceLeft && playerState != PlayerState.RollRight)
+                            {
+                                playerState = PlayerState.IdleRight;
+                            }
+                            //Idle Left
+                            else if (!isFacingRight && kb.IsKeyUp(bindableKb["left"]) && playerState != PlayerState.BounceRight && playerState != PlayerState.RollLeft)
+                            {
+                                playerState = PlayerState.IdleLeft;
+                            }
+                        }
+                        singleTile = t;
+                        //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
+                        topIntersects = true;
 
-            }
-            else if (t.Equals(singleTile))
-            {
-                bottomIntersects = false;
+                        #endregion
+                    }
+
+                }
+                else if (t.Equals(singleTile))
+                {
+                    bottomIntersects = false;
+                }
             }
         }
         /// <summary>
