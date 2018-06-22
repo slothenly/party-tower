@@ -81,6 +81,8 @@ namespace Party_Tower_Main
             string[] infoTempHolder;
             enemyHolder = new List<Enemy>();
 
+            initializationsRun++;
+
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
 
@@ -201,7 +203,6 @@ namespace Party_Tower_Main
                     //otherwise clean out the preset
                 }
 
-                initializationsRun++;
             }
 
             //Creates a Map needed for Path Manager based on the tiles
@@ -259,7 +260,7 @@ namespace Party_Tower_Main
                 pathManagerMap[rows] = tempRow;
             }
 
-            
+
             #endregion
         }
 
