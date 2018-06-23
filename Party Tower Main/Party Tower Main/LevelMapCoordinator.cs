@@ -40,6 +40,7 @@ namespace Party_Tower_Main
         int Rows;       //both are intentionally capitalized to make for easier recognition
         int Columns;    //sorry if it irks you
 
+        int initializationsRun = 0;     //tracking meta data to see if things are running multiple times
         List<Texture2D> textureList;
         List<Enemy> enemyHolder;
         Texture2D defaultEnemy;
@@ -79,6 +80,8 @@ namespace Party_Tower_Main
             string tempString = "";
             string[] infoTempHolder;
             enemyHolder = new List<Enemy>();
+
+            initializationsRun++;
 
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
@@ -158,10 +161,14 @@ namespace Party_Tower_Main
             {
                 for (int columns = 0; columns < Columns; columns++)
                 {
-                    //if there is a tile in this slot, fill it with the given information
-                    if (currentMapRaw[rows, columns] != "0000")
+                    //if there's no tile, set the map spot to null
+                    if (currentMapRaw[rows, columns] == "0000")
                     {
-
+                        currentMap[rows, columns] = null;
+                    }
+                    //if there is a tile in this slot, fill it with the given information
+                    else
+                    {
                         //first, split up the raw, then distribute the info into the tile's slots
                         char[] currentRawSplit = currentMapRaw[rows, columns].ToCharArray();
 
@@ -194,12 +201,8 @@ namespace Party_Tower_Main
 
                     }
                     //otherwise clean out the preset
-                    else
-                    {
-                        currentMap[rows, columns] = null;
-                    }
-
                 }
+
             }
 
             //Creates a Map needed for Path Manager based on the tiles
@@ -257,7 +260,7 @@ namespace Party_Tower_Main
                 pathManagerMap[rows] = tempRow;
             }
 
-            //add enemies to the main list here from the temp list enemyHolder
+
             #endregion
         }
 
