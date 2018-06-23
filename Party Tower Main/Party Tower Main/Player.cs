@@ -241,15 +241,14 @@ namespace Party_Tower_Main
 
             respawnTimer = new Timer(3);    // 3 seconds for respawn to occur
 
-            //commented out for now
             //sound
-            /*
-            bounceSound = myContent.Load<SoundEffect>("bounce");
-            coinSound = myContent.Load<SoundEffect>("coin");
-            downDashSound = myContent.Load<SoundEffect>("downdash");
-            jumpSound = myContent.Load<SoundEffect>("jump");
-            rollSound = myContent.Load<SoundEffect>("roll");
-            walkSound = myContent.Load<SoundEffect>("walk");*/
+
+            bounceSound = myContent.Load<SoundEffect>("eggsounds/bounce");
+            coinSound = myContent.Load<SoundEffect>("eggsounds/coin");
+            downDashSound = myContent.Load<SoundEffect>("eggsounds/downdash");
+            jumpSound = myContent.Load<SoundEffect>("eggsounds/jump");
+            rollSound = myContent.Load<SoundEffect>("eggsounds/roll");
+            walkSound = myContent.Load<SoundEffect>("eggsounds/walk");
 
             this.playerIndexForGamepad = playerIndexForGamepad;
         }
@@ -759,7 +758,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                             {
-                               //jumpSound.Play();
+                               jumpSound.Play();
                                 playerState = PlayerState.JumpLeft;
                             }
                             else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
@@ -772,7 +771,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]) || gp.IsButtonDown(Buttons.X))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollLeft;
                             }
                         }
@@ -795,7 +794,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpRight;
                             }
                             else if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
@@ -808,7 +807,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollRight;
                             }
                         }
@@ -836,7 +835,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpLeft;
                             }
                             else if (kb.IsKeyUp(bindableKb["left"]) && !GamepadLeft()) //stop moving left
@@ -848,10 +847,8 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.WalkRight;
                             }
                             else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
-                            //CONTINUE ADDING GAMEPAD SUPPORT, IDEA OF MAKING METHOD THAT IS USED FOR ALL GAMEPAD INPUT WITH BUTTON AS PARAMETER
-                            //WHICH IS ONLY CALLED IF THERE IS CONTROLLER CONNECTED
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollLeft;
                             }
                             if (!bottomIntersects) //not touching ground
@@ -878,7 +875,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpRight;
                             }
                             else if (kb.IsKeyUp(bindableKb["right"]) && !GamepadRight()) //stop moving right
@@ -891,7 +888,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollRight;
                             }
                             else if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
@@ -931,7 +928,7 @@ namespace Party_Tower_Main
                         }
                         else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && !isRolling && bottomIntersects)
                         {
-                            //jumpSound.Play();
+                            jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
                         }
                         else if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
@@ -959,7 +956,7 @@ namespace Party_Tower_Main
                         }
                         else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && !isRolling && bottomIntersects)
                         {
-                            //jumpSound.Play();
+                            jumpSound.Play();
                             playerState = PlayerState.JumpRight;
                         }
                         else if (!isRolling && (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft()))
@@ -1019,7 +1016,7 @@ namespace Party_Tower_Main
                             //can jump twice while falling, unless carrying the other player
                             else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && jumpCount <= 1 && !carrying)
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
                                 {
                                     playerState = PlayerState.JumpRight; //jump right if trying to move right
@@ -1040,7 +1037,7 @@ namespace Party_Tower_Main
                             }
                             if ((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !hasRolledInAir && !carrying)
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 rollInAir = true;
                                 if (isFacingRight)
                                 {
@@ -1053,7 +1050,7 @@ namespace Party_Tower_Main
                             }
                             if ((SingleKeyPress(bindableKb["downDash"]) || GamepadDownDash()) && !carrying)
                             {
-                                //downDashSound.Play();
+                                downDashSound.Play();
                                 playerState = PlayerState.DownDash;
                             }
                         }
@@ -1229,7 +1226,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpLeft;
                             }
                             else if (kb.IsKeyDown(bindableKb["right"]))
@@ -1242,7 +1239,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollLeft;
                             }
                         }
@@ -1265,7 +1262,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpRight;
                             }
                             else if (kb.IsKeyDown(bindableKb["right"]))
@@ -1278,7 +1275,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollRight;
                             }
                         }
@@ -1306,7 +1303,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpLeft;
                             }
                             else if (kb.IsKeyUp(bindableKb["left"])) //stop moving left
@@ -1319,7 +1316,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollLeft;
                             }
                             if (!bottomIntersects) //not touching ground
@@ -1346,7 +1343,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["jump"]))
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 playerState = PlayerState.JumpRight;
                             }
                             else if (kb.IsKeyUp(bindableKb["right"])) //stop moving right
@@ -1359,7 +1356,7 @@ namespace Party_Tower_Main
                             }
                             else if (SingleKeyPress(bindableKb["roll"]))
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 playerState = PlayerState.RollRight;
                             }
                             else if (kb.IsKeyDown(bindableKb["throw"]))
@@ -1399,7 +1396,7 @@ namespace Party_Tower_Main
                         }
                         else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
                         {
-                            //jumpSound.Play();
+                            jumpSound.Play();
                             playerState = PlayerState.JumpLeft;
                         }
                         else if (kb.IsKeyDown(bindableKb["throw"]))
@@ -1427,7 +1424,7 @@ namespace Party_Tower_Main
                         }
                         else if (SingleKeyPress(bindableKb["jump"]) && !isRolling && bottomIntersects)
                         {
-                            //jumpSound.Play();
+                            jumpSound.Play();
                             playerState = PlayerState.JumpRight;
                         }
                         else if (!isRolling && kb.IsKeyDown(bindableKb["left"]))
@@ -1487,7 +1484,7 @@ namespace Party_Tower_Main
                             //can jump twice while falling, unless carrying the other player
                             else if (SingleKeyPress(bindableKb["jump"]) && jumpCount <= 1 && !carrying)
                             {
-                                //jumpSound.Play();
+                                jumpSound.Play();
                                 if (kb.IsKeyDown(bindableKb["right"]))
                                 {
                                     playerState = PlayerState.JumpRight; //jump right if trying to move right
@@ -1508,7 +1505,7 @@ namespace Party_Tower_Main
                             }
                             if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying)
                             {
-                                //rollSound.Play();
+                                rollSound.Play();
                                 rollInAir = true;
                                 if (isFacingRight)
                                 {
@@ -1521,7 +1518,7 @@ namespace Party_Tower_Main
                             }
                             if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
                             {
-                                //downDashSound.Play();
+                                downDashSound.Play();
                                 playerState = PlayerState.DownDash;
                             }
                         }

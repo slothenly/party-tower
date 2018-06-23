@@ -212,3 +212,93 @@
 /processorParam:TextureFormat=Color
 /build:enemy.png
 
+#begin eggsounds/bounce.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/bounce.wav
+
+#begin eggsounds/checkpoint.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/checkpoint.wav
+
+#begin eggsounds/coin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/coin.wav
+
+#begin eggsounds/death.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/death.wav
+
+#begin eggsounds/downdash.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/downdash.mp3
+
+#begin eggsounds/flutter.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/flutter.wav
+
+#begin eggsounds/gamemusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:eggsounds/gamemusic.mp3
+
+#begin eggsounds/gamemusic2.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:eggsounds/gamemusic2.mp3
+
+#begin eggsounds/gamemusic3.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:eggsounds/gamemusic3.mp3
+
+#begin eggsounds/hitstun.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/hitstun.wav
+
+#begin eggsounds/jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/jump.wav
+
+#begin eggsounds/menumusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:eggsounds/menumusic.mp3
+
+#begin eggsounds/menuselect.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:eggsounds/menuselect.mp3
+
+#begin eggsounds/roll.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/roll.mp3
+
+#begin eggsounds/walk.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eggsounds/walk.wav
+
