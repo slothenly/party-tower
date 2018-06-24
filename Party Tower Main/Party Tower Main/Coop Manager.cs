@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,20 @@ namespace Party_Tower_Main
         private Player playerOne;
         private Player playerTwo;
 
+        //sound
+        private SoundEffect throwSound;
+        private SoundEffect respawnSound;
+        private SoundEffect carrySound;
+
         //Class
-        public Coop_Manager(Player playerOne, Player playerTwo)
+        public Coop_Manager(Player playerOne, Player playerTwo, ContentManager content)
         {
             this.playerOne = playerOne;
             this.playerTwo = playerTwo;
+
+            throwSound = content.Load<SoundEffect>("sound/throw");
+            respawnSound = content.Load<SoundEffect>("sound/respawn");
+            carrySound = content.Load<SoundEffect>("sound/carry");
         }
 
         /// <summary>
@@ -41,11 +52,16 @@ namespace Party_Tower_Main
         {
             if (playerOne.PlayerState == PlayerState.Die)
             {
-
+                //stop carry if a player dies
+                if (playerTwo.PlayerState == PlayerState.Carried || playerTwo.PlayerState == PlayerState.Carrying)
+                {
+                    playerTwo.PlayerState = PlayerState.Fall;
+                }
                 //Might want to add some sort of delay here so player doesn't spawn instantly
                 //Added delay using timer
                 if (playerOne.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
+                    respawnSound.Play();
                     playerOne.Position = GetAlivePlayerPosition(playerTwo); //put dead player at alive player's position
                     playerOne.PlayerState = PlayerState.IdleRight;
                     playerOne.X = (int)playerOne.Position.X;
@@ -62,10 +78,16 @@ namespace Party_Tower_Main
             }
             else if (playerTwo.PlayerState == PlayerState.Die)
             {
+                //stop carry if a player dies
+                if (playerOne.PlayerState == PlayerState.Carried || playerOne.PlayerState == PlayerState.Carrying)
+                {
+                    playerOne.PlayerState = PlayerState.Fall;
+                }
                 //Might want to add some sort of delay here so player doesn't spawn instantly
                 //Added delay using timer
                 if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
+                    respawnSound.Play();
                     playerTwo.Position = GetAlivePlayerPosition(playerOne); //put dead player at alive player's position
                     playerTwo.PlayerState = PlayerState.IdleRight;
                     playerTwo.X = (int)playerTwo.Position.X;
@@ -91,6 +113,7 @@ namespace Party_Tower_Main
             //Only set the state if it hasn't been set already
             if (!onTopPlayer.InCarry)
             {
+                carrySound.Play();
                 onTopPlayer.PlayerState = PlayerState.Carried;
                 carryingPlayer.PlayerState = PlayerState.Carrying;
             }
@@ -113,6 +136,7 @@ namespace Party_Tower_Main
                 //player one hits player two
                 if (playerOne.Hitbox.Intersects(playerTwo.Hitbox))
                 {
+                    playerOne.BounceSound.Play();
                     //determine correct bounce based on direction
                     if (playerOne.PlayerState == PlayerState.RollRight)
                     {
@@ -130,6 +154,7 @@ namespace Party_Tower_Main
                 //player two hits player one
                 if (playerTwo.Hitbox.Intersects(playerOne.Hitbox))
                 {
+                    playerTwo.BounceSound.Play();
                     //determine correct bounce based on direction
                     if (playerTwo.PlayerState == PlayerState.RollRight)
                     {
@@ -170,6 +195,11 @@ namespace Party_Tower_Main
         /// <param name="thrownPlayer"></param>
         public void PlayerThrow(Player throwingPlayer, Player thrownPlayer)
         {
+            if (thrownPlayer.PreviousPlayerState != PlayerState.BounceLeft && thrownPlayer.PreviousPlayerState != PlayerState.BounceRight)
+            {
+                throwSound.Play();
+            }
+
             if (throwingPlayer.IsFacingRight) //bounce the player based on which direction the thrower is facing
             {
                 thrownPlayer.PlayerState = PlayerState.BounceRight;

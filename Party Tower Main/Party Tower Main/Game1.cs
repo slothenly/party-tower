@@ -38,9 +38,16 @@ namespace Party_Tower_Main
 
         #region Fields
 
-        // Audio Stuff
-        List<SoundEffect> soundEffects;
+        // Audio 
         List<Song> gameSongs;
+        Song menuMusic;
+        SoundEffect menuSelectSound;
+
+        bool menuFirstFrame = true;
+        bool startGameMusic = true;
+
+        //used for randomly picking a song for each playthrough
+        Random rn;
 
         GameState gameState;
         GameState previousGameState;
@@ -136,8 +143,9 @@ namespace Party_Tower_Main
             graphics.PreferredBackBufferHeight = 1080;
             graphics.ApplyChanges();
             Content.RootDirectory = "Content";
-            soundEffects = new List<SoundEffect>();
             gameSongs = new List<Song>();
+
+            rn = new Random();
         }
 
         /// <summary>
@@ -274,7 +282,7 @@ namespace Party_Tower_Main
             playerTwo.BindableKb.Add("pause", Keys.P);
             playerTwo.BindableKb.Add("throw", Keys.RightShift);
 
-            coopManager = new Coop_Manager(playerOne, playerTwo);
+            coopManager = new Coop_Manager(playerOne, playerTwo, Content);
             pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
@@ -284,6 +292,18 @@ namespace Party_Tower_Main
             players.Add(playerTwo);
             #endregion Player-Initalization
 
+
+            //sound stuff
+            gameSongs.Add(Content.Load<Song>("sound/gamemusic1"));
+            gameSongs.Add(Content.Load<Song>("sound/gamemusic2"));
+            gameSongs.Add(Content.Load<Song>("sound/gamemusic3"));
+
+
+            MediaPlayer.Volume = .5f;
+            MediaPlayer.IsRepeating = true;
+
+            menuMusic = Content.Load<Song>("sound/menumusic");
+            menuSelectSound = Content.Load<SoundEffect>("sound/menuselect");
             // TODO: use this.Content to load your game content here
         }
 
@@ -305,8 +325,6 @@ namespace Party_Tower_Main
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
-            previousGameState = gameState;
 
             previousKb = kb;
             kb = Keyboard.GetState();
@@ -346,7 +364,6 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused) //do normal stuff
                     {
-
                         #region UPDATE PLAYER
                         //first adjust the needed coop manager states, then adjust states and movement of both players
 
@@ -512,17 +529,22 @@ namespace Party_Tower_Main
             {
                 case GameState.Menu:
                     //only create/fill the array if this is the first frame of the menu state
-                    if (previousGameState != GameState.Menu)
+                    paused = false;
+                    if (menuFirstFrame)
                     {
                         menuChoices = new Button[3, 1];
                         menuChoices[0, 0] = playButton;
                         menuChoices[1, 0] = optionsButton;
                         menuChoices[2, 0] = exitButton;
 
+                        MediaPlayer.Play(menuMusic);
+
                         menuRow = 0;
                         menuColumn = 0;
-                    }
 
+                        MediaPlayer.Play(menuMusic);
+                        menuFirstFrame = false;
+                    }
                     //navigate the menu and update game state based on selection
                     NavigateMenu(workingGamepad1, menuRow, menuColumn);
 
@@ -532,21 +554,46 @@ namespace Party_Tower_Main
                 case GameState.Options:
                     if (SingleKeyPress(Keys.Tab))
                     {
-                        gameState = GameState.Game;
+                        if (paused)
+                        {
+                            gameState = GameState.Game;
+                        }
+                        else
+                        {
+                            gameState = GameState.Menu;
+                            menuFirstFrame = true;
+                        }
+
                     }
                     //Options stuff
                     break;
 
                 case GameState.Game:
+                    if (startGameMusic)
+                    {
+                        MediaPlayer.Play(gameSongs[rn.Next(0, 3)]);
+                        startGameMusic = false;
+                    }
                     if (bothPlayersDead) //if both players are dead during overlaping intervals, game over
                     {
+                        MediaPlayer.Stop();
                         gameState = GameState.GameOver;
                     }
                     foreach (Player player in players) //any player can do this
                     {
                         if (SingleKeyPress(player.BindableKb["pause"]))
                         {
-                            paused = !paused; //pause / unpause the game
+                            menuSelectSound.Play();
+                            if (paused)
+                            {
+                                paused = false;
+                                MediaPlayer.Resume();
+                            }
+                            else
+                            {
+                                paused = true;
+                                MediaPlayer.Pause();
+                            }
                             break;
                         }
                     }
@@ -555,6 +602,8 @@ namespace Party_Tower_Main
                     {
                         if (SingleKeyPress(Keys.Back)) //press backspace to go back to main menu
                         {
+                            menuFirstFrame = true;
+                            startGameMusic = true;
                             gameState = GameState.Menu;
                         }
                         if (SingleKeyPress(Keys.Tab)) //press Tab to go to options
@@ -766,6 +815,7 @@ namespace Party_Tower_Main
                 //only set the button highlight to false if there is appropriate player input
                 if (SingleKeyPress(playerOne.BindableKb["up"]) || playerOne.SingleButtonPress(Buttons.DPadUp) || playerOne.GamepadUp())
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
 
                     if (currentRow == 0)
@@ -779,6 +829,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["downDash"]) || playerOne.SingleButtonPress(Buttons.DPadDown) || playerOne.GamepadDown())
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
 
                     if (currentRow == menuChoices.GetLength(0) - 1)
@@ -792,6 +843,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["left"]) || playerOne.SingleButtonPress(Buttons.DPadLeft) || playerOne.GamepadLeft())
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
                     if (currentColumn == 0)
                     {
@@ -804,6 +856,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["right"]) || playerOne.SingleButtonPress(Buttons.DPadRight) || playerOne.GamepadRight())
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false; 
                     if (currentColumn == menuChoices.GetLength(1) - 1) //loop around
                     {
@@ -819,6 +872,7 @@ namespace Party_Tower_Main
             {
                 if (SingleKeyPress(playerOne.BindableKb["up"]))
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
                     if (currentRow == 0)
                     {
@@ -831,6 +885,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["downDash"]))
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
 
                     if (currentRow == menuChoices.GetLength(0) - 1)
@@ -844,6 +899,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["left"]))
                 {
+                    menuSelectSound.Play();
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
                     if (currentColumn == 0)
                     {
@@ -856,6 +912,7 @@ namespace Party_Tower_Main
                 }
                 else if (SingleKeyPress(playerOne.BindableKb["right"]))
                 {
+                    menuSelectSound.Play();
                     if (currentColumn == menuChoices.GetLength(1) - 1)
                     {
                         currentColumn = 0; //loop around
@@ -889,6 +946,7 @@ namespace Party_Tower_Main
             {
                 if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]) || playerOne.SingleButtonPress(Buttons.A) || playerOne.SingleButtonPress(Buttons.Start))
                 {
+                    menuSelectSound.Play();
                     if (menuChoices[currentRow, currentColumn].Equals(playButton))
                     {
                         gameState = GameState.Game;
@@ -907,6 +965,7 @@ namespace Party_Tower_Main
             {
                 if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]))
                 {
+                    menuSelectSound.Play();
                     if (menuChoices[currentRow, currentColumn].Equals(playButton))
                     {
                         gameState = GameState.Game;

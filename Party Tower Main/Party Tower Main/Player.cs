@@ -106,12 +106,13 @@ namespace Party_Tower_Main
         //sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
         SoundEffect bounceSound;
-        SoundEffect coinSound;
         SoundEffect downDashSound;
         SoundEffect jumpSound;
         SoundEffect rollSound;
         SoundEffect walkSound;
-        SoundEffect checkpointSound;
+        SoundEffect deathSound;
+
+        double soundCounter = 0;
 
 
         GameTime gameTime;
@@ -201,6 +202,10 @@ namespace Party_Tower_Main
         {
             get { return respawnTimer; }
         }
+        public SoundEffect BounceSound
+        {
+            get { return bounceSound; }
+        }
         #endregion
         //################
 
@@ -243,12 +248,12 @@ namespace Party_Tower_Main
 
             //sound
 
-            bounceSound = myContent.Load<SoundEffect>("eggsounds/bounce");
-            coinSound = myContent.Load<SoundEffect>("eggsounds/coin");
-            downDashSound = myContent.Load<SoundEffect>("eggsounds/downdash");
-            jumpSound = myContent.Load<SoundEffect>("eggsounds/jump");
-            rollSound = myContent.Load<SoundEffect>("eggsounds/roll");
-            walkSound = myContent.Load<SoundEffect>("eggsounds/walk");
+            bounceSound = myContent.Load<SoundEffect>("sound/bounce");
+            downDashSound = myContent.Load<SoundEffect>("sound/downdash");
+            jumpSound = myContent.Load<SoundEffect>("sound/jump");
+            rollSound = myContent.Load<SoundEffect>("sound/roll");
+            walkSound = myContent.Load<SoundEffect>("sound/walk");
+            deathSound = myContent.Load<SoundEffect>("sound/death");
 
             this.playerIndexForGamepad = playerIndexForGamepad;
         }
@@ -458,7 +463,7 @@ namespace Party_Tower_Main
                     #endregion
                 }
                 //floor collision (collision box below player)
-                else if (bottomChecker.Intersects(t.Hitbox))
+                else if (bottomChecker.Intersects(t.Hitbox) && playerState != PlayerState.Carried)
                 {
                     bottomIntersects = true;
                     if (goingdown)
@@ -641,7 +646,7 @@ namespace Party_Tower_Main
             //previousPosition tracks player from previous frame
             previousPosition = position;
             previousHitbox = hitbox;
-            previousPlayerState = PlayerState;
+            previousPlayerState = playerState;
             position = new Vector2(X, Y); //player position of current frame
 
             if (previousPosition.Y < position.Y) //player is going downwards relative to last frame
@@ -1117,6 +1122,7 @@ namespace Party_Tower_Main
                         //The carried player can only jump
                         if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                         {
+                            jumpSound.Play();
                             inCarry = false;
                             if (kb.IsKeyDown(bindableKb["left"]) || GamepadLeft())
                             {
@@ -1217,6 +1223,7 @@ namespace Party_Tower_Main
                         isFacingRight = false;
                         if (debugEnemyCollision)
                         {
+                            
                             playerState = PlayerState.Die;
                         }
                         Movement(hasGamepad);
@@ -1587,6 +1594,7 @@ namespace Party_Tower_Main
                         //The carried player can only jump
                         if (SingleKeyPress(bindableKb["jump"]))
                         {
+                            jumpSound.Play();
                             inCarry = false;
                             if (kb.IsKeyDown(bindableKb["left"]))
                             {
@@ -1725,6 +1733,12 @@ namespace Party_Tower_Main
             //Walk
             else if (playerState == PlayerState.WalkLeft || playerState == PlayerState.WalkRight)
             {
+                soundCounter++; //increment counter every frame
+                if (soundCounter >= 10) //play the sound every 10 frames (6 times per second)
+                {
+                    walkSound.Play();
+                    soundCounter -= 10; //reset the counter
+                }
                 //slow-down the player if they were rolling
                 if ((horizontalVelocity > 10 || horizontalVelocity < -10))
                 {
