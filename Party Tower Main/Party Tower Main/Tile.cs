@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 enum TileType
@@ -27,30 +28,21 @@ namespace Party_Tower_Main
         public bool isDamaging { get; set; }
         public bool isWall { get; set; }
 
-        //visual displaying info
-        bool contactTop = false;
-        bool contactBot = false;
-        bool contactLeft = false;
-        bool contactRight = false;
+        //spritesheet info
+        public Texture2D Sheet { get; set; }
+        public int Rows { get; set; }
+        public int Columns { get; set; }
+        private int currentFrame;
+        private int totalFrames;
+        private const int TILEPIXELSIZE = 16;
+        Dictionary<string, int[]> directionInterpreter = new Dictionary<string, int[]>();
 
-        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall, string TBLR)
+        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall, Texture2D sheet)
         {
             isPlatform = IsPlatform;
             isBackground = IsBackground;
             isDamaging = IsDamaging;
             isWall = IsWall;
-
-            //determines which tiles will contact with the current tile based on the string passed in
-            //TBLR stands for top, bottom, left, and right respectively.
-            char[] temp = TBLR.ToCharArray();
-            if (temp[0].ToString() == "t")
-                contactTop = true;
-            if (temp[1].ToString() == "t")
-                contactBot = true;
-            if (temp[2].ToString() == "t")
-                contactLeft = true;
-            if (temp[3].ToString() == "t")
-                contactRight = true;
 
             //determining tile heights/widths based on if its platform
             if (isPlatform != true)
@@ -63,8 +55,104 @@ namespace Party_Tower_Main
                 Width = 1080 / 9;
                 Height = Width / 2;
             }
+
+            Rows = 6;
+            Columns = 4;
+            Sheet = sheet;
+            #region Dictionary Setup
+            //single ends
+            directionInterpreter.Add("2", new int[] { 5, 0 });      //bottom
+            directionInterpreter.Add("4", new int[] { 4, 3 });      //right
+            directionInterpreter.Add("6", new int[] { 5, 0 });      //left
+            directionInterpreter.Add("8", new int[] { 5, 2 });      //top
+
+            //single wide extenders
+            directionInterpreter.Add("28", new int[] { 1, 2 });    //vertical
+            directionInterpreter.Add("46", new int[] { 1, 2 });    //horizontal
+
+            //main rectangle
+            directionInterpreter.Add("689", new int[] { 0, 0 });     //top left
+            directionInterpreter.Add("46789", new int[] { 0, 1 });     //top middle
+            directionInterpreter.Add("478", new int[] { 0, 2 });     //top right
+            directionInterpreter.Add("23689", new int[] { 1, 0 });     //center left
+            directionInterpreter.Add("12346789", new int[] { 1, 1 });     //center middle (neutral)
+            directionInterpreter.Add("12478", new int[] { 1, 2 });     //center right
+            directionInterpreter.Add("236", new int[] { 2, 0 });     //bottom left
+            directionInterpreter.Add("12346", new int[] { 2, 1 });     //bottom middle
+            directionInterpreter.Add("248", new int[] { 2, 2 });     //bottom right
+
+            #endregion
+
+        }
+
+        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall)
+        {
+            isPlatform = IsPlatform;
+            isBackground = IsBackground;
+            isDamaging = IsDamaging;
+            isWall = IsWall;
+
+            //determining tile heights/widths based on if its platform
+            if (isPlatform != true)
+            {
+                Width = 1920 / 16;
+                Height = Width;
+            }
+            else
+            {
+                Width = 1080 / 9;
+                Height = Width / 2;
+            }
+
+            Rows = 6;
+            Columns = 4;
+            Sheet = null;
+            #region Dictionary Setup
+            //single ends
+            directionInterpreter.Add("2", new int[] { 5, 0 });      //bottom
+            directionInterpreter.Add("4", new int[] { 4, 3 });      //right
+            directionInterpreter.Add("6", new int[] { 5, 0 });      //left
+            directionInterpreter.Add("8", new int[] { 5, 2 });      //top
+
+            //single wide extenders
+            directionInterpreter.Add("28", new int[] { 1, 2 });    //vertical
+            directionInterpreter.Add("46", new int[] { 1, 2 });    //horizontal
+
+            //main rectangle
+            directionInterpreter.Add("689", new int[] { 0, 0 });     //top left
+            directionInterpreter.Add("46789", new int[] { 0, 1 });     //top middle
+            directionInterpreter.Add("478", new int[] { 0, 2 });     //top right
+            directionInterpreter.Add("23689", new int[] { 1, 0 });     //center left
+            directionInterpreter.Add("12346789", new int[] { 1, 1 });     //center middle (neutral)
+            directionInterpreter.Add("12478", new int[] { 1, 2 });     //center right
+            directionInterpreter.Add("236", new int[] { 2, 0 });     //bottom left
+            directionInterpreter.Add("12346", new int[] { 2, 1 });     //bottom middle
+            directionInterpreter.Add("248", new int[] { 2, 2 });     //bottom right
+
+            #endregion
+
         }
         #endregion
+
+        /// <summary>
+        /// Update function for tiles based on passed-in directives
+        /// </summary>
+        /// <param name="directoryString"></param>
+        public void GetTilePosFromString(string directoryString)
+        {
+            //test if the string received is valid, otherwise just throw in a default tile position
+            try
+            {
+                int[] position = directionInterpreter[directoryString];
+            }
+            catch (Exception e)
+            {
+                int[] position = directionInterpreter["12346789"];  //default tile
+            }
+
+            //Return null if something's broken
+            ;
+        }
 
         //Fill up as we develop
         public override void CheckColliderAgainstPlayer(Player p)
@@ -74,7 +162,15 @@ namespace Party_Tower_Main
 
         public override void Draw(SpriteBatch sb)
         {
-            throw new NotImplementedException();
+            int width = Sheet.Width / Columns;
+            int height = Sheet.Height / Rows;
+            int row = (int)((float)currentFrame / Columns);
+            int column = currentFrame % Columns;
+
+            Rectangle sourceRectangle = new Rectangle(width * column, height * row, width, height);
+            Rectangle destinationRectangle = new Rectangle((int)Hitbox.X, (int)Hitbox.Y, width, height);
+
+            sb.Draw(Sheet, destinationRectangle, sourceRectangle, Color.White);
         }
     }
 }

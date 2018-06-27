@@ -62,9 +62,9 @@ namespace Party_Tower_Main
         SpriteBatch spriteBatch;
 
         //Testing stuff
-        Tile testPlatform = new Tile(false, true, false, false, "ffff");
-        Tile secondTestPlatform = new Tile(false, true, false, false, "ffff");
-        Tile testWall = new Tile(false, false, false, true, "ffff");
+        Tile testPlatform = new Tile(false, true, false, false);
+        Tile secondTestPlatform = new Tile(false, true, false, false);
+        Tile testWall = new Tile(false, false, false, true);
         SpriteFont testFont;
 
         //Shared keyboard
@@ -110,6 +110,7 @@ namespace Party_Tower_Main
         List<string[]> levelMap;
         Texture2D defaultTile;
         List<Tile> tilesOnScreen = new List<Tile>();
+        Texture2D mainTileSheet;
         Texture2D tileBrick;
         Texture2D tileDirt;
         Texture2D tileGrass;
@@ -221,27 +222,22 @@ namespace Party_Tower_Main
             playerTwoTexture = Content.Load<Texture2D>("white");
             defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
-            
+
 
             #region Tile Textures
-            //################################################
             //########### Add Tile Textures Here #############
-            //################################################
             tileBrick = Content.Load<Texture2D>("brick");
             tileDirt = Content.Load<Texture2D>("dirt");
             tileGrass = Content.Load<Texture2D>("grass");
             tileMoss = Content.Load<Texture2D>("moss");
             defaultTile = Content.Load<Texture2D>("default");
+            mainTileSheet = Content.Load<Texture2D>(@"textures\basicTileSheet");
 
-
-            //################################################
             //########## Add to Texture Lists Here ###########
-            //################################################
             tileTextures.Add(tileBrick);
             tileTextures.Add(tileDirt);
             tileTextures.Add(tileGrass);
             tileTextures.Add(tileMoss);
-            //tileTextures.Add(tileEnemy);
             tileTextures.Add(defaultTile);
             #endregion
 
