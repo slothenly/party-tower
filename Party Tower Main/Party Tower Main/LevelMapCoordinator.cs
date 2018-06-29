@@ -44,6 +44,7 @@ namespace Party_Tower_Main
         List<Texture2D> textureList;
         List<Enemy> enemyHolder;
         Texture2D defaultEnemy;
+        Texture2D defaultTileSheet;
         Dictionary<string, int> translator = new Dictionary<string, int>();
         Dictionary<string, Texture2D> tileRetriever = new Dictionary<string, Texture2D>();
 
@@ -51,7 +52,7 @@ namespace Party_Tower_Main
         /// Constructor which pulls the initial path to take tile info from
         /// </summary>
         /// <param name="initialPath"></param>
-        public LevelMapCoordinator(string initialPath, List<Texture2D> textureList, Texture2D defaultEnemy)
+        public LevelMapCoordinator(string initialPath, List<Texture2D> textureList, Texture2D defaultEnemy, Texture2D TileSheet)
         {
             #region Translator Info
             translator.Add("br", 0);    //brick
@@ -64,6 +65,7 @@ namespace Party_Tower_Main
 
             this.textureList = textureList;
             this.defaultEnemy = defaultEnemy;
+            defaultTileSheet = TileSheet;
             UpdateMapFromPath(initialPath);
         }
 
@@ -147,7 +149,7 @@ namespace Party_Tower_Main
             {
                 for (int columns = 0; columns < Columns; columns++)
                 {
-                    currentMap[rows, columns] = new Tile(false, false, false, false);
+                    currentMap[rows, columns] = new Tile(false, false, false, false, null);
                     currentMap[rows, columns].X = columns * currentMap[rows, columns].Width;  //x pos
                     currentMap[rows, columns].Y = rows * currentMap[rows, columns].Height;    //y pos
                 }
@@ -205,9 +207,23 @@ namespace Party_Tower_Main
 
             }
 
+            //orient the tiles based on what other tiles surround them & add tile sheets
+            for (int rows = 0; rows < Rows; rows++)
+            {
+                for (int columns = 0; columns < Columns; columns++)
+                {
+                    if (currentMap[rows, columns] != null)
+                    {
+                        orientTiles(currentMap[rows, columns], rows, columns);
+                        currentMap[rows, columns].TileSheet = defaultTileSheet;
+                    }
+                }
+            }
+
             //Creates a Map needed for Path Manager based on the tiles
 
-            /* Example of Map as String[]
+            #region Example of Map as String[]
+            /* 
     {
                  "+------+",
                  "|      |",
@@ -226,6 +242,7 @@ namespace Party_Tower_Main
              * X = "DAMAGING WALL"
              * ~ = CAN JUMP FROM BELOW
              */
+            #endregion
 
             for (int rows = 0; rows < Rows; rows++)
             {
@@ -276,7 +293,7 @@ namespace Party_Tower_Main
                 if (t != null)
                 {
                     Rectangle rect = new Rectangle(t.X, t.Y, t.Width, t.Height);
-                    sb.Draw(t.DefaultSprite, rect, Color.White);
+                    t.Draw(sb);
                 }
             }
         }
@@ -325,7 +342,7 @@ namespace Party_Tower_Main
                 dc2 = true;
                 dc3 = true;
             }
-            if (rowNumber + 1 > Rows)
+            if (rowNumber + 1 >= Rows)
             {
                 dc7 = true;
                 dc8 = true;
@@ -337,7 +354,7 @@ namespace Party_Tower_Main
                 dc4 = true;
                 dc7 = true;
             }
-            if (rowNumber + 1 > Columns)
+            if (colNumber + 1 >= Columns)
             {
                 dc3 = true;
                 dc6 = true;
@@ -348,7 +365,7 @@ namespace Party_Tower_Main
             #region Check through all viable surrounding tiles
             if (dc1 != true)
             {
-                if (currentMap[rowNumber--, colNumber--] != null)
+                if (currentMap[rowNumber - 1, colNumber - 1] != null)
                 {
                     tileConnections += "1";
                 }
@@ -356,7 +373,7 @@ namespace Party_Tower_Main
 
             if (dc2 != true)
             {
-                if (currentMap[rowNumber--, colNumber] != null)
+                if (currentMap[rowNumber - 1, colNumber] != null)
                 {
                     tileConnections += "2";
                 }
@@ -364,7 +381,7 @@ namespace Party_Tower_Main
 
             if (dc3 != true)
             {
-                if (currentMap[rowNumber--, colNumber++] != null)
+                if (currentMap[rowNumber - 1, colNumber + 1] != null)
                 {
                     tileConnections += "3";
                 }
@@ -372,7 +389,7 @@ namespace Party_Tower_Main
 
             if (dc4 != true)
             {
-                if (currentMap[rowNumber, colNumber--] != null)
+                if (currentMap[rowNumber, colNumber - 1] != null)
                 {
                     tileConnections += "4";
                 }
@@ -382,7 +399,7 @@ namespace Party_Tower_Main
 
             if (dc6 != true)
             {
-                if (currentMap[rowNumber, colNumber++] != null)
+                if (currentMap[rowNumber, colNumber + 1] != null)
                 {
                     tileConnections += "6";
                 }
@@ -390,7 +407,7 @@ namespace Party_Tower_Main
 
             if (dc7 != true)
             {
-                if (currentMap[rowNumber++, colNumber--] != null)
+                if (currentMap[rowNumber + 1, colNumber - 1] != null)
                 {
                     tileConnections += "7";
                 }
@@ -398,7 +415,7 @@ namespace Party_Tower_Main
 
             if (dc8 != true)
             {
-                if (currentMap[rowNumber++, colNumber] != null)
+                if (currentMap[rowNumber + 1, colNumber] != null)
                 {
                     tileConnections += "8";
                 }
@@ -406,7 +423,7 @@ namespace Party_Tower_Main
 
             if (dc9 != true)
             {
-                if (currentMap[rowNumber++, colNumber++] != null)
+                if (currentMap[rowNumber + 1, colNumber + 1] != null)
                 {
                     tileConnections += "9";
                 }
@@ -414,7 +431,7 @@ namespace Party_Tower_Main
             #endregion
 
             //Based on the concatenated result, pull the correct tile from the tile bank
-
+            currentTile.GetTilePosFromString(tileConnections);
 
             //Return null if something is broken
             return null;

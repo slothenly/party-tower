@@ -62,9 +62,9 @@ namespace Party_Tower_Main
         SpriteBatch spriteBatch;
 
         //Testing stuff
-        Tile testPlatform = new Tile(false, true, false, false);
-        Tile secondTestPlatform = new Tile(false, true, false, false);
-        Tile testWall = new Tile(false, false, false, true);
+        Tile testPlatform = new Tile(false, true, false, false, null);
+        Tile secondTestPlatform = new Tile(false, true, false, false, null);
+        Tile testWall = new Tile(false, false, false, true, null);
         SpriteFont testFont;
 
         //Shared keyboard
@@ -242,7 +242,7 @@ namespace Party_Tower_Main
             #endregion
 
             //Instantiate level coordinator and add the starter tiles to the list
-            LvlCoordinator = new LevelMapCoordinator("enemyBugtest", tileTextures, defaultEnemySprite);
+            LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", tileTextures, defaultEnemySprite, mainTileSheet);
             foreach (Tile currentTile in LvlCoordinator.CurrentMap)
             {
                 tilesOnScreen.Add(currentTile);
@@ -252,7 +252,9 @@ namespace Party_Tower_Main
             enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
-            
+            testPlatform.TileSheet = mainTileSheet;
+            secondTestPlatform.TileSheet = mainTileSheet;
+            testWall.TileSheet = mainTileSheet;
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
             #region Player-Initalization

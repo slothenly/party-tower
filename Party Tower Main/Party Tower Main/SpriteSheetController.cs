@@ -55,8 +55,12 @@ namespace Party_Tower_Main
             }
         }
 
-
-
+        /// <summary>
+        /// This function should not be implemented--
+        /// However, it does need to be implemented into animated game obj's
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="location"></param>
         public void Draw(SpriteBatch sb, Vector2 location)
         {
             int width = Sheet.Width / Columns;
