@@ -147,7 +147,7 @@ namespace Party_Tower_Main
             {
                 for (int columns = 0; columns < Columns; columns++)
                 {
-                    currentMap[rows, columns] = new Tile(false, false, false, false, "FFFF");
+                    currentMap[rows, columns] = new Tile(false, false, false, false);
                     currentMap[rows, columns].X = columns * currentMap[rows, columns].Width;  //x pos
                     currentMap[rows, columns].Y = rows * currentMap[rows, columns].Height;    //y pos
                 }
@@ -400,7 +400,7 @@ namespace Party_Tower_Main
             {
                 if (currentMap[rowNumber++, colNumber] != null)
                 {
-                    tileConnections += "1";
+                    tileConnections += "8";
                 }
             }
 
@@ -408,12 +408,13 @@ namespace Party_Tower_Main
             {
                 if (currentMap[rowNumber++, colNumber++] != null)
                 {
-                    tileConnections += "1";
+                    tileConnections += "9";
                 }
             }
             #endregion
 
             //Based on the concatenated result, pull the correct tile from the tile bank
+
 
             //Return null if something is broken
             return null;
