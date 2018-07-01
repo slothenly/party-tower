@@ -43,14 +43,20 @@ namespace Party_Tower_Main
         Song menuMusic;
         SoundEffect menuSelectSound;
 
+        //first frames used to fill Button Array when the user goes to these gameStates
         bool menuFirstFrame = true;
+        bool optionsFirstFrame = false;
         bool startGameMusic = true;
 
         //used for randomly picking a song for each playthrough
         Random rn;
 
         GameState gameState;
-        GameState previousGameState;
+
+        //Mouse
+        MouseState ms;
+        MouseState previousMs;
+        Rectangle mouseRect; //used to check for clicking on certain elements
 
         bool paused = false; //used to determine which 
                              //game logic is run based on if game is paused or not
@@ -125,10 +131,22 @@ namespace Party_Tower_Main
         Texture2D mainMenuTexture;
         Texture2D cursorTexture;
 
+        //Buttons for Options
+        Button fullscreenButton;
+        Button returnButton;
+        Slider masterVolumeSlider;
+        Slider soundEffectSlider;
+        Slider musicSlider;
+
         //Menu navigation using 2d array
         Button[,] menuChoices;
         int menuRow;
         int menuColumn;
+        bool lockedSelection = false; //lock selection when using a slider
+        bool mouseScrollLock = false; //prevent mouse from selecting multiple elements at a time (by holding down the mouse button)
+
+        int buttonHoldingCounter = 0; //used for delay for fast navigation
+        int sliderHoldingCounter = 0;
 
         #endregion
 
@@ -147,6 +165,7 @@ namespace Party_Tower_Main
             gameSongs = new List<Song>();
 
             rn = new Random();
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -186,13 +205,46 @@ namespace Party_Tower_Main
             exitButton = new Button(Content.Load<Texture2D>("menuImages\\exitUnselected"), Content.Load<Texture2D>("menuImages\\exitSelected"));
 
             //Menu button locations and areas
-            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + (int)Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - (int)Nudge(false, 1));
-            optionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + (int)Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 - (int)Nudge(false, 1));
-            exitButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + (int)Nudge(true, 1), graphics.PreferredBackBufferHeight * 8 / 9 + (int)Nudge(false, 1));
+            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - Nudge(false, 1));
+            optionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 - Nudge(false, 1));
+            exitButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 8 / 9 + Nudge(false, 1));
 
-            playButton.Area = new Rectangle(playButton.X, playButton.Y, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
-            optionsButton.Area = new Rectangle(optionsButton.X, optionsButton.Y, graphics.PreferredBackBufferWidth / 10, graphics.PreferredBackBufferHeight / 10);
-            exitButton.Area = new Rectangle(exitButton.X, exitButton.Y, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 12);
+            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
+            optionsButton.Area = new Rectangle(optionsButton.StartX, optionsButton.StartY, graphics.PreferredBackBufferWidth / 10, graphics.PreferredBackBufferHeight / 10);
+            exitButton.Area = new Rectangle(exitButton.StartX, exitButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 12);
+
+            //Options buttons/sliders
+            returnButton = new Button(Content.Load<Texture2D>("menuImages\\playSelected"), Content.Load<Texture2D>("menuImages\\playUnselected"));
+            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsSelected"), Content.Load<Texture2D>("menuImages\\optionsUnselected"));
+            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitSelected"), Content.Load<Texture2D>("menuImages\\exitSelected"), 100);
+            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playUnselected"), Content.Load<Texture2D>("menuImages\\playSelected"), 100);
+            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsUnselected"), Content.Load<Texture2D>("menuImages\\optionsSelected"), 100);
+
+            //options buttons/sliders start locations
+            returnButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 1 / 3 - Nudge(false, 1));
+            fullscreenButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 4 / 9 - Nudge(false, 1));
+            masterVolumeSlider.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 + Nudge(false, 5));
+            musicSlider.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 + Nudge(false, 20));
+            soundEffectSlider.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 + Nudge(false, 30));
+
+            //area of buttons in options
+            returnButton.Area = new Rectangle(returnButton.StartX, returnButton.StartY, graphics.PreferredBackBufferWidth / 11, graphics.PreferredBackBufferHeight / 10);
+            fullscreenButton.Area = new Rectangle(fullscreenButton.StartX, fullscreenButton.StartY, graphics.PreferredBackBufferWidth / 11, graphics.PreferredBackBufferHeight / 10);
+            masterVolumeSlider.Area = new Rectangle(masterVolumeSlider.StartX, masterVolumeSlider.StartY, graphics.PreferredBackBufferWidth / 5, graphics.PreferredBackBufferHeight / 10);
+            musicSlider.Area = new Rectangle(musicSlider.StartX, musicSlider.StartY, graphics.PreferredBackBufferWidth / 5, graphics.PreferredBackBufferHeight / 10);
+            soundEffectSlider.Area = new Rectangle(soundEffectSlider.StartX, soundEffectSlider.StartY, graphics.PreferredBackBufferWidth / 5, graphics.PreferredBackBufferHeight / 10);
+
+            //default for now, will use text files to save settings
+            masterVolumeSlider.ButtonLocationOnSlider = 50;
+            musicSlider.ButtonLocationOnSlider = 50;
+            soundEffectSlider.ButtonLocationOnSlider = 50;
+
+            //set the positions of the sliderButtons on the actual sliders
+            masterVolumeSlider.SetSliderButtonArea();
+            musicSlider.SetSliderButtonArea();
+            soundEffectSlider.SetSliderButtonArea();
+
+
 
             gameState = GameState.Menu;
 
@@ -203,6 +255,11 @@ namespace Party_Tower_Main
             menuChoices[2, 0] = exitButton;
             menuRow = 0;
             menuColumn = 0;
+
+            //adjust volumes using formula based on sliders
+            MediaPlayer.Volume = (masterVolumeSlider.ButtonLocationOnSlider / 100) * (musicSlider.ButtonLocationOnSlider / 100);
+            SoundEffect.MasterVolume = (masterVolumeSlider.ButtonLocationOnSlider / 100) * (musicSlider.ButtonLocationOnSlider / 100);
+            MediaPlayer.IsRepeating = true;
             #endregion
 
             base.Initialize();
@@ -296,10 +353,6 @@ namespace Party_Tower_Main
             gameSongs.Add(Content.Load<Song>("sound/gamemusic2"));
             gameSongs.Add(Content.Load<Song>("sound/gamemusic3"));
 
-
-            MediaPlayer.Volume = .5f;
-            MediaPlayer.IsRepeating = true;
-
             menuMusic = Content.Load<Song>("sound/menumusic");
             menuSelectSound = Content.Load<SoundEffect>("sound/menuselect");
             // TODO: use this.Content to load your game content here
@@ -326,6 +379,11 @@ namespace Party_Tower_Main
 
             previousKb = kb;
             kb = Keyboard.GetState();
+
+            //mouse instantiation
+            previousMs = ms;
+            ms = Mouse.GetState();
+            mouseRect = new Rectangle(ms.X, ms.Y, 5, 5); //change for smaller/larger mouse footprint on screen
 
             capabilities1 = GamePad.GetCapabilities(PlayerIndex.One);
             capabilities2 = GamePad.GetCapabilities(PlayerIndex.Two);
@@ -499,6 +557,11 @@ namespace Party_Tower_Main
                         //do stuff when paused
                     }
                     break;
+                case GameState.Options:
+                    //set the settings of the sound in options
+                    MediaPlayer.Volume = (masterVolumeSlider.ButtonLocationOnSlider / 100) * (musicSlider.ButtonLocationOnSlider / 100);
+                    SoundEffect.MasterVolume = (masterVolumeSlider.ButtonLocationOnSlider / 100) * (soundEffectSlider.ButtonLocationOnSlider / 100);
+                    break;
             }
 
             base.Update(gameTime);
@@ -543,6 +606,31 @@ namespace Party_Tower_Main
                         MediaPlayer.Play(menuMusic);
                         menuFirstFrame = false;
                     }
+                    //search through all the buttons
+                    for (int row = 0; row < menuChoices.GetLength(0); row++)
+                    {
+                        for (int column = 0; column < menuChoices.GetLength(1); column++)
+                        {
+                            //mouse clicks on button
+                            if (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[row, column].Area))
+                            {
+                                //highlight the correct button and adjust array indices
+                                menuRow = row;
+                                menuColumn = column;
+                                menuChoices[menuRow, menuColumn].IsHighlighted = true;
+
+                                //unhighlight all buttons since the mouse has selected a button
+                                foreach (Button button in menuChoices)
+                                {
+                                    if (!button.Equals(menuChoices[menuRow, menuColumn]))
+                                    {
+                                        button.IsHighlighted = false;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
                     //navigate the menu and update game state based on selection
                     NavigateMenu(workingGamepad1, menuRow, menuColumn);
 
@@ -550,6 +638,47 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Options:
+                    //initialize all buttons and reset traversal indices on first frame
+                    if (optionsFirstFrame)
+                    {
+                        menuChoices = new Button[5, 1];
+                        menuChoices[0, 0] = returnButton;
+                        menuChoices[1, 0] = fullscreenButton;
+                        menuChoices[2, 0] = masterVolumeSlider;
+                        menuChoices[3, 0] = musicSlider;
+                        menuChoices[4, 0] = soundEffectSlider;
+                        optionsFirstFrame = false;
+                        menuRow = 0;
+                        menuColumn = 0;
+
+                    }
+                    //traverse all buttons
+                    for (int row = 0; row < menuChoices.GetLength(0); row++)
+                    {
+                        for (int column = 0; column < menuChoices.GetLength(1); column++)
+                        {
+                            //mouse selects button
+                            if (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[row, column].Area))
+                            {
+                                //highlight the correct button and adjust array indices
+                                lockedSelection = false;
+                                menuRow = row;
+                                menuColumn = column;
+                                menuChoices[menuRow, menuColumn].IsHighlighted = true;
+                                //unhighlight all buttons since the mouse has selected a button
+                                foreach (Button button in menuChoices)
+                                {
+                                    if (!button.Equals(menuChoices[menuRow, menuColumn]))
+                                    {
+                                        button.IsHighlighted = false;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    //navigate the menu
+                    NavigateMenu(workingGamepad1, menuRow, menuColumn);
                     if (SingleKeyPress(Keys.Tab))
                     {
                         if (paused)
@@ -641,8 +770,14 @@ namespace Party_Tower_Main
                         if (currentButton.IsHighlighted)
                         {
                             //draw cursor next to button
-                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.X - (int)Nudge(true, 3), currentButton.Y + (int)Nudge(false, 3),
+                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
                                 graphics.PreferredBackBufferWidth / 40, graphics.PreferredBackBufferHeight / 40), Color.White);
+                        }
+                        if (currentButton is Slider)
+                        {
+                            //draw the SliderButton of the slider
+                            spriteBatch.DrawString(testFont, currentButton.ButtonLocationOnSlider.ToString(), new Vector2(currentButton.StartX + Nudge(true, 10),
+                                currentButton.StartY + Nudge(false, 3)), Color.Black);
                         }
                     }
 
@@ -651,7 +786,25 @@ namespace Party_Tower_Main
 
                 case GameState.Options:
                     spriteBatch.Begin();
-                    // 
+                    spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
+                    //draw each button
+                    foreach (Button currentButton in menuChoices)
+                    {
+                        spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+                        if (currentButton.IsHighlighted)
+                        {
+                            //draw cursor next to button
+                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
+                                graphics.PreferredBackBufferWidth / 40, graphics.PreferredBackBufferHeight / 40), Color.White);
+                        }
+                        if (currentButton is Slider)
+                        {
+                            //draw the sliderButton of the slider
+                            spriteBatch.Draw(currentButton.SliderButton.DrawnTexture, currentButton.SliderButton.Area, Color.White);
+                            spriteBatch.DrawString(testFont, currentButton.ButtonLocationOnSlider.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 5),
+                                currentButton.StartY + Nudge(false, 5)), Color.Black);
+                        }
+                    }
                     spriteBatch.End();
                     break;
 
@@ -746,6 +899,525 @@ namespace Party_Tower_Main
                     break;
             }
         }
+
+        /// <summary>
+        /// uses 2d array variables (row/column) to navigate, then calls helper method for button selection
+        /// </summary>
+        /// <param name="hasGamepad"></param>
+        /// <param name="beginningRow"></param>
+        /// <param name="beginningColumn"></param>
+        public void NavigateMenu(bool hasGamepad, int beginningRow, int beginningColumn)
+        {
+            //start menu selection at correct spot
+            int currentRow = beginningRow;
+            int currentColumn = beginningColumn;
+
+            if (hasGamepad)
+            {
+                //slider
+                if (menuChoices[currentRow,currentColumn] is Slider)
+                {
+                    //slider selected/unselected
+                    if (SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.A) || 
+                        (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
+                    {
+                        //toggle selection
+                        lockedSelection = !lockedSelection;
+                    }
+                    //mouse input
+                    if ((ms.LeftButton == ButtonState.Pressed && mouseRect.Intersects(menuChoices[currentRow, currentColumn].SliderButton.Area)) || mouseScrollLock)
+                    {
+                        mouseScrollLock = true;
+                        menuChoices[currentRow, currentColumn].CheckAndAlterSlider(ms, previousMs);
+                    }
+                    if (ms.LeftButton == ButtonState.Released)
+                    {
+                        mouseScrollLock = false;
+                    }
+                    //scroll the slider if it's selected
+                    if (menuChoices[currentRow, currentColumn].IsHighlighted && lockedSelection)
+                    {
+                        //scroll right
+                        if (SingleKeyPress(playerOne.BindableKb["right"]) || SingleButtonPress(Buttons.DPadRight) || playerOne.GamepadRight())               {
+                            sliderHoldingCounter = 0;
+                            menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
+                        }
+                        //player holding down a key
+                        else if (HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || playerOne.GamepadRight())
+                        {
+                            sliderHoldingCounter++;
+                            //delay
+                            if (sliderHoldingCounter > 50 && sliderHoldingCounter % 1 == 0)
+                            {
+                                menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
+                            }
+                        }
+                        else if (SingleKeyPress(playerOne.BindableKb["left"]) || SingleButtonPress(Buttons.DPadLeft) || playerOne.GamepadLeft())
+                        {
+                            sliderHoldingCounter = 0;
+                            menuChoices[currentRow, currentColumn].CheckAndAlterSlider(false);
+                        }
+                        //holding down a key
+                        else if (HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || playerOne.GamepadLeft())
+                        {
+                            sliderHoldingCounter++;
+                            //delay
+                            if (sliderHoldingCounter > 50 && sliderHoldingCounter % 1 == 0)
+                            {
+                                menuChoices[currentRow, currentColumn].CheckAndAlterSlider(false);
+                            }
+                        }
+                        else
+                        {
+                            //reset the delay counter if nothing is happening
+                            sliderHoldingCounter = 0;
+                        }
+                    }
+                    else
+                    {
+                        lockedSelection = false;
+                    }
+
+                }
+                //only set the button highlight to false if there is appropriate player input
+                if ((SingleKeyPress(playerOne.BindableKb["up"]) || SingleButtonPress(Buttons.DPadUp)) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                    if (currentRow == 0)
+                    {
+                        currentRow = menuChoices.GetLength(0) - 1; //loop around
+                    }
+                    else
+                    {
+                        currentRow--;
+                    }
+                }
+                //holding down a key
+                else if ((HoldKey(playerOne.BindableKb["up"]) || HoldButton(Buttons.DPadUp) || playerOne.GamepadUp()) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentRow == 0)
+                        {
+                            currentRow = menuChoices.GetLength(0) - 1; //loop around
+                        }
+                        else
+                        {
+                            currentRow--;
+                        }
+                    }
+                }
+                else if ((SingleKeyPress(playerOne.BindableKb["downDash"]) || SingleButtonPress(Buttons.DPadDown)) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                    if (currentRow == menuChoices.GetLength(0) - 1)
+                    {
+                        currentRow = 0; //loop around
+                    }
+                    else
+                    {
+                        currentRow++;
+                    }
+                }
+                else if ((HoldKey(playerOne.BindableKb["downDash"]) || HoldButton(Buttons.DPadDown) || playerOne.GamepadDown()) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentRow == menuChoices.GetLength(0) - 1)
+                        {
+                            currentRow = 0; //loop around
+                        }
+                        else
+                        {
+                            currentRow++;
+                        }
+                    }
+                }
+                else if ((SingleKeyPress(playerOne.BindableKb["left"]) || SingleButtonPress(Buttons.DPadLeft)) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    if (currentColumn == 0)
+                    {
+                        currentColumn = menuChoices.GetLength(1) - 1; //loop around
+                    }
+                    else
+                    {
+                        currentColumn--;
+                    }
+                }
+                else if ((HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || playerOne.GamepadLeft()) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentColumn == 0)
+                        {
+                            currentColumn = menuChoices.GetLength(1) - 1; //loop around
+                        }
+                        else
+                        {
+                            currentColumn--;
+                        }
+                    }
+                }
+                else if ((SingleKeyPress(playerOne.BindableKb["right"]) || SingleButtonPress(Buttons.DPadRight)) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false; 
+                    if (currentColumn == menuChoices.GetLength(1) - 1) //loop around
+                    {
+                        currentColumn = 0;
+                    }
+                    else
+                    {
+                        currentColumn++;
+                    }
+                }
+                else if ((HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || playerOne.GamepadRight()) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentColumn == menuChoices.GetLength(1) - 1) //loop around
+                        {
+                            currentColumn = 0;
+                        }
+                        else
+                        {
+                            currentColumn++;
+                        }
+                    }
+                }
+                else
+                {
+                    buttonHoldingCounter = 0;
+                }
+            }
+            else
+            {
+                //slider
+                if (menuChoices[currentRow, currentColumn] is Slider)
+                {
+                    //slider selected/unselected
+                    if (SingleKeyPress(Keys.Enter) || 
+                        (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
+                    {
+                        //toggle selection
+                        lockedSelection = !lockedSelection;
+                    }
+                    //mouse input
+                    if ((ms.LeftButton == ButtonState.Pressed && mouseRect.Intersects(menuChoices[currentRow, currentColumn].SliderButton.Area)) || mouseScrollLock)
+                    {
+                        mouseScrollLock = true;
+                        menuChoices[currentRow, currentColumn].CheckAndAlterSlider(ms, previousMs);
+                    }
+                    if (ms.LeftButton == ButtonState.Released)
+                    {
+                        mouseScrollLock = false;
+                    }
+                    //scroll the slider if it's selected
+                    if (menuChoices[currentRow, currentColumn].IsHighlighted && lockedSelection)
+                    {
+                        //scroll right
+                        if (SingleKeyPress(playerOne.BindableKb["right"]))
+                        {
+                            sliderHoldingCounter = 0;
+                            menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
+                        }
+                        //holding down a key
+                        else if (HoldKey(playerOne.BindableKb["right"]))
+                        {
+                            //delay
+                            sliderHoldingCounter++;
+                            if (sliderHoldingCounter > 50 && sliderHoldingCounter % 1 == 0)
+                            {
+                                menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
+                            }
+                        }
+                        //scroll left
+                        else if (SingleKeyPress(playerOne.BindableKb["left"]))
+                        {
+                            sliderHoldingCounter = 0;
+                            menuChoices[currentRow, currentColumn].CheckAndAlterSlider(false);
+                        }
+                        //holding down a key
+                        else if (HoldKey(playerOne.BindableKb["left"]))
+                        {
+                            //delay
+                            sliderHoldingCounter++;
+                            if (sliderHoldingCounter > 50 && sliderHoldingCounter % 1 == 0)
+                            {
+                                menuChoices[currentRow, currentColumn].CheckAndAlterSlider(false);
+                            }
+                        }
+                        else
+                        {
+                            //reset the delay counter if nothing is happening
+                            sliderHoldingCounter = 0;
+                        }
+                    }
+                    else
+                    {
+                        lockedSelection = false;
+                    }
+
+                }
+                //only set the button highlight to false if there is appropriate player input
+                if (SingleKeyPress(playerOne.BindableKb["up"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    if (currentRow == 0)
+                    {
+                        currentRow = menuChoices.GetLength(0) - 1; //loop around
+                    }
+                    else
+                    {
+                        currentRow--;
+                    }
+                }
+                //holding down a key
+                else if (HoldKey(playerOne.BindableKb["up"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentRow == 0)
+                        {
+                            currentRow = menuChoices.GetLength(0) - 1; //loop around
+                        }
+                        else
+                        {
+                            currentRow--;
+                        }
+                    }
+                }
+                else if (SingleKeyPress(playerOne.BindableKb["downDash"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                    if (currentRow == menuChoices.GetLength(0) - 1)
+                    {
+                        currentRow = 0; //loop around
+                    }
+                    else
+                    {
+                        currentRow++;
+                    }
+                }
+                else if (HoldKey(playerOne.BindableKb["downDash"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentRow == menuChoices.GetLength(0) - 1)
+                        {
+                            currentRow = 0; //loop around
+                        }
+                        else
+                        {
+                            currentRow++;
+                        }
+                    }
+                }
+                else if (SingleKeyPress(playerOne.BindableKb["left"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    if (currentColumn == 0)
+                    {
+                        currentColumn = menuChoices.GetLength(1) - 1; //loop around
+                    }
+                    else
+                    {
+                        currentColumn--;
+                    }
+                }
+                else if (HoldKey(playerOne.BindableKb["left"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentColumn == 0)
+                        {
+                            currentColumn = menuChoices.GetLength(1) - 1; //loop around
+                        }
+                        else
+                        {
+                            currentColumn--;
+                        }
+                    }
+                }
+                else if (SingleKeyPress(playerOne.BindableKb["right"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter = 0;
+                    menuSelectSound.Play();
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    if (currentColumn == menuChoices.GetLength(1) - 1)
+                    {
+                        currentColumn = 0; //loop around
+                    }
+                    else
+                    {
+                        currentColumn++;
+                    }
+
+                }
+                else if (HoldKey(playerOne.BindableKb["right"]) && !lockedSelection)
+                {
+                    buttonHoldingCounter++;
+
+                    if (buttonHoldingCounter > 30 && buttonHoldingCounter % 7 == 0)
+                    {
+                        menuSelectSound.Play();
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
+                        if (currentColumn == menuChoices.GetLength(1) - 1) //loop around
+                        {
+                            currentColumn = 0;
+                        }
+                        else
+                        {
+                            currentColumn++;
+                        }
+                    }
+                }
+                else
+                {
+                    buttonHoldingCounter = 0;
+                }
+            }
+            //always highlight the correct button
+            menuChoices[currentRow, currentColumn].IsHighlighted = true;
+
+            //used so that the array is at the correct indices in the next frame
+            menuRow = currentRow;
+            menuColumn = currentColumn;
+
+            ButtonSelection(hasGamepad, currentRow, currentColumn);
+        }
+
+        /// <summary>
+        /// helper method for NavigateMenu that determines which gamestate to switch to based on selected button
+        /// </summary>
+        /// <param name="hasGamepad"></param>
+        /// <param name="currentRow"></param>
+        /// <param name="currentColumn"></param>
+        public void ButtonSelection(bool hasGamepad, int currentRow, int currentColumn)
+        {
+            if (hasGamepad)
+            {
+                if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]) || SingleButtonPress(Buttons.A) || SingleButtonPress(Buttons.Start) 
+                    || (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow,currentColumn].Area)))
+                {
+                    menuSelectSound.Play();
+                    if (menuChoices[currentRow, currentColumn].Equals(playButton))
+                    {
+                        gameState = GameState.Game;
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(optionsButton))
+                    {
+                        gameState = GameState.Options;
+                        optionsFirstFrame = true;
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(exitButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        Exit();
+
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(returnButton))
+                    {
+                        gameState = GameState.Menu;
+                        menuFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(fullscreenButton))
+                    {
+                        graphics.ToggleFullScreen();
+                    }
+                }
+            }
+            else
+            {
+                if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]) || 
+                    (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
+                {
+                    menuSelectSound.Play();
+                    if (menuChoices[currentRow, currentColumn].Equals(playButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.Game;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(optionsButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.Options;
+                        optionsFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(exitButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        Exit();
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(returnButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.Menu;
+                        menuFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(fullscreenButton))
+                    {
+                        graphics.ToggleFullScreen();
+                    }
+                }
+
+            }
+        }
         /// <summary>
         /// Check if a key has been pressed for this frame only
         /// </summary>
@@ -754,6 +1426,22 @@ namespace Party_Tower_Main
         public bool SingleKeyPress(Keys pressedKey)
         {
             if (kb.IsKeyDown(pressedKey) && previousKb.IsKeyUp(pressedKey))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// check if a key has been held down for multiple frames
+        /// </summary>
+        /// <param name="pressedKey"></param>
+        /// <returns></returns>
+        public bool HoldKey(Keys pressedKey)
+        {
+            if (kb.IsKeyDown(pressedKey) && previousKb.IsKeyDown(pressedKey))
             {
                 return true;
             }
@@ -778,206 +1466,50 @@ namespace Party_Tower_Main
                 return false;
             }
         }
+
+        /// <summary>
+        /// check if a button has been held down for multiple frames
+        /// </summary>
+        /// <param name="pressedButton"></param>
+        /// <returns></returns>
+        public bool HoldButton(Buttons pressedButton)
+        {
+            if (gp1.IsButtonDown(pressedButton) && previousGp1.IsButtonDown(pressedButton))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// use to nudge elements on screen around by a single percent of the screen size
         /// </summary>
         /// <param name="horizontal"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public double Nudge(bool horizontal, double amount)
+        public int Nudge(bool horizontal, double amount)
         {
             if (horizontal)
             {
-                return graphics.PreferredBackBufferWidth * (amount / 100);
+                return (int)(graphics.PreferredBackBufferWidth * (amount / 100));
             }
             else
             {
-                return graphics.PreferredBackBufferHeight * (amount / 100);
+                return (int)(graphics.PreferredBackBufferHeight * (amount / 100));
             }
         }
-
-        /// <summary>
-        /// uses 2d array variables (row/column) to navigate, then calls helper method for button selection
-        /// </summary>
-        /// <param name="hasGamepad"></param>
-        /// <param name="beginningRow"></param>
-        /// <param name="beginningColumn"></param>
-        public void NavigateMenu(bool hasGamepad, int beginningRow, int beginningColumn)
+        //check if the mouse is not being held down
+        public bool LeftMouseSinglePress(ButtonState pressedButton)
         {
-            //start menu selection at correct spot
-            int currentRow = beginningRow;
-            int currentColumn = beginningColumn;
-
-            if (hasGamepad)
+            if (ms.LeftButton == pressedButton && previousMs.LeftButton != pressedButton)
             {
-                //only set the button highlight to false if there is appropriate player input
-                if (SingleKeyPress(playerOne.BindableKb["up"]) || playerOne.SingleButtonPress(Buttons.DPadUp) || playerOne.GamepadUp())
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-
-                    if (currentRow == 0)
-                    {
-                        currentRow = menuChoices.GetLength(0) - 1; //loop around
-                    }
-                    else
-                    {
-                        currentRow--;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["downDash"]) || playerOne.SingleButtonPress(Buttons.DPadDown) || playerOne.GamepadDown())
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-
-                    if (currentRow == menuChoices.GetLength(0) - 1)
-                    {
-                        currentRow = 0; //loop around
-                    }
-                    else
-                    {
-                        currentRow++;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["left"]) || playerOne.SingleButtonPress(Buttons.DPadLeft) || playerOne.GamepadLeft())
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    if (currentColumn == 0)
-                    {
-                        currentColumn = menuChoices.GetLength(1) - 1; //loop around
-                    }
-                    else
-                    {
-                        currentColumn--;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["right"]) || playerOne.SingleButtonPress(Buttons.DPadRight) || playerOne.GamepadRight())
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false; 
-                    if (currentColumn == menuChoices.GetLength(1) - 1) //loop around
-                    {
-                        currentColumn = 0;
-                    }
-                    else
-                    {
-                        currentColumn++;
-                    }
-                }
+                return true;
             }
             else
             {
-                if (SingleKeyPress(playerOne.BindableKb["up"]))
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    if (currentRow == 0)
-                    {
-                        currentRow = menuChoices.GetLength(0) - 1; //loop around
-                    }
-                    else
-                    {
-                        currentRow--;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["downDash"]))
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-
-                    if (currentRow == menuChoices.GetLength(0) - 1)
-                    {
-                        currentRow = 0; //loop around
-                    }
-                    else
-                    {
-                        currentRow++;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["left"]))
-                {
-                    menuSelectSound.Play();
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    if (currentColumn == 0)
-                    {
-                        currentColumn = menuChoices.GetLength(1) - 1; //loop around
-                    }
-                    else
-                    {
-                        currentColumn--;
-                    }
-                }
-                else if (SingleKeyPress(playerOne.BindableKb["right"]))
-                {
-                    menuSelectSound.Play();
-                    if (currentColumn == menuChoices.GetLength(1) - 1)
-                    {
-                        currentColumn = 0; //loop around
-                    }
-                    else
-                    {
-                        currentColumn++;
-                    }
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                }
-            }
-            //always highlight the correct button
-            menuChoices[currentRow, currentColumn].IsHighlighted = true;
-
-            //used so that the array is at the correct indices in the next frame
-            menuRow = currentRow;
-            menuColumn = currentColumn;
-
-            ButtonSelection(hasGamepad, currentRow, currentColumn);
-        }
-
-        /// <summary>
-        /// helper method for NavigateMenu that determines which gamestate to switch to based on selected button
-        /// </summary>
-        /// <param name="hasGamepad"></param>
-        /// <param name="currentRow"></param>
-        /// <param name="currentColumn"></param>
-        public void ButtonSelection(bool hasGamepad, int currentRow, int currentColumn)
-        {
-            if (hasGamepad)
-            {
-                if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]) || playerOne.SingleButtonPress(Buttons.A) || playerOne.SingleButtonPress(Buttons.Start))
-                {
-                    menuSelectSound.Play();
-                    if (menuChoices[currentRow, currentColumn].Equals(playButton))
-                    {
-                        gameState = GameState.Game;
-                    }
-                    else if (menuChoices[currentRow, currentColumn].Equals(optionsButton))
-                    {
-                        gameState = GameState.Options;
-                    }
-                    else if (menuChoices[currentRow, currentColumn].Equals(exitButton))
-                    {
-                        Exit();
-                    }
-                }
-            }
-            else
-            {
-                if (SingleKeyPress(Keys.Enter) || SingleKeyPress(playerOne.BindableKb["jump"]))
-                {
-                    menuSelectSound.Play();
-                    if (menuChoices[currentRow, currentColumn].Equals(playButton))
-                    {
-                        gameState = GameState.Game;
-                    }
-                    else if (menuChoices[currentRow, currentColumn].Equals(optionsButton))
-                    {
-                        gameState = GameState.Options;
-                    }
-                    else if (menuChoices[currentRow, currentColumn].Equals(exitButton))
-                    {
-                        Exit();
-                    }
-                }
-
+                return false;
             }
         }
     }
