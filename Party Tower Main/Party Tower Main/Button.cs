@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Party_Tower_Main
         private bool isHighlighted;
         private Texture2D normalTexture;
         private Texture2D highlightedTexture;
-        
+
         public Rectangle Area
         {
             get { return area; }
@@ -26,13 +27,25 @@ namespace Party_Tower_Main
             get { return startLocation; }
             set { startLocation = value; }
         }
-        public int X
+        public int StartX
         {
             get { return startLocation.X; }
+            set { startLocation.X = value; }
+        }
+        public int StartY
+        {
+            get { return startLocation.Y; }
+            set { startLocation.Y = value; }
+        }
+        public int X
+        {
+            get { return area.X; }
+            set { area.X = value; }
         }
         public int Y
         {
-            get { return startLocation.Y; }
+            get { return area.Y; }
+            set { area.Y = value; }
         }
         public bool IsHighlighted
         {
@@ -64,5 +77,38 @@ namespace Party_Tower_Main
             this.normalTexture = normalTexture;
             this.highlightedTexture = highlightedTexture;
         }
+
+
+        //Virtual Methods/Properties for Slider
+        public virtual void CheckAndAlterSlider(bool pressingRight)
+        {
+            throw new Exception("Do not call this method for Button, call it for Slider only");
+        }
+
+        public virtual void CheckAndAlterSlider(MouseState ms, MouseState previousMs)
+        {
+            throw new Exception("Do not call this method for Button, call it for Slider only");
+        }
+        public virtual void SetSliderButtonArea()
+        {
+            throw new Exception("Do not call this method for Button, call it for Slider only");
+        }
+
+        public virtual float Length
+        {
+            get;
+            set;
+        }
+        public virtual float ButtonLocationOnSlider
+        {
+            get;
+            set;
+        }
+
+        public virtual Button SliderButton
+        {
+            get;
+        }
     }
 }
+
