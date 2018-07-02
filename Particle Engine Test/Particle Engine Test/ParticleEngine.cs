@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,12 @@ namespace Particle_Engine_Test
     class ParticleEngine
     {
         //Give the engine all the accessory information that it needs
-        private List<Tile> affectedTiles;
+        private Texture2D blankParticle;
+        public ParticleEngine(Texture2D blankParticle)
+        {
+            this.blankParticle = blankParticle;
+        }
+
 
         /// <summary>
         /// Runs the particle engine affecting the imported tiles
@@ -37,13 +43,11 @@ namespace Particle_Engine_Test
                 coverRects.Add(rectBR);
             }
 
-
             //Add fade in, lift, and spin effects to those rectangles
             for (int i = 0; i < importedTiles.Count; i++)
             {
 
             }
-
         }
 
         public Color ColorUpdater()

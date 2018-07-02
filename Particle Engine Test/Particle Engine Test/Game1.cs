@@ -12,14 +12,18 @@ namespace Particle_Engine_Test
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        
+        ParticleEngine particleEngine;
+
         List<GameObject> drawn = new List<GameObject>();
         Texture2D testTexture;
         Texture2D tileSheet;
+        Texture2D blankParticle;
         Rectangle testRect;
 
         MouseState newMouse;   //from current frame
         MouseState oldMouse;    //from 1 frame ago
+        Rectangle mouseRect;
+        bool tileHover;
 
         public Game1()
         {
@@ -38,8 +42,9 @@ namespace Particle_Engine_Test
             // TODO: Add your initialization logic here
             testRect = new Rectangle(200, 100, 64, 64);
             this.IsMouseVisible = true;
-
+            tileHover = false;
             base.Initialize();
+            mouseRect = new Rectangle(0, 0, 1, 1);
         }
 
         /// <summary>
@@ -53,6 +58,9 @@ namespace Particle_Engine_Test
 
             testTexture = Content.Load<Texture2D>("coloredSquare");
             tileSheet = Content.Load<Texture2D>("basicTileSheet");
+            blankParticle = Content.Load<Texture2D>("singleWhitePx");
+
+            particleEngine = new ParticleEngine(blankParticle);
 
             // TODO: use this.Content to load your game content here
         }
@@ -78,16 +86,51 @@ namespace Particle_Engine_Test
 
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
+            tileHover = false;
             newMouse = Mouse.GetState();
-            //place the mouse thing
-            if (newMouse.LeftButton == ButtonState.Pressed && oldMouse.LeftButton == ButtonState.Released)
+            mouseRect.X = newMouse.X;
+            mouseRect.Y = newMouse.Y;
+            foreach (Tile t in drawn)   //check if a the mouse is hovering over a tile
             {
-                Tile t = new Tile(false, false, false, false, tileSheet);
-                t.GetTilePosFromString("8");
-                t.X = newMouse.X - (t.Width / 2);
-                t.Y = newMouse.Y - (t.Height / 2);
-                drawn.Add(t);
+                if (mouseRect.Intersects(t.Hitbox))
+                {
+                    tileHover = true;
+                }
             }
+
+            if (tileHover == false)
+            {
+                //place a new tile in the spot of the mouse when the mouse is clicked while not hovering and add it to the drawn list
+                if (newMouse.LeftButton == ButtonState.Pressed && oldMouse.LeftButton == ButtonState.Released)
+                {
+                    Tile t = new Tile(false, false, false, false, tileSheet);
+                    t.GetTilePosFromString("8");
+                    t.X = newMouse.X - (t.Width / 2);
+                    t.Y = newMouse.Y - (t.Height / 2);
+                    drawn.Add(t);
+                }
+            }
+            else
+            {
+                //run the particle engine if the mouse is clicked on top of a tile
+                if (newMouse.LeftButton == ButtonState.Pressed && oldMouse.LeftButton == ButtonState.Released)
+                {
+                    //get all the tiles to feed into the engine and remove them from drawn
+                    List<Tile> temp = new List<Tile>();
+                    for (int current = 0; current < drawn.Count; current++)
+                    {
+                        if (drawn[current] is Tile)
+                        {
+                            temp.Add((Tile)drawn[current]);
+                            drawn.Remove(drawn[current]);
+                        }
+                    }
+
+                    //actually run the engine
+                    particleEngine.Run(temp);
+                }
+            }
+
             oldMouse = newMouse;
 
 
