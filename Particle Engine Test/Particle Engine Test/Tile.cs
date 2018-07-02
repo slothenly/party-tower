@@ -28,30 +28,24 @@ namespace Particle_Engine_Test
         public bool isDamaging { get; set; }
         public bool isWall { get; set; }
 
-        //visual displaying info
-        bool contactTop = false;
-        bool contactBot = false;
-        bool contactLeft = false;
-        bool contactRight = false;
+        //spritesheet info
+        public Texture2D TileSheet { get; set; }
+        public int Rows { get; set; }
+        public int Columns { get; set; }
+        private int currentFrame;
+        private int totalFrames;
+        private const int TILEPIXELSIZE = 16;
+        Dictionary<string, int[]> directionInterpreter = new Dictionary<string, int[]>();
 
-        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall, string TBLR)
+        public Tile(bool IsBackground, bool IsPlatform, bool IsDamaging, bool IsWall, Texture2D sheet)
         {
+            TileSheet = sheet;
             isPlatform = IsPlatform;
             isBackground = IsBackground;
             isDamaging = IsDamaging;
             isWall = IsWall;
-
-            //determines which tiles will contact with the current tile based on the string passed in
-            //TBLR stands for top, bottom, left, and right respectively.
-            char[] temp = TBLR.ToCharArray();
-            if (temp[0].ToString() == "t")
-                contactTop = true;
-            if (temp[1].ToString() == "t")
-                contactBot = true;
-            if (temp[2].ToString() == "t")
-                contactLeft = true;
-            if (temp[3].ToString() == "t")
-                contactRight = true;
+            Rows = 6;
+            Columns = 4;
 
             //determining tile heights/widths based on if its platform
             if (isPlatform != true)
@@ -64,14 +58,96 @@ namespace Particle_Engine_Test
                 Width = 1080 / 9;
                 Height = Width / 2;
             }
+
+            #region Dictionary Setup
+            //single ends
+            directionInterpreter.Add("2", new int[] { 6, 0 });       //bottom
+            directionInterpreter.Add("4", new int[] { 4, 3 });       //right
+            directionInterpreter.Add("6", new int[] { 4, 0 });       //left
+            directionInterpreter.Add("8", new int[] { 5, 2 });       //top
+
+            //single wide extenders
+            directionInterpreter.Add("28", new int[] { 5, 1 });      //vertical
+            directionInterpreter.Add("46", new int[] { 1, 3 });      //horizontal
+
+            //main rectangle
+            directionInterpreter.Add("689", new int[] { 0, 0 });     //top left
+            directionInterpreter.Add("46789", new int[] { 0, 1 });   //top middle
+            directionInterpreter.Add("478", new int[] { 0, 2 });     //top right
+            directionInterpreter.Add("23689", new int[] { 1, 0 });   //center left
+            directionInterpreter.Add("12346789", new int[] { 1, 1 });//center middle (neutral)
+            directionInterpreter.Add("12478", new int[] { 1, 2 });   //center right
+            directionInterpreter.Add("236", new int[] { 2, 0 });     //bottom left
+            directionInterpreter.Add("12346", new int[] { 2, 1 });   //bottom middle
+            directionInterpreter.Add("248", new int[] { 2, 2 });     //bottom right
+
+            //interior angles
+            directionInterpreter.Add("2346789", new int[] { 3, 3 }); //top left missing
+            directionInterpreter.Add("1246789", new int[] { 3, 2 }); //top right missing
+            directionInterpreter.Add("1234689", new int[] { 3, 0 }); //bottom left missing
+            directionInterpreter.Add("1234678", new int[] { 3, 1 }); //bottom right missing
+
+            //duplicates
+            directionInterpreter.Add("6789", new int[] { 0, 0 });    //top left
+            directionInterpreter.Add("3689", new int[] { 0, 0 });    //top left
+            directionInterpreter.Add("4789", new int[] { 0, 2 });    //top right
+            directionInterpreter.Add("1478", new int[] { 0, 2 });    //top right
+            directionInterpreter.Add("2369", new int[] { 2, 0 });    //bottom left
+            directionInterpreter.Add("1236", new int[] { 2, 0 });    //bottom left
+            directionInterpreter.Add("1247", new int[] { 2, 2 });    //bottom right
+            directionInterpreter.Add("1234", new int[] { 2, 2 });    //bottom right
+
+
+            /*
+                         //single ends
+            directionInterpreter.Add("2", new int[] { 6, 1 });      //bottom
+            directionInterpreter.Add("4", new int[] { 5, 4 });      //right
+            directionInterpreter.Add("6", new int[] { 5, 1 });      //left
+            directionInterpreter.Add("8", new int[] { 6, 3 });      //top
+
+            //single wide extenders
+            directionInterpreter.Add("28", new int[] { 6, 2 });    //vertical
+            directionInterpreter.Add("46", new int[] { 2, 4 });    //horizontal
+
+            //main rectangle
+            directionInterpreter.Add("689", new int[] { 1, 1 });     //top left
+            directionInterpreter.Add("46789", new int[] { 1, 2 });     //top middle
+            directionInterpreter.Add("478", new int[] { 1, 3 });     //top right
+            directionInterpreter.Add("23689", new int[] { 2, 1 });     //center left
+            directionInterpreter.Add("12346789", new int[] { 2, 2 });     //center middle (neutral)
+            directionInterpreter.Add("12478", new int[] { 2, 3 });     //center right
+            directionInterpreter.Add("236", new int[] { 3, 1 });     //bottom left
+            directionInterpreter.Add("12346", new int[] { 3, 2 });     //bottom middle
+            directionInterpreter.Add("248", new int[] { 3, 3 });     //bottom right 
+            */
+            #endregion
+
         }
 
-        public Tile (int xPos, int yPos, int Width, int Height, Texture2D img)
-        {
-            this.hitbox = new Rectangle(xPos, yPos, Width, Height);
-            this.DefaultSprite = img;
-        }
         #endregion
+
+        /// <summary>
+        /// Update function for tiles based on passed-in directives
+        /// </summary>
+        /// <param name="directoryString"></param>
+        public void GetTilePosFromString(string directoryString)
+        {
+            int[] position;
+
+            //test if the string received is valid, otherwise just throw in a default tile position
+            try
+            {
+                position = directionInterpreter[directoryString];
+            }
+            catch (Exception e)
+            {
+                position = directionInterpreter["12346789"];  //default tile
+            }
+
+            //Return null if something's broken
+            Rows = position[0];
+            Columns = position[1];
+        }
 
         //Fill up as we develop
         public override void CheckColliderAgainstPlayer(Player p)
@@ -79,14 +155,19 @@ namespace Particle_Engine_Test
             throw new NotImplementedException();
         }
 
-        public void Draw(SpriteBatch sb, Color c)
-        {
-            sb.Draw(defaultSprite, hitbox, c);
-        }
-
         public override void Draw(SpriteBatch sb)
         {
-            throw new NotImplementedException();
+            //int width = TileSheet.Width / Columns;
+            //int height = TileSheet.Height / Rows;
+            int width = TILEPIXELSIZE;
+            int height = TILEPIXELSIZE;
+            //int row = (int)((float)currentFrame / Columns);
+            //int column = currentFrame % Columns;
+
+            Rectangle sourceRectangle = new Rectangle(width * Columns, height * Rows, width, height);
+            Rectangle destinationRectangle = new Rectangle((int)Hitbox.X, (int)Hitbox.Y, Width, Height);
+
+            sb.Draw(TileSheet, destinationRectangle, sourceRectangle, Color.White);
         }
     }
 }

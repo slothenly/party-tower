@@ -12,10 +12,14 @@ namespace Particle_Engine_Test
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
+        
         List<GameObject> drawn = new List<GameObject>();
         Texture2D testTexture;
+        Texture2D tileSheet;
         Rectangle testRect;
+
+        MouseState newMouse;   //from current frame
+        MouseState oldMouse;    //from 1 frame ago
 
         public Game1()
         {
@@ -33,6 +37,7 @@ namespace Particle_Engine_Test
         {
             // TODO: Add your initialization logic here
             testRect = new Rectangle(200, 100, 64, 64);
+            this.IsMouseVisible = true;
 
             base.Initialize();
         }
@@ -47,6 +52,7 @@ namespace Particle_Engine_Test
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             testTexture = Content.Load<Texture2D>("coloredSquare");
+            tileSheet = Content.Load<Texture2D>("basicTileSheet");
 
             // TODO: use this.Content to load your game content here
         }
@@ -70,13 +76,20 @@ namespace Particle_Engine_Test
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            newMouse = Mouse.GetState();
+            //place the mouse thing
+            if (newMouse.LeftButton == ButtonState.Pressed && oldMouse.LeftButton == ButtonState.Released)
             {
-                drawn.Add(new Tile(Mouse.GetState().X, Mouse.GetState().Y, 64, 64, testTexture));
+                Tile t = new Tile(false, false, false, false, tileSheet);
+                t.GetTilePosFromString("8");
+                t.X = newMouse.X - (t.Width / 2);
+                t.Y = newMouse.Y - (t.Height / 2);
+                drawn.Add(t);
             }
+            oldMouse = newMouse;
+
 
             base.Update(gameTime);
         }
@@ -88,12 +101,17 @@ namespace Particle_Engine_Test
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+            spriteBatch.Begin(SpriteSortMode.Immediate);
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             //modify the color each frame to get the fade in from the overlayed tiles
             spriteBatch.Draw(testTexture, testRect, Color.White);
-            
+
+            //draw all tiles
+            foreach (Tile t in drawn)
+            {
+                t.Draw(spriteBatch);
+            }
 
             spriteBatch.End();
             base.Draw(gameTime);

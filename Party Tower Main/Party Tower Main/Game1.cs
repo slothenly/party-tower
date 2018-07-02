@@ -758,7 +758,7 @@ namespace Party_Tower_Main
             switch (gameState)
             {
                 case GameState.Menu:
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                    spriteBatch.Begin(SpriteSortMode.Immediate);
                     GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                  //sets interpolation to nearest neighbor
                     //draw the main menu background image
                     spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
@@ -810,7 +810,7 @@ namespace Party_Tower_Main
 
                 case GameState.Game:
                     // (NULL, NULL, NULL, NULL, CAMERA.TRANSFORM IS HOW YOU USE THE CAMERA IN THE GAME! :D)
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
+                    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
                     GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
 
                     if (paused)
