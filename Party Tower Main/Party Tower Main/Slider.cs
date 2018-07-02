@@ -27,7 +27,7 @@ namespace Party_Tower_Main
             get { return length; }
             set { length = value; }
         }
-        public override float ButtonLocationOnSlider
+        public override float ReturnedValue
         {
             get { return returnedValue; }
             set { returnedValue = value; }
