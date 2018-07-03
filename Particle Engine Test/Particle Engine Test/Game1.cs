@@ -12,9 +12,11 @@ namespace Particle_Engine_Test
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        List<ParticleEngine> particleEngines = new List<ParticleEngine>();
         ParticleEngine particleEngine;
 
         List<GameObject> drawn = new List<GameObject>();
+        //List<Particle> particles = new List<Particle>();
         Texture2D testTexture;
         Texture2D tileSheet;
         Texture2D blankParticle;
@@ -60,7 +62,7 @@ namespace Particle_Engine_Test
             tileSheet = Content.Load<Texture2D>("basicTileSheet");
             blankParticle = Content.Load<Texture2D>("singleWhitePx");
 
-            particleEngine = new ParticleEngine(blankParticle);
+            particleEngine = new ParticleEngine(blankParticle, 120);
 
             // TODO: use this.Content to load your game content here
         }
@@ -98,6 +100,7 @@ namespace Particle_Engine_Test
                 }
             }
 
+            #region Mouse-Specific Checking
             if (tileHover == false)
             {
                 //place a new tile in the spot of the mouse when the mouse is clicked while not hovering and add it to the drawn list
@@ -117,23 +120,40 @@ namespace Particle_Engine_Test
                 {
                     //get all the tiles to feed into the engine and remove them from drawn
                     List<Tile> temp = new List<Tile>();
-                    for (int current = 0; current < drawn.Count; current++)
+                    for (int current = drawn.Count; current > 0; current--)
                     {
-                        if (drawn[current] is Tile)
+                        if (drawn[current - 1] is Tile)
                         {
-                            temp.Add((Tile)drawn[current]);
-                            drawn.Remove(drawn[current]);
+                            temp.Add((Tile)drawn[current - 1]);
+                            drawn.Remove(drawn[current - 1]);
                         }
                     }
 
-                    //actually run the engine
-                    particleEngine.Run(temp);
+                    //actually start the engine
+                    ParticleEngine tempPE = new ParticleEngine(blankParticle, 100);
+                    tempPE.Run(temp);
+
+                    //add the engine to current list of engines
+                    particleEngines.Add(tempPE);
+                }
+            }
+            #endregion
+
+            for (int i = particleEngines.Count - 1; i >= 0; i--)
+            {
+                if (particleEngines[i].Duration < 0)
+                {
+                    particleEngines.RemoveAt(i);
+
+                }
+                else
+                {
+                    particleEngines[i].Continue();
                 }
             }
 
             oldMouse = newMouse;
-
-
+            
             base.Update(gameTime);
         }
 
@@ -154,6 +174,11 @@ namespace Particle_Engine_Test
             foreach (Tile t in drawn)
             {
                 t.Draw(spriteBatch);
+            }
+
+            foreach (ParticleEngine pe in particleEngines)
+            {
+                pe.DrawParticles(spriteBatch);
             }
 
             spriteBatch.End();
