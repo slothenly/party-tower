@@ -99,7 +99,7 @@ namespace Party_Tower_Main
             get;
             set;
         }
-        public virtual float ButtonLocationOnSlider
+        public virtual float ReturnedValue
         {
             get;
             set;
