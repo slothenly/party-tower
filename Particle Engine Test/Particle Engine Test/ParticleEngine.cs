@@ -11,10 +11,23 @@ namespace Particle_Engine_Test
     class ParticleEngine
     {
         //Give the engine all the accessory information that it needs
+        List<Particle> particles = new List<Particle>();
         private Texture2D blankParticle;
-        public ParticleEngine(Texture2D blankParticle)
+        public int Duration { get; set; }
+        private int originalDuration;
+        Random rng;
+
+        /// <summary>
+        /// Constructor for the particle engine that gives neccesary information for the engine to run
+        /// </summary>
+        /// <param name="blankParticle"></param>
+        /// <param name="duration"></param>
+        public ParticleEngine(Texture2D blankParticle, int duration)
         {
             this.blankParticle = blankParticle;
+            Duration = duration;
+            originalDuration = duration;
+            rng = new Random();
         }
 
 
@@ -25,7 +38,7 @@ namespace Particle_Engine_Test
         public void Run(List<Tile> importedTiles)
         {
             //Make a collection of all the tiles that need to be covered
-            List<Rectangle> coverRects = new List<Rectangle>();
+            List<Particle> particleCollection = new List<Particle>();
 
             //Create 4 rectangles to cover ea/ of those
             foreach (Tile t in importedTiles)
@@ -37,17 +50,66 @@ namespace Particle_Engine_Test
                 Rectangle rectBL = new Rectangle(t.X, t.Y + halfH, halfW, halfH);
                 Rectangle rectBR = new Rectangle(t.X + halfW, t.Y + halfH, halfW, halfH);
 
-                coverRects.Add(rectTL);
-                coverRects.Add(rectTR);
-                coverRects.Add(rectBL);
-                coverRects.Add(rectBR);
+                Particle p1 = new Particle(blankParticle, rectTL, Color.White, rng.Next(0, 2), rng.Next(10, 51));
+                Particle p2 = new Particle(blankParticle, rectTR, Color.White, rng.Next(0, 2), rng.Next(10, 51));
+                Particle p3 = new Particle(blankParticle, rectBL, Color.White, rng.Next(0, 2), rng.Next(10, 51));
+                Particle p4 = new Particle(blankParticle, rectBR, Color.White, rng.Next(0, 2), rng.Next(10, 51));
+
+                List<Particle> particles = new List<Particle>();
+                particleCollection.Add(p1);
+                particleCollection.Add(p2);
+                particleCollection.Add(p3);
+                particleCollection.Add(p4);
             }
 
-            //Add fade in, lift, and spin effects to those rectangles
-            for (int i = 0; i < importedTiles.Count; i++)
+            particles.AddRange(particleCollection);
+        }
+
+        /// <summary>
+        /// Continues running the particle engine, returns whether the engine still needs to exist
+        /// </summary>
+        /// <returns></returns>
+        public void Continue()
+        {
+
+            float rotater;
+            float scaler;
+
+            //actually modify each particle
+            foreach (Particle p in particles)
+                {
+                    rotater = p.rotationSpeed;
+                    scaler = 1.05f;
+
+                    //Modify Spin
+                    if (p.rotationDirection == true)
+                        p.angle += rotater;
+                    else if (p.rotationDirection == false)
+                        p.angle -= rotater;
+
+                    //Modify Scale
+                    p.scale = p.scale / scaler;
+
+                    //Modifty Position
+                    Vector2 locationCopy = p.location;
+                    locationCopy.Y -= 5;
+                    p.location = locationCopy;
+                }
+
+            Duration--;         
+        }
+
+        public void DrawParticles(SpriteBatch sb)
+        {
+            foreach (Particle p in particles)
             {
-
+                p.Draw(sb);
             }
+        }
+
+        public void AddParticles(List<Tile> importedTiles)
+        {
+
         }
 
         public Color ColorUpdater()
