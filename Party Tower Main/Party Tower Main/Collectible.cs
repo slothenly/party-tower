@@ -40,7 +40,6 @@ namespace Party_Tower_Main
             if (hitbox.Intersects(p.Hitbox) && isActive)
             {
                 //Run some method on P to update saved chickens
-                p.UpdateCollectibleList(this);
                 isActive = false;
             }
         }

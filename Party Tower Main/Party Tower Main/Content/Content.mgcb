@@ -218,12 +218,6 @@
 /processorParam:Quality=Best
 /build:sound/bounce.wav
 
-#begin sound/checkpoint.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/checkpoint.wav
-
 #begin sound/death.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -325,4 +319,22 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:textures/basicTileSheet.png
+
+#begin sound/cake.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/cake.wav
+
+#begin sound/cakeError.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/cakeError.mp3
+
+#begin sound/cakePickup.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/cakePickup.wav
 

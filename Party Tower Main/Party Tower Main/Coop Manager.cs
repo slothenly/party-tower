@@ -69,6 +69,8 @@ namespace Party_Tower_Main
                     playerOne.HorizontalVelocity = 0;
                     playerOne.VerticalVelocity = 0;
 
+                    playerOne.RespawnTimer.ResetTimer();
+
                     return true;
                 }
                 else if (playerTwo.PlayerState == PlayerState.Die) //both players are dead
@@ -83,8 +85,8 @@ namespace Party_Tower_Main
                 {
                     playerOne.PlayerState = PlayerState.Fall;
                 }
-                //Might want to add some sort of delay here so player doesn't spawn instantly
-                //Added delay using timer
+
+                //delay using timer
                 if (playerTwo.RespawnTimer.UpdateTimer(gameTime) == true) //the 3 second timer has finished
                 {
                     respawnSound.Play();
@@ -94,6 +96,8 @@ namespace Party_Tower_Main
                     playerTwo.Y = (int)playerTwo.Position.Y;
                     playerTwo.HorizontalVelocity = 0;
                     playerTwo.HorizontalVelocity = 0;
+
+                    playerTwo.RespawnTimer.ResetTimer();
                 }
                 else if (playerOne.PlayerState == PlayerState.Die) //both players are dead
                 {

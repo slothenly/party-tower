@@ -42,8 +42,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Button.cs" />
+    <Compile Include="Cake.cs" />
+    <Compile Include="CakeManager.cs" />
     <Compile Include="CameraLimiters.cs" />
-    <Compile Include="Collectible.cs" />
     <Compile Include="Coop Manager.cs" />
     <Compile Include="Dynamic-Camera.cs" />
     <Compile Include="Enemy.cs" />

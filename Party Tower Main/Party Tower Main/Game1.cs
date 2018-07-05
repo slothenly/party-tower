@@ -99,6 +99,10 @@ namespace Party_Tower_Main
         List<Player> players;
         Coop_Manager coopManager;
 
+        //Cake fields
+        CakeManager cakeManager;
+        Cake cake;
+
         //Enemy Fields
         PathManager pathManager;
 
@@ -397,6 +401,10 @@ namespace Party_Tower_Main
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
             camera.SetMapEdge(LvlCoordinator.MapEdge);
 
+            //adjust first two values to set spawn point for cake
+            cake = new Cake(100, 100, playerOneTexture);
+            cakeManager = new CakeManager(players, cake, Content);
+
             players.Add(playerOne);
             players.Add(playerTwo);
             #endregion Player-Initalization
@@ -472,7 +480,7 @@ namespace Party_Tower_Main
                 case GameState.Game:
                     if (!paused && !menuPaused) //do normal stuff
                     {
-                        #region UPDATE PLAYER
+                        #region UPDATE PLAYER                   
                         //first adjust the needed coop manager states, then adjust states and movement of both players
 
                         //One Player Carrying another
@@ -517,13 +525,133 @@ namespace Party_Tower_Main
                         {
                             playerTwo.FiniteState(false);
                         }
+                        #endregion
 
-                        //check collision with each tile for each player
+                        #region UPDATE CAKE
+                        //for the cake, first check if someone is trying to pick it up
+                        cakeManager.CheckCakePickUp(gameTime);
+
+                        //then make sure the player is carrying it and adjust the collision checker for putting it down
+                        foreach (Player playerCarryingCake in players)
+                        {
+                            //player carrying the cake
+                            if (playerCarryingCake.CakeCarrying)
+                            {
+                                //adjust the cake for carrying
+                                cakeManager.CakeCarry(playerCarryingCake);
+
+                                //adjust the putting down checker
+                                if (playerCarryingCake.IsFacingRight)
+                                {
+                                    cakeManager.PuttingDownChecker = new Rectangle(playerCarryingCake.X + playerCarryingCake.Width, playerCarryingCake.Y - cake.Height,
+                                        playerCarryingCake.Width, playerCarryingCake.Height + cake.Height);
+                                }
+                                else
+                                {
+                                    cakeManager.PuttingDownChecker = new Rectangle(playerCarryingCake.X - (playerCarryingCake.Width), playerCarryingCake.Y - cake.Height, 
+                                        playerCarryingCake.Width, playerCarryingCake.Height + cake.Height);
+                                }
+                                break; //no need to keep looping through
+                            }
+                        }
+
+                        //false by default
+                        cakeManager.CakeBlockedByTile = false;
+
+                        //check collision with each tile for each player AND CAKE
                         foreach (Tile t in tilesOnScreen)
                         {
+                            //player collision with tiles
                             playerOne.CollisionCheck(t, workingGamepad1);
                             playerTwo.CollisionCheck(t, workingGamepad2);
+
+                            //cake collision with tiles
+                            cake.CheckTileCollision(t);
+
+                            if (t != null)
+                            {
+                                //don't let the player put the cake down if it is touching a tile
+                                if (cakeManager.PuttingDownChecker.Intersects(t.Hitbox))
+                                {
+                                    cakeManager.CakeBlockedByTile = true;
+                                }
+                            }
                         }
+
+
+                        //then check if each player is dying while carrying the cake or dropping it intentionally
+
+                        //PLAYER ONE carrying cake
+                        if (playerOne.CakeCarrying)
+                        {
+                            //has a working gamepad
+                            if (workingGamepad1)
+                            {
+                                //player dead / drop cake straight down
+                                if (playerOne.PlayerState == PlayerState.Die)
+                                {
+                                    cakeManager.DropCake(playerOne, false);
+                                }
+                                //presses throw button
+                                else if (gp1.IsButtonDown(Buttons.RightTrigger) || playerOne.SingleKeyPress(playerOne.BindableKb["throw"]))
+                                {
+                                    cakeManager.DropCake(playerOne, true);
+                                }
+                            }
+                            //only keyboard
+                            else
+                            {
+                                //player dead / drop cake straight down
+                                if (playerOne.PlayerState == PlayerState.Die)
+                                {
+                                    cakeManager.DropCake(playerOne, false);
+                                }
+                                //put down the cake next to player
+                                else if (playerOne.SingleKeyPress(playerOne.BindableKb["throw"]))
+                                {
+                                    cakeManager.DropCake(playerOne, true);
+                                }
+
+                            }
+                        }
+                        //PLAYER TWO
+                        else if (playerTwo.CakeCarrying)
+                        {
+                            //has a working gamepad
+                            if (workingGamepad2)
+                            {
+                                //player dead / drop cake straight down
+                                if (playerTwo.PlayerState == PlayerState.Die)
+                                {
+                                    cakeManager.DropCake(playerTwo, false);
+                                }
+                                //presses throw button
+                                else if (gp1.IsButtonDown(Buttons.RightTrigger) || playerTwo.SingleKeyPress(playerTwo.BindableKb["throw"]))
+                                {
+                                    cakeManager.DropCake(playerTwo, true);
+                                }
+                            }
+                            //only keyboard
+                            else
+                            {
+                                //player dead / drop cake straight down
+                                if (playerTwo.PlayerState == PlayerState.Die)
+                                {
+                                    cakeManager.DropCake(playerTwo, false);
+                                }
+                                //put down the cake next to player
+                                else if (playerTwo.SingleKeyPress(playerTwo.BindableKb["throw"]))
+                                {
+                                    cakeManager.DropCake(playerTwo, true);
+                                }
+
+                            }
+                        }
+
+                        //Finally, check to emulate the cake physics then emulate it if needed
+                        cake.Movement();
+
+
                         #endregion
 
                         #region CAMERA / UPDATE A* MAP / ACTIVE GAMEOBJECTS
@@ -967,7 +1095,6 @@ namespace Party_Tower_Main
                         {
                             currentPlayer.Draw(spriteBatch);
                         }
-
                     }
 
 
@@ -978,6 +1105,10 @@ namespace Party_Tower_Main
                             e.Draw(spriteBatch);
                         }
                     }
+
+
+                    cake.Draw(spriteBatch); //draw cake here (after players)
+
 
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
@@ -991,6 +1122,7 @@ namespace Party_Tower_Main
                         spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerOne.VerticalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 465), Color.Cyan);
                         spriteBatch.DrawString(testFont, "Player State: " + playerOne.PlayerState, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 430), Color.Cyan);
                         spriteBatch.DrawString(testFont, "Facing right?: " + playerOne.IsFacingRight, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 395), Color.Cyan);
+                        spriteBatch.Draw(playerTwoTexture, cakeManager.PuttingDownChecker, Color.Blue); //cake collision checker
                     }
                     if (playerTwo.IsDebugging)
                     {
@@ -998,6 +1130,7 @@ namespace Party_Tower_Main
                         spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerTwo.VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 465), Color.Red);
                         spriteBatch.DrawString(testFont, "Player State: " + playerTwo.PlayerState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 430), Color.Red);
                         spriteBatch.DrawString(testFont, "Facing right?: " + playerTwo.IsFacingRight, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 395), Color.Red);
+                        spriteBatch.Draw(playerTwoTexture, cakeManager.PuttingDownChecker, Color.Blue); //cake collision checker
                     }
 
                     //drawing out level tiles
