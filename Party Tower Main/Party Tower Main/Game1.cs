@@ -388,7 +388,7 @@ namespace Party_Tower_Main
             }
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
@@ -423,7 +423,8 @@ namespace Party_Tower_Main
             pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
-            camera.SetMapEdge(LvlCoordinator.MapEdge);
+            //camera.SetMapEdge(LvlCoordinator.MapEdge); <- Correct
+            camera.SetMapEdge(new Vector2(5000,5000)); //<- Correct
 
             //adjust first two values to set spawn point for cake
             cake = new Cake(100, 100, playerOneTexture);

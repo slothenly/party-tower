@@ -80,6 +80,15 @@ namespace Party_Tower_Main
         private Rectangle topChecker;
         private Rectangle bottomChecker;
         private bool goingDown;
+        Tile singleTile;
+
+        //More Movement Stuff?
+        private Rectangle previousHitbox;
+        private Vector2 previousPosition; //positions used to check if the player is going up or down
+        private Vector2 position;
+
+        //Movement Lockout Jumping
+        private bool canJump;
 
         //Sound
         public static ContentManager myContent; //used to load content in non-Game1 Class
@@ -156,19 +165,21 @@ namespace Party_Tower_Main
 
             this.hitbox = hitbox;
 
-            
+
             Type = type;
 
             this.defaultSprite = defaultSprite;
             this.visionStandard = visionStandard;
             UpdateEnemyVision();
-            
-
 
             // Starts the enemy as inactive and not being drawn. 
             isActive = false;
             isDrawn = false;
             isFacingRight = false;
+            bottomIntersects = false;
+            topIntersects = false;
+            canJump = true;
+            goingDown = false;
 
             // Enemy is facing left
             isFacingRight = false;
@@ -180,6 +191,295 @@ namespace Party_Tower_Main
 
         #region Methods
 
+        /// <summary>
+        /// Updates the Enemy Appropriately
+        /// </summary>
+        /// <param name="pM"></param>
+        public void UpdateEnemy(Player p1, Player p2, Vector2 target)
+        {
+            previousPosition = position;
+            previousHitbox = hitbox;
+            previousEnemyState = enemyState;
+            previousWalkingState = walkingState;
+
+            position = new Vector2(X, Y);
+
+
+            if (previousPosition.Y < position.Y) //player is going downwards relative to last frame
+            {
+                goingDown = true;
+            }
+            else //the player is standing normally or going upwards
+            {
+                goingDown = false;
+            }
+
+            // Sets Collision Boxes
+
+            #region COLLISIONBOXES
+
+            if (horizontalVelocity > 0)
+            {
+                //X is right of player, Y is the same as player, width depends on horizontalVelocity, height is same as player
+                sideChecker = new Rectangle(X + hitbox.Width, Y + 10, Math.Abs(horizontalVelocity), hitbox.Height - 20);
+            }
+            //Facing left
+            else if (horizontalVelocity < 0)
+            {
+                //X is same as player (which is left edge), Y is the same as player
+                //width depends on horizontalVelocity, height is same as player
+                sideChecker = new Rectangle(X - Math.Abs(horizontalVelocity), Y + 10, Math.Abs(horizontalVelocity), hitbox.Height - 20);
+            }
+            else
+            {
+                if (isFacingRight)
+                {
+                    sideChecker = new Rectangle(X + hitbox.Width, Y + 10, Math.Abs(horizontalVelocity), hitbox.Height - 20);
+                }
+                else
+                {
+                    sideChecker = new Rectangle(X - Math.Abs(horizontalVelocity), Y + 10, Math.Abs(horizontalVelocity), hitbox.Height - 20);
+                }
+            }
+
+            //height is player height with vertical velocity added on (subtracting makes the height go "up" aka toward the ceiling)
+            if (verticalVelocity <= 0)
+            {
+                topChecker = new Rectangle(X + 10, Y - Math.Abs(verticalVelocity), hitbox.Width - 20, Math.Abs(verticalVelocity));
+            }
+
+            else
+            {
+                topChecker = new Rectangle(X + 10, Y, hitbox.Width - 20, 0);
+            }
+
+            bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, Math.Abs(verticalVelocity));
+
+            // Double check Figure out this condition 
+            if (verticalVelocity == 0 && goingDown == true)
+            {
+                bottomChecker = new Rectangle(X + 10, Y + hitbox.Height, hitbox.Width - 20, 1);
+            }
+
+            #endregion COLLISIONBOXES
+
+            if (bottomIntersects)
+            {
+                canJump = true;
+            }
+
+            // Decides how the enemy will move
+
+            enemyState = DecideState(target);
+
+            #region FSM
+
+            switch (enemyState)
+            {
+                case EnemyState.IdleLeft:
+                    isFacingRight = false;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.IdleRight:
+                    isFacingRight = true;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.WalkLeft:
+                    isFacingRight = false;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.WalkRight:
+                    isFacingRight = true;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.JumpLeft:
+                    isFacingRight = false;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.JumpRight:
+                    isFacingRight = true;
+                    FollowMovementLogic();
+
+                    break;
+
+                case EnemyState.Fall:
+                    isFacingRight = false;
+                    FollowMovementLogic();
+
+                    break;
+
+            }
+
+            #endregion FSM 
+        }
+
+        /// <summary>
+        /// Checks if hitboxes around player touch Tile t, and check input depending on if controller is present
+        /// </summary>
+        public void CollisionCheck(Tile t)
+        {
+            if (t != null)
+            {
+                #region Wall Collisions
+
+                //wall collision (collision box next to enemy depending on direction facing)
+                if (sideChecker.Intersects(t.Hitbox))
+                {
+                    if (!t.IsPlatform) //only do wall collision if the tile isn't a platform
+                    {
+                        horizontalVelocity = 0; //stop player from moving through wall
+                        if (isFacingRight && t.X > hitbox.X) //player facing right and tile is to the right of player
+                        {
+                            hitbox.X = t.X - hitbox.Width + 1; //place player left of tile
+                        }
+                        else if (t.X < hitbox.X) //player facing left and tile is to the left of player
+                        {
+                            hitbox.X = t.X + t.Hitbox.Width - 1; //place player right of tile
+                        }
+
+                        if (enemyState == EnemyState.Fall)
+                        {
+                            if (isFacingRight)
+                            {
+                                hitbox.X -= 1;
+                            }
+                            else
+                            {
+                                hitbox.X += 1;
+                            }
+                        }
+                    }
+                }
+
+                #endregion Wall Collisions
+
+                #region Ceiling Collision
+
+                //ceiling collision (collision box above enemy)
+                if (topChecker.Intersects(t.Hitbox))
+                {
+
+                    if (topIntersects) //this is used to ensure player is placed at the ceiling only once per jump
+                    {
+                        //only do ceiling collision if the tile isn't a platform
+                        if (!t.IsPlatform)
+                        {
+                            hitbox.Y = t.Y + t.Hitbox.Height; //place player at ceiling (illusion of hitting it)
+                        }
+                    }
+                    //only launch the player downwards if the tile isn't a platform
+                    if (!t.IsPlatform)
+                    {
+                        topIntersects = false; //set to false so that the player isn't placed to the ceiling again until they touch the ground
+                        verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the player downwards
+                    }
+                }
+
+                #endregion Ceiling Collision
+
+                #region Floor Collision
+
+                //floor collision (collision box below enemy)
+                else if (bottomChecker.Intersects(t.Hitbox))
+                {
+                    bottomIntersects = true;
+                    if (goingDown)
+                    {
+                        hitbox.Y = t.Y - hitbox.Height - 1; //place the player on top of tile
+                        bottomIntersects = true;
+
+                        //FSM states are changed here so that the player can move after touching the ground
+                        //Idle Right
+                        if (isFacingRight)
+                        {
+                            enemyState = EnemyState.IdleRight;
+                        }
+                        //Idle Left
+                        else if (!isFacingRight)
+                        {
+                            enemyState = EnemyState.IdleLeft;
+                        }
+
+                        singleTile = t;
+                        //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
+                        topIntersects = true;
+                    }
+                }
+                else if (t.Equals(singleTile))
+                {
+                    bottomIntersects = false;
+                }
+
+                #endregion Floor Collision
+            }
+        }
+
+        /// <summary>
+        /// Determines the correct enemy state to enter for movement
+        /// </summary>
+        private EnemyState DecideState(Vector2 target)
+        {
+            // In air right now
+            if (canJump)
+            {
+                if (target.Y == hitbox.Center.Y)
+                {
+                    if (target.X < hitbox.Center.X)
+                    {
+                        return EnemyState.WalkLeft;
+                    }
+                    else if (target.X > hitbox.Center.X)
+                    {
+                        return EnemyState.WalkRight;
+                    }
+                    else if (previousEnemyState == EnemyState.WalkLeft)
+                    {
+                        return EnemyState.WalkLeft;
+                    }
+                    else
+                    {
+                        return EnemyState.IdleLeft;
+                    }
+                }
+                else if (target.Y < hitbox.Center.Y)
+                {
+                    if (target.X < hitbox.Center.X)
+                    {
+                        return EnemyState.JumpLeft;
+                    }
+                    else if (target.X > hitbox.Center.X)
+                    {
+                        return EnemyState.JumpRight;
+                    }
+                }
+            }
+
+            return EnemyState.Fall;
+        }
+
+
+        public override void CheckColliderAgainstPlayer(Player p)
+        {
+            if (hitbox.Intersects(p.Hitbox) && isActive)
+            {
+                isActive = false;
+            }
+        }
+
+        #region Helper Methods
+
+
+        #region Acceleration
         /// <summary>
         /// Accelerate either vertically or horizontally at a specific rate until a specific limit is reached
         /// </summary>
@@ -219,83 +519,6 @@ namespace Party_Tower_Main
             }
         }
 
-
-        public override void CheckColliderAgainstPlayer(Player p)
-        {
-            throw new NotImplementedException();
-        }
-        public void CollisionCheck(Tile t)
-        {
-            //wall collision (collision box next to player depending on direction facing)
-            if (sideChecker.Intersects(t.Hitbox))
-            {
-                #region Default
-                if (!t.IsPlatform) //only do wall collision if the tile isn't a platform
-                {
-                    horizontalVelocity = 0; //stop enemy from moving through wall
-                    if (isFacingRight && t.X > hitbox.X) //enemy facing right and tile is to the right of enemy
-                    {
-                        hitbox.X = t.X - hitbox.Width + 1; //place enemy left of tile
-                    }
-                    else if (t.X < hitbox.X) //enemy facing left and tile is to the left of enemy
-                    {
-                        hitbox.X = t.X + t.Hitbox.Width - 1; //place enemy right of tile
-                    }
-
-                    if (enemyState == EnemyState.Fall)
-                    {
-                        if (isFacingRight)
-                        {
-                            hitbox.X -= 1;
-                        }
-                        else
-                        {
-                            hitbox.X += 1;
-                        }
-
-                    }
-                }
-
-                #endregion
-            }
-            //ceiling collision (collision box above enemy)
-            if (topChecker.Intersects(t.Hitbox))
-            {
-                #region Default
-                if (topIntersects) //this is used to ensure enemy is placed at the ceiling only once per jump
-                {
-                    //only do ceiling collision if the tile isn't a platform
-                    if (!t.IsPlatform)
-                    {
-                        hitbox.Y = t.Y + t.Hitbox.Height; //place enemy at ceiling (illusion of hitting it)
-                    }
-                }
-                //only launch the enemy downwards if the tile isn't a platform
-                if (!t.IsPlatform)
-                {
-                    topIntersects = false; //set to false so that the enemy isn't placed to the ceiling again until they touch the ground
-                    verticalVelocity = (int)(Math.Abs(verticalVelocity) * .75); //launch the enemy downwards
-                }
-
-                #endregion
-            }
-            //floor collision (collision box below enemy)
-            else if (bottomChecker.Intersects(t.Hitbox) && goingDown) //only want ground collision to happen if the enemy is going downwards, 
-                                                                      //otherwise the enemy should just not check, so that way the enemy can jump through from below 
-                                                                      //but not from above
-            {
-                #region Default
-
-                hitbox.Y = t.Y - hitbox.Height - 1; //place the enemy on top of tile
-                bottomIntersects = true;
-
-                //everytime the enemy lands from a jump (or falls), the next time they jump they will hit the ceiling
-                topIntersects = true;
-                #endregion
-            }
-
-            UpdateEnemyVision();
-        }
         /// <summary>
         /// Decelerate either vertically or horizontally at a specific rate until a specific limit is reached
         /// </summary>
@@ -339,130 +562,16 @@ namespace Party_Tower_Main
                 horizontalVelocity = velocityType;
             }
         }
-        /// <summary>
-        /// Updates the Enemy Appropriately
-        /// </summary>
-        /// <param name="pM"></param>
-        public void UpdateEnemy(Player p1, Player p2, Vector2 target)
-        {
-            this.target = target;
-            previousEnemyState = enemyState;
-            previousWalkingState = walkingState;
 
-            // Determines if the enemy should be following the player
+        #endregion Acceleration
 
-            if (enemyVision.Intersects(p1.Hitbox) || enemyVision.Intersects(p2.Hitbox))
-            {
-                walkingState = EnemyWalkingState.Follow;
-            }
-            else
-            {
-                walkingState = EnemyWalkingState.Waiting;
-            }
-
-            // Determines Enemy Logic based on current walking state
-
-            if (walkingState == EnemyWalkingState.Follow)
-            {
-                FiniteStateFollowing(target);
-            }
-            else if(previousWalkingState == EnemyWalkingState.Follow && walkingState == EnemyWalkingState.Waiting)
-            {
-                if(previousEnemyState == EnemyState.Fall)
-                {
-                    FinishFalling();
-                }
-                else if (previousEnemyState == EnemyState.JumpRight || previousEnemyState == EnemyState.JumpLeft)
-                {
-                    FinishJumping();
-                }
-                else
-                {
-                    horizontalVelocity = 0;
-                    verticalVelocity = 0;
-                }
-            }
-
-            // Applies the Movement
-            X += horizontalVelocity;
-            Y += verticalVelocity;
-
-            UpdateEnemyVision();
-
-        }
-
-        /// <summary>
-        /// Helps Enemy to finish falling 
-        /// </summary>
-        private void FinishFalling()
-        {
-
-        }
-        /// <summary>
-        /// Helps Enemy finish Jumping
-        /// </summary>
-        private void FinishJumping()
-        {
-
-        }
-
-        /// <summary>
-        /// Determines the new Finite State of the enemy.
-        /// </summary>
-        /// <param name="target"></param>
-        public void FiniteStateFollowing(Vector2 target)
-        {
-
-            //this isn't in exact same spot as target
-            if (target.X != hitbox.X && target.Y != hitbox.Y)
-            {
-                //target is above this
-                if (target.Y < hitbox.Y)
-                {
-                    //target is right of or directly above this
-                    if (target.X >= hitbox.X)
-                    {
-                        enemyState = EnemyState.JumpRight;
-                    }
-                    //target is left of this
-                    else
-                    {
-                        enemyState = EnemyState.JumpLeft;
-                    }
-                }
-
-                //not touching a tile from above
-                else if (!bottomIntersects)
-                {
-                    enemyState = EnemyState.Fall;
-                }
-
-                //target is directly right of player
-                else if (target.X > hitbox.X && target.Y == hitbox.Y)
-                {
-                    enemyState = EnemyState.WalkRight;
-                }
-                else //target is directly left of player
-                {
-                    enemyState = EnemyState.WalkLeft;
-                }
-
-                FollowMovementLogic(target);
-
-            }
-
-            //Target and Enemy are already at same Position
-            else
-            {
-                
-            }
-        }
+        #region Following Movement
 
         /// <summary>
         /// Logic of Enemy movement based on its enemyState enum
         /// </summary>
         /// <param name="target"></param>
-        private void FollowMovementLogic(Vector2 target)
+        private void FollowMovementLogic()
         {
             //Idle
             if (enemyState == EnemyState.IdleLeft || enemyState == EnemyState.IdleRight)
@@ -505,6 +614,8 @@ namespace Party_Tower_Main
                 }
                 //give huge start velocity then transition to fall and allow gravity to create arch
                 verticalVelocity = -30;
+
+                canJump = false;
             }
             //Fall
             else if (enemyState == EnemyState.Fall)
@@ -528,12 +639,12 @@ namespace Party_Tower_Main
                     isFacingRight = temp;
                 }
             }
+
+            X += horizontalVelocity;
+            Y += verticalVelocity;
         }
 
-        public override void Draw(SpriteBatch sb)
-        {
-                sb.Draw(defaultSprite, hitbox, Color.White);
-        }
+        #endregion Following Movement
 
         /// <summary>
         /// Use if Enemy has had position drastically changed (IE: Reset)
@@ -543,6 +654,13 @@ namespace Party_Tower_Main
         {
             enemyVision = new Rectangle(X - visionStandard, Y - visionStandard,
                 Width + (visionStandard * 2), Height + (visionStandard * 2));
+        }
+
+        #endregion Helper Methods
+
+        public override void Draw(SpriteBatch sb)
+        {
+            sb.Draw(defaultSprite, hitbox, Color.White);
         }
 
         #endregion Methods
