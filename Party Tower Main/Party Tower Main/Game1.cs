@@ -335,6 +335,8 @@ namespace Party_Tower_Main
             normalLadder3 = new Ladder(false, false, 400, 300 - ((1920 / 16) * 3));
             topladder = new Ladder(true, false, 400, 300 - ((1920 / 16) * 4));
 
+            ladders = new List<Ladder>();
+
             ladders.Add(bottomLadder);
             ladders.Add(normalLadder1);
             ladders.Add(normalLadder2);
