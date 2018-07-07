@@ -73,6 +73,9 @@
   <ItemGroup>
     <Content Include="bin\Windows\x86\Debug\save.txt" />
     <Content Include="Icon.ico" />
+    <Content Include="save.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
