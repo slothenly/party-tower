@@ -50,6 +50,7 @@
     <Compile Include="Enemy.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
+    <Compile Include="Ladder.cs" />
     <Compile Include="LevelMapCoordinator.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="PathManager.cs" />
@@ -70,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Windows\x86\Debug\save.txt" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

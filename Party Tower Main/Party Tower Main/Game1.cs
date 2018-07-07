@@ -103,6 +103,15 @@ namespace Party_Tower_Main
         CakeManager cakeManager;
         Cake cake;
 
+        //Ladder fields
+        Ladder topladder;
+        Ladder bottomLadder;
+        Ladder normalLadder1;
+        Ladder normalLadder2;
+        Ladder normalLadder3;
+
+        List<Ladder> ladders;
+
         //Enemy Fields
         PathManager pathManager;
 
@@ -318,6 +327,19 @@ namespace Party_Tower_Main
             MediaPlayer.Volume = (masterVolumeSlider.ReturnedValue / 100) * (musicSlider.ReturnedValue / 100);
             SoundEffect.MasterVolume = (masterVolumeSlider.ReturnedValue / 100) * (musicSlider.ReturnedValue / 100);
             MediaPlayer.IsRepeating = true;
+
+            //Ladder testing
+            bottomLadder = new Ladder(false, true, 400, 300);
+            normalLadder1 = new Ladder(false, false, 400, 300 - 1920 / 16);
+            normalLadder2 = new Ladder(false, false, 400, 300 - ((1920 / 16) * 2));
+            normalLadder3 = new Ladder(false, false, 400, 300 - ((1920 / 16) * 3));
+            topladder = new Ladder(true, false, 400, 300 - ((1920 / 16) * 4));
+
+            ladders.Add(bottomLadder);
+            ladders.Add(normalLadder1);
+            ladders.Add(normalLadder2);
+            ladders.Add(normalLadder3);
+            ladders.Add(topladder);
             #endregion
 
             base.Initialize();
@@ -507,6 +529,16 @@ namespace Party_Tower_Main
 
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
+
+                        //check for ladder interaction
+                        foreach (Player player in players)
+                        {
+                            foreach (Ladder ladder in ladders)
+                            {
+                                player.CheckLadderCollision(ladder);
+                            }
+
+                        }
 
 
                         if (workingGamepad1) //check if working gamepad, and call corresponding finitestate

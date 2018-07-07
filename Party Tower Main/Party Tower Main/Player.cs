@@ -35,7 +35,9 @@ enum PlayerState
     Carrying,
     Throw,
 
-    CakeCarrying
+    CakeCarrying,
+
+    Climb
 }
 namespace Party_Tower_Main
 {
@@ -72,9 +74,13 @@ namespace Party_Tower_Main
         private bool bounceLockout = false;
         private bool shouldBounce = false;
         private bool goingdown = false; //used to make sure player can jump through platforms correctly
-        Tile singleTile; 
+        Tile singleTile;
         //used to make sure player checks collision against only 
         //1 tile when necessary (as opposed to all of them each frame like usual)
+
+        //Ladder stuff
+        private Rectangle centerChecker;
+        private bool canClimb;
 
         //Directionality and FSM
         private bool isFacingRight;
@@ -239,6 +245,7 @@ namespace Party_Tower_Main
             jumpBoost = false;
             carrying = false;
             cakeCarrying = false;
+            canClimb = false;
 
             gameTime = new GameTime();
             downDashDelay = 13;
@@ -1237,8 +1244,14 @@ namespace Party_Tower_Main
                             playerState = PlayerState.IdleLeft;
                         }
                         break;
-                        #endregion
+                    #endregion
                     //################
+                    //################
+                    #region  CLIMB STATE
+                    case PlayerState.Climb:
+
+                        break;
+                   
                 }
             }
             else
@@ -2020,6 +2033,23 @@ namespace Party_Tower_Main
             X += horizontalVelocity;
             Y += verticalVelocity;
         }
+
+        /// <summary>
+        /// checks if the player's ladder checker is touching a ladder, and depending on the type of ladder checks for tiles
+        /// </summary>
+        /// <param name="ladder"></param>
+        public bool CheckLadderCollision(Ladder ladder)
+        {
+            //update the checker
+            centerChecker = new Rectangle(X + Width / 4, Y + Height / 4, Width / 2, Height / 2);
+
+            //check if the player is positioned to be able to climb a ladder, and isn't rolling or downdashing
+            if (centerChecker.Intersects(ladder.Hitbox) && playerState != PlayerState.RollLeft && playerState != PlayerState.RollRight && playerState != PlayerState.DownDash)
+            {
+                return true;
+            }
+            return false;
+        }
         /// <summary>
         /// used to prevent holding down a key from spamming an action
         /// </summary>
@@ -2131,14 +2161,6 @@ namespace Party_Tower_Main
         }
         #endregion
         //###############
-
-
-        public void PutInFallState()
-        {
-            playerState = PlayerState.DownDash;
-        }
-
-
 
 
         //Not applicable
