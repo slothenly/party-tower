@@ -12,6 +12,11 @@ namespace Cat_Tool
 {
     public partial class Dialogue : Form
     {
+
+        TextBox whichMap;
+        Button accept;
+        Label tBox;
+
         /// <summary>
         /// Setup for adding new dialogue boxes
         /// </summary>
@@ -25,20 +30,21 @@ namespace Cat_Tool
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.Manual;
 
-            Button accept = new Button();
+            accept = new Button();
             accept.Width = Width / 2;
             accept.Height = Height / 3;
             accept.Text = "Accept";
             accept.Top = Height / 2;
-            accept.Left = Width / 4;          
+            accept.Left = Width / 4;
+            accept.Click += Accept;
 
-            TextBox whichMap = new TextBox();
+            whichMap = new TextBox();
             whichMap.Width = Width / 2;
             whichMap.Height = Height / 3;
             whichMap.Left = Width / 4;
             whichMap.Top = Height / 3;
 
-            Label tBox = new Label();
+            tBox = new Label();
             tBox.Top = whichMap.Top - 50;
             tBox.Left = (Width / 4) - 20;
             tBox.Width = (Width / 3) * 2;
@@ -63,6 +69,12 @@ namespace Cat_Tool
             this.Controls.Add(tBox);
 
             InitializeComponent();
+        }
+
+        private void Accept(object sender, EventArgs e)
+        {
+            Concat.currentData = whichMap.Text;
+            Close();
         }
 
         private void Dialogue_Load(object sender, EventArgs e)

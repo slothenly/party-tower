@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,9 +13,11 @@ namespace Cat_Tool
 {
     public partial class Concat : Form
     {
-        private List<Button> buttons = new List<Button>();
-        Font textFont;
+        private Button[,] buttons = new Button[5,5];
+        public static string currentData { get; set; }
+        private List<List<string[,]>> mainContainer;
         
+        Font textFont;
 
         /// <summary>
         /// Initialize the form and set up all button placement/text/etc.
@@ -40,6 +43,7 @@ namespace Cat_Tool
             int yPos;
             textFont = new Font("Ariel", 18.0f);
 
+            //main loop to set up the changeable buttons
             for (int rows = 0; rows < ROWS; rows++)
             {
                 for (int columns = 0; columns < COLUMNS; columns++)
@@ -52,15 +56,17 @@ namespace Cat_Tool
                     btn.Top = yPos + 25;
                     btn.Width = btnWidth;
                     btn.Height = btnHeight;
-                    btn.Text = "<empty>";
+                    btn.Text = "<<   >>";
                     btn.Font = textFont;
                     btn.Click += AddNewMap;
+                    btn.Tag = rows.ToString() + columns.ToString();
 
-                    buttons.Add(btn);
+                    buttons[rows, columns] = btn;
                     this.Controls.Add(btn);
                 }
             }
 
+            //setup for the button that actually concatinates everything
             Button concat = new Button();
             concat.Font = textFont;
             concat.Height = btnHeight + 20;
@@ -69,21 +75,59 @@ namespace Cat_Tool
             concat.Top = (btnHeight * 5) + 50;
             concat.Text = "Combine";
             concat.Click += Concatinate;
-            buttons.Add(concat);
             this.Controls.Add(concat);
-            
+
+            //setting up the main holder
+            mainContainer = new List<List<string[,]>>();
+            for (int i = 0; i < 5; i++)
+            {
+                List<string[,]> secondaryContainers = new List<string[,]>();
+                mainContainer.Add(secondaryContainers);
+            }
         }
 
+        /// <summary>
+        /// Pops up a new dialogue, asks for an input, and places it into the visual display & buttons array
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddNewMap(object sender, EventArgs e)
         {
+            //replace the visual button
             Dialogue d = new Dialogue(true);
             d.ShowDialog();
+            Button btn = (Button)sender;
+            btn.Text = currentData;
+            sender = btn;
+
+            //replace the button in the 2D array with the updated version
+            char[] placement = btn.Tag.ToString().ToCharArray();
+            int.TryParse(placement[0].ToString(), out int char1);
+            int.TryParse(placement[1].ToString(), out int char2);
+            buttons[char1, char2] = btn;
         }
 
+        /// <summary>
+        /// Actually concatinates the maps based on which ones are filled in
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Concatinate(object sender, EventArgs e)
         {
             Dialogue d = new Dialogue(false);
             d.ShowDialog();
+
+            for (int rows = 0; rows < 5; rows++)
+            {
+                for (int columns = 0; columns < 5; columns++)
+                {
+                    if (buttons[rows, columns].Text != "<<   >>" && buttons[rows, columns].Text != null)
+                    {
+                        mainContainer[rows][columns] = ReadAndReturn(buttons[rows, columns].Text);
+                    }
+                }
+            }
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -93,5 +137,76 @@ namespace Cat_Tool
 
 
         }
+
+        #region Helper Functions
+
+        /// <summary>
+        /// Reading in info from text tile and plopping it into a 2d array
+        /// </summary>
+        /// <param name="current"></param>
+        /// <returns></returns>
+        private string[,] ReadAndReturn(string current)
+        {
+            //fields & initialization logic
+            string line;
+            int c = 0;
+            string tempString = "";
+            string[] infoTempHolder;
+            int Rows;
+            int Columns;
+
+            StreamReader interpreter = new StreamReader(@"..\..\..\..\Party Tower Main\Party Tower Main\Resources\levelExports\" + current + ".txt");
+
+            //Setup for creating the level's 2d array (pulls Row and Column counts, splits the rest into a 2D array)
+            line = interpreter.ReadLine();
+            infoTempHolder = line.Split(',');
+            Rows = int.Parse(infoTempHolder[0]);
+            Columns = int.Parse(infoTempHolder[1]);
+            string[,] importedTileInfo = new string[Rows, Columns];
+
+            //Reading in the tiles from the file and placing them into the a holder string
+            string tileInfoString = interpreter.ReadToEnd();
+            infoTempHolder = tileInfoString.Split(',');
+
+            //getting rid of "\r\n"
+            for (int i = 0; i <= infoTempHolder.Length - 2; i++)
+            {
+                tempString = infoTempHolder[i];
+                char[] individualTileString = infoTempHolder[i].ToCharArray();
+
+                if (individualTileString.Length > 4)
+                {
+                    tempString = "";
+                    char space = ' ';
+                    //make first two char spaces
+                    individualTileString[0] = space;
+
+                    individualTileString[1] = space;
+                    foreach (var item in individualTileString) //go through every char in temp
+                    {
+                        if (item != ' ') tempString += item.ToString(); //if char is not a space add it to tile ID temp string
+                    }
+                }
+                infoTempHolder[i] = tempString;
+            }
+
+            //actually sets all of the individual tiles into the 2d array
+            for (int i = 0; i <= importedTileInfo.GetLength(0) - 1; i++)
+            {
+
+                for (int j = 0; j <= importedTileInfo.GetLength(1) - 1; j++)
+                {
+
+                    importedTileInfo[i, j] = infoTempHolder[c]; //sets tileID in level array 
+
+                    c++; //increments c because it is seperate array of different dimensions
+                }
+
+            }
+            interpreter.Close();
+            return importedTileInfo;
+        }
+
+        #endregion
     }
 }
