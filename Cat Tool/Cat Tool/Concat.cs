@@ -17,6 +17,7 @@ namespace Cat_Tool
         public static string currentData { get; set; }
         private List<List<string[,]>> mainContainer;
         private List<string[,]> nullRow;
+        private string[,] nullSet;
 
         
         Font textFont;
@@ -87,12 +88,12 @@ namespace Cat_Tool
                 mainContainer.Add(secondaryContainers);
             }
 
-            //setting up example null row
+            //setting up example null row and null sets
+            nullSet = new string[9, 16];
             nullRow = new List<string[,]>();
             for (int i = 0; i < 5; i++)
             {
-                string[,] temp = new string[9, 16];
-                nullRow.Add(temp);
+                nullRow.Add(nullSet);
             }
         }
 
@@ -150,35 +151,53 @@ namespace Cat_Tool
             }
 
             //establish which rows don't need to be checked because they're empty
-            bool first = true;
-            bool second = true;
-            bool third = true;
-            bool fourth = true;
-            bool fifth = true;
+            #region Testing for Empty Rows & Columns
+            //testing which rows are empty          ## Booleans tell 'Is this row filled?'
+            bool[] rowChecks = new bool[5];
 
-            if (mainContainer[0] == nullRow)
+            for (int i = 0; i < 5; i++)
             {
-                first = false;
+                if (mainContainer[i] == nullRow)
+                    rowChecks[i] = false;
+                else
+                    rowChecks[i] = true;
             }
-            if (mainContainer[1] == nullRow)
+
+            //test if any columns are empty         ## Booleans tell 'is this column filled?'
+            bool catcher;
+            bool[] colChecks = new bool[5];
+            for (int i = 0; i < 5; i++)
             {
-                second = false;
+                //reset for the each level
+                catcher = true;
+
+                //check through the same column for every row
+                for (int j = 0; j < 5; j++)
+                {
+                    if (mainContainer[j][i] == nullSet)
+                        catcher = false;
+                }
+
+                //check whether the row is filled based on catches and files into colChecks
+                if (catcher == false)
+                    colChecks[i] = false;
+                else
+                    colChecks[i] = true;
             }
-            if (mainContainer[2] == nullRow)
-            {
-                third = false;
-            }
-            if (mainContainer[3] == nullRow)
-            {
-                fourth = false;
-            }
-            if (mainContainer[4] == nullRow)
-            {
-                fifth = false;
-            }
+
+            #endregion
 
             //concatinate the indexes that have been placed
-
+            for (int rows = 0; rows < 5; rows++)
+            {
+                for (int columns = 0; columns < 5; columns++)
+                {
+                    if (colChecks[columns] == true && rowChecks[rows] == true)
+                    {
+                        
+                    }
+                }
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
