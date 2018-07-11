@@ -16,6 +16,8 @@ namespace Cat_Tool
         private Button[,] buttons = new Button[5,5];
         public static string currentData { get; set; }
         private List<List<string[,]>> mainContainer;
+        private List<string[,]> nullRow;
+
         
         Font textFont;
 
@@ -84,6 +86,14 @@ namespace Cat_Tool
                 List<string[,]> secondaryContainers = new List<string[,]>();
                 mainContainer.Add(secondaryContainers);
             }
+
+            //setting up example null row
+            nullRow = new List<string[,]>();
+            for (int i = 0; i < 5; i++)
+            {
+                string[,] temp = new string[9, 16];
+                nullRow.Add(temp);
+            }
         }
 
         /// <summary>
@@ -117,6 +127,17 @@ namespace Cat_Tool
             Dialogue d = new Dialogue(false);
             d.ShowDialog();
 
+            //populate each of the containing lists with empty 9x16 arrays 
+            foreach (List<string[,]> secondaryList in mainContainer)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    string[,] temp = new string[9, 16];
+                    secondaryList.Add(temp);
+                }
+            }
+
+            //find the buttons that have been modified and populate them with their source file's info
             for (int rows = 0; rows < 5; rows++)
             {
                 for (int columns = 0; columns < 5; columns++)
@@ -128,13 +149,40 @@ namespace Cat_Tool
                 }
             }
 
+            //establish which rows don't need to be checked because they're empty
+            bool first = true;
+            bool second = true;
+            bool third = true;
+            bool fourth = true;
+            bool fifth = true;
+
+            if (mainContainer[0] == nullRow)
+            {
+                first = false;
+            }
+            if (mainContainer[1] == nullRow)
+            {
+                second = false;
+            }
+            if (mainContainer[2] == nullRow)
+            {
+                third = false;
+            }
+            if (mainContainer[3] == nullRow)
+            {
+                fourth = false;
+            }
+            if (mainContainer[4] == nullRow)
+            {
+                fifth = false;
+            }
+
+            //concatinate the indexes that have been placed
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Concat main = new Concat();
-
-
 
         }
 
