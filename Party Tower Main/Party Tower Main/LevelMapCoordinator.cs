@@ -74,7 +74,7 @@ namespace Party_Tower_Main
         /// NOTE: Only feed in pre-set paths, there's no check in place to catch a bad name
         /// </summary>
         /// <param name="path"></param>
-        public void UpdateMapFromPath(string path)
+        public Tile[,] UpdateMapFromPath(string path)
         {
             //fields & initialization logic
             string line;
@@ -279,6 +279,8 @@ namespace Party_Tower_Main
 
 
             #endregion
+
+            return currentMap;
         }
 
         /// <summary>

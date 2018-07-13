@@ -139,6 +139,8 @@ namespace Party_Tower_Main
         Texture2D tileGrass;
         Texture2D tileMoss;
 
+        Map currentLevelMap;
+
         //Buttons for Menu
         Button playButton;
         Button menuOptionsButton;
@@ -362,6 +364,14 @@ namespace Party_Tower_Main
             {
                 tilesOnScreen.Add(currentTile);
             }
+            //Actually add in levels and connect them on the map here
+            currentLevelMap = new Map();
+            Level testL = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel1"));
+            Level testL2 = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel2"));
+            currentLevelMap.AddLevel(testL);
+            currentLevelMap.AddLevel(testL2);
+            currentLevelMap.PlaceRight(currentLevelMap.Root);
+
 
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
