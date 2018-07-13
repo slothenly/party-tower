@@ -19,10 +19,11 @@ namespace Party_Tower_Main
         private Level root;
         public Level Root { get { return root; } }
         private Queue<Level> levelsToPlace = new Queue<Level>();
+        Tile measurementTile;
 
-        public Map()
+        public Map(Tile exampleTile)
         {
-
+            measurementTile = exampleTile;
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace Party_Tower_Main
             }
 
             //change the positions of the tiles relative to the stem
-            current.ShiftHoriztal = stem.ShiftHoriztal - (current.Tiles[0, 0].Width * 16);
+            current.ShiftHoriztal = stem.ShiftHoriztal - (measurementTile.Width * 16);
             current.ShiftVertical = stem.ShiftVertical;
             current.ShiftTiles();
         }
@@ -178,7 +179,7 @@ namespace Party_Tower_Main
             }
 
             //change the positions of the tiles relative to the stem
-            current.ShiftHoriztal = stem.ShiftHoriztal + (current.Tiles[0, 0].Width * 16);
+            current.ShiftHoriztal = stem.ShiftHoriztal + (measurementTile.Width * 16);
             current.ShiftVertical = stem.ShiftVertical;
             current.ShiftTiles();
         }
@@ -248,7 +249,7 @@ namespace Party_Tower_Main
 
             //change the positions of the tiles relative to the stem
             current.ShiftHoriztal = stem.ShiftHoriztal;
-            current.ShiftVertical = stem.ShiftVertical - (current.Tiles[0, 0].Height * 9); 
+            current.ShiftVertical = stem.ShiftVertical - (measurementTile.Width * 16); 
             current.ShiftTiles();
         }
 
@@ -317,7 +318,7 @@ namespace Party_Tower_Main
 
             //change the positions of the tiles relative to the stem
             current.ShiftHoriztal = stem.ShiftHoriztal;
-            current.ShiftVertical = stem.ShiftVertical + (current.Tiles[0, 0].Height * 9);
+            current.ShiftVertical = stem.ShiftVertical + (measurementTile.Width * 16);
             current.ShiftTiles();
         }
         #endregion

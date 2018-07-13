@@ -401,7 +401,7 @@ namespace Party_Tower_Main
                 tilesOnScreen.Add(currentTile);
             }
             //Actually add in levels and connect them on the map here
-            currentLevelMap = new Map();
+            currentLevelMap = new Map(tilesOnScreen[0]);
             Level testL = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel1"));
             Level testL2 = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel2"));
             currentLevelMap.AddLevel(testL);

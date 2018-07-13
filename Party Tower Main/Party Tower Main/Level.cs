@@ -40,8 +40,11 @@ namespace Party_Tower_Main
         {
             foreach (Tile t in tiles)
             {
-                t.X += ShiftHoriztal;
-                t.Y += ShiftVertical;
+                if(t != null)
+                {
+                    t.X += ShiftHoriztal;
+                    t.Y += ShiftVertical;
+                }
             }
         }
 
