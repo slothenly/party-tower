@@ -35,7 +35,9 @@ enum PlayerState
     Carrying,
     Throw,
 
-    CakeCarrying
+    CakeCarrying,
+
+    Climb
 }
 namespace Party_Tower_Main
 {
@@ -72,9 +74,13 @@ namespace Party_Tower_Main
         private bool bounceLockout = false;
         private bool shouldBounce = false;
         private bool goingdown = false; //used to make sure player can jump through platforms correctly
-        Tile singleTile; 
+        Tile singleTile;
         //used to make sure player checks collision against only 
         //1 tile when necessary (as opposed to all of them each frame like usual)
+
+        //Ladder stuff
+        private Rectangle centerChecker;
+        private bool canClimb;
 
         //Directionality and FSM
         private bool isFacingRight;
@@ -201,6 +207,11 @@ namespace Party_Tower_Main
             get { return cakeCarrying; }
             set { cakeCarrying = value; }
         }
+        public bool CanClimb
+        {
+            get { return canClimb; }
+            set { canClimb = value; }
+        }
         public Timer RespawnTimer
         {
             get { return respawnTimer; }
@@ -239,6 +250,7 @@ namespace Party_Tower_Main
             jumpBoost = false;
             carrying = false;
             cakeCarrying = false;
+            canClimb = false;
 
             gameTime = new GameTime();
             downDashDelay = 13;
@@ -759,7 +771,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
+                            if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -791,7 +807,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !carrying)
+                            if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !carrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -828,7 +848,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && ! cakeCarrying)
+                            if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && ! cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -864,7 +888,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
+                            if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -993,9 +1021,13 @@ namespace Party_Tower_Main
                     //Fall 
                     case PlayerState.Fall:
                         Movement(hasGamepad);
-                        
+
                         //can throw mid air
-                        if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
+                        if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if ((kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger)) && !cakeCarrying)
                         {
                             playerState = PlayerState.Throw;
                         }
@@ -1021,7 +1053,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.JumpLeft;
                             }
                         }
-                        if ((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !hasRolledInAir && !carrying && !cakeCarrying)
+                        else if ((SingleKeyPress(bindableKb["roll"]) || SingleButtonPress(Buttons.X)) && !hasRolledInAir && !carrying && !cakeCarrying)
                         {
                             rollSound.Play();
                             rollInAir = true;
@@ -1034,7 +1066,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.RollLeft;
                             }
                         }
-                        if ((SingleKeyPress(bindableKb["downDash"]) || GamepadDownDash()) && !carrying && !cakeCarrying)
+                        else if ((SingleKeyPress(bindableKb["downDash"]) || SingleButtonPress(Buttons.B)) && !carrying && !cakeCarrying)
                         {
                             downDashSound.Play();
                             playerState = PlayerState.DownDash;
@@ -1096,8 +1128,13 @@ namespace Party_Tower_Main
                         jumpCount = 0;
                         jumpBoost = true;
 
-                        //The carried player can only jump
-                        if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
+                        //The carried player can only jump or climb a ladder slowly
+
+                        if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
                         {
                             jumpSound.Play();
                             inCarry = false;
@@ -1124,8 +1161,13 @@ namespace Party_Tower_Main
 
                         carrying = true;
 
-                        //Carrying player can only move, throw and jump
-                        if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
+                        //Carrying player can only move, throw, climb and jump
+
+                        if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["throw"]) || gp.IsButtonDown(Buttons.LeftTrigger))
                         {
                             playerState = PlayerState.Throw;
                         }
@@ -1198,7 +1240,11 @@ namespace Party_Tower_Main
 
                         if (!bottomIntersects)
                         {
-
+                            playerState = PlayerState.Fall;
+                        }
+                        else if (canClimb && (GamepadUp() || kb.IsKeyDown(bindableKb["up"])))
+                        {
+                            playerState = PlayerState.Climb;
                         }
                         //jump
                         else if (SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A))
@@ -1237,6 +1283,40 @@ namespace Party_Tower_Main
                             playerState = PlayerState.IdleLeft;
                         }
                         break;
+                    #endregion
+                    //################
+                    //################
+                    #region  CLIMB STATE
+                    case PlayerState.Climb:
+                        Movement(hasGamepad);
+                        //holding down the right button and pressing the jump button
+                        if ((GamepadRight() || kb.IsKeyDown(bindableKb["right"])) && (SingleButtonPress(Buttons.A) || SingleKeyPress(bindableKb["jump"])))
+                        {
+                            jumpSound.Play();
+                            playerState = PlayerState.JumpRight;
+                        }
+                        //holding down the left button and pressing the jump button
+                        else if ((GamepadLeft() || kb.IsKeyDown(bindableKb["left"])) && (SingleButtonPress(Buttons.A) || SingleKeyPress(bindableKb["jump"])))
+                        {
+                            jumpSound.Play();
+                            playerState = PlayerState.JumpLeft;
+                        }
+                        if (!canClimb)
+                        {
+                            if (GamepadRight() || kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (GamepadLeft() || kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
                         #endregion
                     //################
                 }
@@ -1256,7 +1336,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
+                            if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -1288,7 +1372,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
+                            if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -1325,7 +1413,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
+                            if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -1361,7 +1453,11 @@ namespace Party_Tower_Main
 
                         if (!debugEnemyCollision)
                         {
-                            if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
+                            if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                            {
+                                playerState = PlayerState.Climb;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
                             {
                                 playerState = PlayerState.Throw;
                             }
@@ -1487,7 +1583,11 @@ namespace Party_Tower_Main
                     case PlayerState.Fall:
                         Movement(hasGamepad);
                         //can throw mid air
-                        if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
+                        if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["throw"]) && !cakeCarrying)
                         {
                             playerState = PlayerState.Throw;
                         }
@@ -1513,7 +1613,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.JumpLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying && !cakeCarrying)
+                        else if (SingleKeyPress(bindableKb["roll"]) && !hasRolledInAir && !carrying && !cakeCarrying)
                         {
                             rollSound.Play();
                             rollInAir = true;
@@ -1526,7 +1626,7 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.RollLeft;
                             }
                         }
-                        if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
+                        else if (SingleKeyPress(bindableKb["downDash"]) && !carrying)
                         {
                             downDashSound.Play();
                             playerState = PlayerState.DownDash;
@@ -1590,8 +1690,13 @@ namespace Party_Tower_Main
                         jumpCount = 0;
                         jumpBoost = true;
 
-                        //The carried player can only jump
-                        if (SingleKeyPress(bindableKb["jump"]))
+                        //The carried player can only jump and climb
+
+                        if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if (SingleKeyPress(bindableKb["jump"]))
                         {
                             jumpSound.Play();
                             inCarry = false;
@@ -1618,8 +1723,12 @@ namespace Party_Tower_Main
 
                         carrying = true;
 
-                        //Carrying playey can only move, throw and jump
-                        if (kb.IsKeyDown(bindableKb["throw"]))
+                        //Carrying playey can only move, throw, climb and jump
+                        if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                        {
+                            playerState = PlayerState.Climb;
+                        }
+                        else if (kb.IsKeyDown(bindableKb["throw"]))
                         {
                             playerState = PlayerState.Throw;
                         }
@@ -1642,11 +1751,11 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.JumpLeft;
                             }
                         }
-                        if (kb.IsKeyDown(bindableKb["left"]))
+                        else if (kb.IsKeyDown(bindableKb["left"]))
                         {
                             playerState = PlayerState.WalkLeft;
                         }
-                        if (kb.IsKeyDown(bindableKb["right"]))
+                        else if (kb.IsKeyDown(bindableKb["right"]))
                         {
                             playerState = PlayerState.WalkRight;
                         }
@@ -1688,7 +1797,7 @@ namespace Party_Tower_Main
 
                         cakeCarrying = true;
 
-                        //Carrying player can only move, put down cake, and jump
+                        //Carrying player can only move, climb, put down cake, and jump
 
                         //cake putting down handled in cake manager
                         if (debugEnemyCollision)
@@ -1700,6 +1809,10 @@ namespace Party_Tower_Main
                         if (!bottomIntersects)
                         {
                             playerState = PlayerState.Fall;
+                        }
+                        else if (canClimb && kb.IsKeyDown(bindableKb["up"]))
+                        {
+                            playerState = PlayerState.Climb;
                         }
                         else if (SingleKeyPress(bindableKb["jump"]))
                         {
@@ -1737,13 +1850,47 @@ namespace Party_Tower_Main
                             playerState = PlayerState.IdleLeft;
                         }
                         break;
+                    #endregion
+                    //################
+                    //################
+                    #region CLIMB STATE
+                    case PlayerState.Climb:
+                        Movement(hasGamepad);
+                        //holding down the right button and pressing the jump button
+                        if (kb.IsKeyDown(bindableKb["right"]) && SingleKeyPress(bindableKb["jump"]))
+                        {
+                            jumpSound.Play();
+                            playerState = PlayerState.JumpRight;
+                        }
+                        //holding down the left button and pressing the jump button
+                        else if (kb.IsKeyDown(bindableKb["left"]) && SingleKeyPress(bindableKb["jump"]))
+                        {
+                            jumpSound.Play();
+                            playerState = PlayerState.JumpLeft;
+                        }
+                        if (!canClimb)
+                        {
+                            if (kb.IsKeyDown(bindableKb["right"]))
+                            {
+                                playerState = PlayerState.WalkRight;
+                            }
+                            else if (kb.IsKeyDown(bindableKb["left"]))
+                            {
+                                playerState = PlayerState.WalkLeft;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.Fall;
+                            }
+                        }
+                        break;
                         #endregion
                     //################
                 }
             }
 
             #endregion
-            //################
+                    //################
         }
         /// <summary>
         /// Calls accelerate/decelerate methods based on FSM state, the direction is accounted for in the methods
@@ -1906,7 +2053,14 @@ namespace Party_Tower_Main
                 //give huge start velocity then transition to fall and allow gravity to create arch
                 if (jumpBoost) //bigger boost since being carried
                 {
+                    horizontalVelocity = 0;
                     verticalVelocity = -40;
+                    //carrying cake while being carried
+                    if (cakeCarrying)
+                    {
+                        verticalVelocity = -30;
+                    }
+
                     jumpBoost = false; 
                 }
                 else if (carrying || cakeCarrying) //weaker jump
@@ -2015,10 +2169,89 @@ namespace Party_Tower_Main
                     playerState = PlayerState.Fall;
                 }
             }
+            else if (playerState == PlayerState.Climb)
+            {
+                //can't move horizontally
+                horizontalVelocity = 0;
+                if (hasGamepad)
+                {
+                    if (GamepadUp() || kb.IsKeyDown(bindableKb["up"]))
+                    {
+                        //move up
+                        verticalVelocity = -8;
+                        if (cakeCarrying || carrying)
+                        {
+                            //move slower if carrying something
+                            verticalVelocity = -5;
+                        }
+                    }
+                    else if (GamepadDown() || kb.IsKeyDown(bindableKb["downDash"]))
+                    {
+                        //move down
+                        verticalVelocity = 8;
+
+                        if (cakeCarrying || carrying)
+                        {
+                            //move FASTER if carrying something (heavier)
+                            verticalVelocity = 10;
+                        }
+                    }
+                    else
+                    {
+                        verticalVelocity = 0;
+                    }
+                }
+                //just keyboard
+                else
+                {
+                    if (kb.IsKeyDown(bindableKb["up"]))
+                    {
+                        //move up
+                        verticalVelocity = -8;
+                        if (cakeCarrying || carrying)
+                        {
+                            //move slower if carrying something
+                            verticalVelocity = -5;
+                        }
+                    }
+                    else if (kb.IsKeyDown(bindableKb["downDash"]))
+                    {
+                        //move down
+                        verticalVelocity = 8;
+
+                        if (cakeCarrying || carrying)
+                        {
+                            //move FASTER if carrying something (heavier)
+                            verticalVelocity = 10;
+                        }
+                    }
+                    else
+                    {
+                        verticalVelocity = 0;
+                    }
+                }
+            }
             //carried is handled in Coop Manager, and carrying/carryingCake just adjusts some movement settings for jump and walk
 
             X += horizontalVelocity;
             Y += verticalVelocity;
+        }
+
+        /// <summary>
+        /// checks if the player's ladder checker is touching a ladder, and depending on the type of ladder checks for tiles
+        /// </summary>
+        /// <param name="ladder"></param>
+        public bool CheckLadderCollision(Ladder ladder)
+        {
+            //update the checker
+            centerChecker = new Rectangle(X + Width / 4, Y + Height / 4, Width / 2, Height / 2);
+
+            //check if the player is positioned to be able to climb a ladder, and isn't rolling or downdashing
+            if (centerChecker.Intersects(ladder.Hitbox) && playerState != PlayerState.RollLeft && playerState != PlayerState.RollRight && playerState != PlayerState.DownDash)
+            {
+                return true;
+            }
+            return false;
         }
         /// <summary>
         /// used to prevent holding down a key from spamming an action
@@ -2085,21 +2318,6 @@ namespace Party_Tower_Main
             }
         }
         /// <summary>
-        /// Hold down down directional and press x to downdash (This is used for downdash)
-        /// </summary>
-        /// <returns></returns>
-        public bool GamepadDownDash()
-        {
-            if ((gp.ThumbSticks.Left.Y < -0.5f || gp.IsButtonDown(Buttons.DPadDown)) && SingleButtonPress(Buttons.X))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        /// <summary>
         /// player trying to move Up with dpad/leftThumbstick, used for menu navigation
         /// </summary>
         /// <returns></returns>
@@ -2131,14 +2349,6 @@ namespace Party_Tower_Main
         }
         #endregion
         //###############
-
-
-        public void PutInFallState()
-        {
-            playerState = PlayerState.DownDash;
-        }
-
-
 
 
         //Not applicable

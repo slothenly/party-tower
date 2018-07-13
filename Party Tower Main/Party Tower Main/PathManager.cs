@@ -11,8 +11,6 @@ namespace Party_Tower_Main
 {
     class PathManager
     {
-        ///<summary>
-        ///</summary>
 
         //fields ------------------------------------------------------------------------
         private Vector2 p1RealPosition;             // Cordinates of the Player's True Position
@@ -158,8 +156,8 @@ namespace Party_Tower_Main
         public void UpdatePlayersOnMap(string[] newMap, Rectangle player1, Rectangle player2)
         {
             // Center point of player
-            Vector2 p1RealPosition = new Vector2(player1.X, player1.Y);
-            Vector2 p2RealPosition = new Vector2(player2.X, player2.Y);
+            p1RealPosition = new Vector2(player1.X, player1.Y);
+            p2RealPosition = new Vector2(player2.X, player2.Y);
 
             //Records the correct tile cordinates based on the location of the player
             p1Location = new Location { X = (player1.Center.X / widthConstant), Y =  (player1.Center.Y / heightConstant)};

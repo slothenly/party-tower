@@ -50,6 +50,7 @@
     <Compile Include="Enemy.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
+    <Compile Include="Ladder.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="LevelMapCoordinator.cs" />
     <Compile Include="Location.cs" />
@@ -72,7 +73,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Windows\x86\Debug\save.txt" />
     <Content Include="Icon.ico" />
+    <Content Include="save.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

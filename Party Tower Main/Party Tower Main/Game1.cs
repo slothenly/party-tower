@@ -103,6 +103,15 @@ namespace Party_Tower_Main
         CakeManager cakeManager;
         Cake cake;
 
+        //Ladder fields
+        Ladder topladder;
+        Ladder bottomLadder;
+        Ladder normalLadder1;
+        Ladder normalLadder2;
+        Ladder normalLadder3;
+
+        List<Ladder> ladders;
+
         //Enemy Fields
         PathManager pathManager;
 
@@ -141,6 +150,11 @@ namespace Party_Tower_Main
 
         Map currentLevelMap;
 
+        //Ladder textures
+        Texture2D topLadderTexture;
+        Texture2D bottomLadderTexture;
+        Texture2D normalLadderTexture;
+
         //Buttons for Menu
         Button playButton;
         Button menuOptionsButton;
@@ -165,6 +179,9 @@ namespace Party_Tower_Main
         //Exit buttons
         Button yesButton;
         Button noButton;
+
+        //Game Over stuff
+        Timer gameOverTimer = new Timer(3);
 
 
         //Menu navigation using 2d array
@@ -320,6 +337,22 @@ namespace Party_Tower_Main
             MediaPlayer.Volume = (masterVolumeSlider.ReturnedValue / 100) * (musicSlider.ReturnedValue / 100);
             SoundEffect.MasterVolume = (masterVolumeSlider.ReturnedValue / 100) * (musicSlider.ReturnedValue / 100);
             MediaPlayer.IsRepeating = true;
+
+            //Ladder testing
+            bottomLadder = new Ladder(false, true, 1200, 500);
+            normalLadder1 = new Ladder(false, false, 1200, 500 - 1920 / 16);
+            normalLadder2 = new Ladder(false, false, 1200, 500 - ((1920 / 16) * 2));
+            normalLadder3 = new Ladder(false, false, 1200, 500 - ((1920 / 16) * 3));
+            topladder = new Ladder(true, false, 1200, 500 - ((1920 / 16) * 4));
+
+
+            ladders = new List<Ladder>();
+
+            ladders.Add(bottomLadder);
+            ladders.Add(normalLadder1);
+            ladders.Add(normalLadder2);
+            ladders.Add(normalLadder3);
+            ladders.Add(topladder);
             #endregion
 
             base.Initialize();
@@ -340,6 +373,9 @@ namespace Party_Tower_Main
             defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
 
+            topLadderTexture = playerOneTexture;
+            bottomLadderTexture = playerTwoTexture;
+            normalLadderTexture = playerOneTexture;
 
             #region Tile Textures
             //########### Add Tile Textures Here #############
@@ -374,7 +410,7 @@ namespace Party_Tower_Main
 
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
@@ -403,13 +439,15 @@ namespace Party_Tower_Main
             playerTwo.BindableKb.Add("roll", Keys.RightControl);
             playerTwo.BindableKb.Add("downDash", Keys.Down);
             playerTwo.BindableKb.Add("pause", Keys.P);
-            playerTwo.BindableKb.Add("throw", Keys.RightShift);
+            playerTwo.BindableKb.Add("throw", Keys.OemQuestion);
+            playerTwo.BindableKb.Add("up", Keys.RightShift);
 
             coopManager = new Coop_Manager(playerOne, playerTwo, Content);
             pathManager = new PathManager(GraphicsDevice.Viewport);
             cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
-            camera.SetMapEdge(LvlCoordinator.MapEdge);
+            //camera.SetMapEdge(LvlCoordinator.MapEdge); <- Correct
+            camera.SetMapEdge(new Vector2(5000,5000)); //<- Correct
 
             //adjust first two values to set spawn point for cake
             cake = new Cake(100, 100, playerOneTexture);
@@ -482,7 +520,7 @@ namespace Party_Tower_Main
                 gp2 = GamePad.GetState(PlayerIndex.Two);
             }
 
-            UpdateGameState();
+            UpdateGameState(gameTime);
 
             //Write logic for each gameState in here
             switch (gameState)
@@ -517,6 +555,25 @@ namespace Party_Tower_Main
 
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
+
+                        //check for ladder interaction
+                        foreach (Player player in players)
+                        {
+                            foreach (Ladder ladder in ladders)
+                            {
+                                //check if the player is in the position that they can climb a ladder
+                                if (player.CheckLadderCollision(ladder))
+                                {
+                                    player.CanClimb = true;
+                                    break; //this will only break out of ladder list
+                                }
+                                else
+                                {
+                                    player.CanClimb = false;
+                                }
+                            }
+
+                        }
 
 
                         if (workingGamepad1) //check if working gamepad, and call corresponding finitestate
@@ -769,6 +826,33 @@ namespace Party_Tower_Main
                             quitFirstFrame = false;
                             tryingToQuit = true;
                         }
+
+                        //traverse all buttons
+                        for (int row = 0; row < menuChoices.GetLength(0); row++)
+                        {
+                            for (int column = 0; column < menuChoices.GetLength(1); column++)
+                            {
+                                //mouse selects button
+                                if (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[row, column].Area))
+                                {
+                                    //highlight the correct button and adjust array indices
+                                    lockedSelection = false;
+                                    menuRow = row;
+                                    menuColumn = column;
+                                    menuChoices[menuRow, menuColumn].IsHighlighted = true;
+                                    //unhighlight all buttons since the mouse has selected a button
+                                    foreach (Button button in menuChoices)
+                                    {
+                                        if (!button.Equals(menuChoices[menuRow, menuColumn]))
+                                        {
+                                            button.IsHighlighted = false;
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+
                         NavigateMenu(workingGamepad1, menuRow, menuColumn);
 
                     }
@@ -805,7 +889,7 @@ namespace Party_Tower_Main
         /// Helper Method that determines the New Game State after properly updating the current state of the game
         /// </summary>
         /// <returns></returns>
-        private void UpdateGameState()
+        private void UpdateGameState(GameTime gameTime)
         {
             switch (gameState)
             {
@@ -916,6 +1000,22 @@ namespace Party_Tower_Main
                             }
                         }
                     }
+                    //use escape to leave options
+                    if (kb.IsKeyDown(Keys.Escape))
+                    {
+                        menuSelectSound.Play();
+                        if (menuPaused)
+                        {
+                            gameState = GameState.Game;
+                            escapeFirstFrame = true;
+                        }
+                        else
+                        {
+                            gameState = GameState.Menu;
+                            menuFirstFrame = true;
+                        }
+                    }
+
                     //Options stuff
                     break;
 
@@ -949,12 +1049,9 @@ namespace Party_Tower_Main
                                     escapeFirstFrame = true;
                                     MediaPlayer.Pause();
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        if (workingGamepad1)
-                        {
-                            if (SingleButtonPress(Buttons.Start))
+                            else if (SingleButtonPress(Buttons.Start))
                             {
                                 menuSelectSound.Play();
                                 if (paused)
@@ -967,8 +1064,8 @@ namespace Party_Tower_Main
                                     paused = true;
                                     MediaPlayer.Pause();
                                 }
+                                break;
                             }
-                            break;
                         }
                         if (SingleKeyPress(player.BindableKb["pause"]) && !menuPaused)
                         {
@@ -1016,12 +1113,17 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.GameOver:
-                    if (SingleKeyPress(Keys.Enter))
+                    //any key is pressed after a certain delay
+                    if (gameOverTimer.UpdateTimer(gameTime))
                     {
-                        gameState = GameState.Menu;
-                        menuFirstFrame = true;
-                        startMenuMusic = true;
+                        if (kb.GetPressedKeys().Length > previousKb.GetPressedKeys().Length)
+                        {
+                            gameState = GameState.Menu;
+                            menuFirstFrame = true;
+                            startMenuMusic = true;
+                        }
                     }
+
                     break;
 
             }
@@ -1097,6 +1199,22 @@ namespace Party_Tower_Main
                     spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
                     GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
 
+
+                    foreach (Ladder ladder in ladders)
+                    {
+                        if (ladder.IsTop)
+                        {
+                            spriteBatch.Draw(topLadderTexture, ladder.Hitbox, Color.Violet);
+                        }
+                        else if (ladder.IsBottom)
+                        {
+                            spriteBatch.Draw(bottomLadderTexture, ladder.Hitbox, Color.Purple);
+                        }
+                        else
+                        {
+                            spriteBatch.Draw(normalLadderTexture, ladder.Hitbox, Color.Black);
+                        }
+                    }
 
                     //Drawing each player
                     foreach (Player currentPlayer in players)
@@ -1258,12 +1376,13 @@ namespace Party_Tower_Main
                     if (menuChoices[currentRow, currentColumn].IsHighlighted && lockedSelection)
                     {
                         //scroll right
-                        if (SingleKeyPress(playerOne.BindableKb["right"]) || SingleButtonPress(Buttons.DPadRight) || playerOne.GamepadRight())               {
+                        if (SingleKeyPress(playerOne.BindableKb["right"]) || SingleButtonPress(Buttons.DPadRight))               
+{
                             sliderHoldingCounter = 0;
                             menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
                         }
                         //player holding down a key
-                        else if (HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || playerOne.GamepadRight())
+                        else if (HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || GamepadRight())
                         {
                             sliderHoldingCounter++;
                             //delay
@@ -1272,13 +1391,13 @@ namespace Party_Tower_Main
                                 menuChoices[currentRow, currentColumn].CheckAndAlterSlider(true);
                             }
                         }
-                        else if (SingleKeyPress(playerOne.BindableKb["left"]) || SingleButtonPress(Buttons.DPadLeft) || playerOne.GamepadLeft())
+                        else if (SingleKeyPress(playerOne.BindableKb["left"]) || SingleButtonPress(Buttons.DPadLeft))
                         {
                             sliderHoldingCounter = 0;
                             menuChoices[currentRow, currentColumn].CheckAndAlterSlider(false);
                         }
                         //holding down a key
-                        else if (HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || playerOne.GamepadLeft())
+                        else if (HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || GamepadLeft())
                         {
                             sliderHoldingCounter++;
                             //delay
@@ -1316,7 +1435,7 @@ namespace Party_Tower_Main
                     }
                 }
                 //holding down a key
-                else if ((HoldKey(playerOne.BindableKb["up"]) || HoldButton(Buttons.DPadUp) || playerOne.GamepadUp()) && !lockedSelection)
+                else if ((HoldKey(playerOne.BindableKb["up"]) || HoldButton(Buttons.DPadUp) || GamepadUp()) && !lockedSelection)
                 {
                     buttonHoldingCounter++;
 
@@ -1350,7 +1469,7 @@ namespace Party_Tower_Main
                         currentRow++;
                     }
                 }
-                else if ((HoldKey(playerOne.BindableKb["downDash"]) || HoldButton(Buttons.DPadDown) || playerOne.GamepadDown()) && !lockedSelection)
+                else if ((HoldKey(playerOne.BindableKb["downDash"]) || HoldButton(Buttons.DPadDown) || GamepadDown()) && !lockedSelection)
                 {
                     buttonHoldingCounter++;
 
@@ -1383,7 +1502,7 @@ namespace Party_Tower_Main
                         currentColumn--;
                     }
                 }
-                else if ((HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || playerOne.GamepadLeft()) && !lockedSelection)
+                else if ((HoldKey(playerOne.BindableKb["left"]) || HoldButton(Buttons.DPadLeft) || GamepadLeft()) && !lockedSelection)
                 {
                     buttonHoldingCounter++;
 
@@ -1416,7 +1535,7 @@ namespace Party_Tower_Main
                         currentColumn++;
                     }
                 }
-                else if ((HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || playerOne.GamepadRight()) && !lockedSelection)
+                else if ((HoldKey(playerOne.BindableKb["right"]) || HoldButton(Buttons.DPadRight) || GamepadRight()) && !lockedSelection)
                 {
                     buttonHoldingCounter++;
 
@@ -1993,5 +2112,67 @@ namespace Party_Tower_Main
                 return false;
             }
         }
+        #region GAMEPAD STICK CONTROL
+        /// <summary>
+        /// player trying to move left with dpad/leftThumbstick
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadLeft()
+        {
+            if (gp1.ThumbSticks.Left.X < -0.5f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move right with dpad/leftThumbstick
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadRight()
+        {
+            if (gp1.ThumbSticks.Left.X > 0.5f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move Up with dpad/leftThumbstick, used for menu navigation
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadUp()
+        {
+            if (gp1.ThumbSticks.Left.Y > 0.5f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// player trying to move Down with dpad/leftThumbstick, used for menu navigation
+        /// </summary>
+        /// <returns></returns>
+        public bool GamepadDown()
+        {
+            if (gp1.ThumbSticks.Left.Y < -0.5f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion
     }
 }
