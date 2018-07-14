@@ -767,7 +767,7 @@ namespace Party_Tower_Main
 
                         #endregion
 
-                        #region PLAYER-ENEMY COLLISIONS
+                        #region PLAYER-ENEMY AND CAKE-ENEMY COLLISIONS
 
                         //might need to optimize this if there are too many enemies
                         //check player colliding with enemy
@@ -780,6 +780,11 @@ namespace Party_Tower_Main
                                     currentPlayer.CheckColliderAgainstEnemy(currentEnemy);
                                 }
                             }
+                        }
+
+                        foreach (Enemy currentEnemy in enemyList)
+                        {
+                            cake.CheckCollisionWithEnemy(currentEnemy);
                         }
 
                         #endregion
@@ -1874,13 +1879,6 @@ namespace Party_Tower_Main
                     }
                     else if (menuChoices[currentRow, currentColumn].Equals(yesButton))
                     {
-                        //save data
-                        textWriter = new StreamWriter("save.txt");
-
-                        textWriter.WriteLine(masterVolumeSlider.ReturnedValue);
-                        textWriter.WriteLine(musicSlider.ReturnedValue);
-                        textWriter.WriteLine(soundEffectSlider.ReturnedValue);
-                        textWriter.Close();
                         Exit();
                     }
                 }
@@ -2111,6 +2109,20 @@ namespace Party_Tower_Main
             {
                 return false;
             }
+        }
+        //this code will run whenever the game is closed
+        protected override void OnExiting(Object sender, EventArgs args)
+        {
+            base.OnExiting(sender, args);
+            
+            //save data
+            textWriter = new StreamWriter("save.txt");
+
+            textWriter.WriteLine(masterVolumeSlider.ReturnedValue);
+            textWriter.WriteLine(musicSlider.ReturnedValue);
+            textWriter.WriteLine(soundEffectSlider.ReturnedValue);
+            textWriter.Close();
+
         }
         #region GAMEPAD STICK CONTROL
         /// <summary>

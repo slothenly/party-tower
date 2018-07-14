@@ -125,6 +125,21 @@ namespace Party_Tower_Main
             }
         }
 
+        public void CheckCollisionWithEnemy(Enemy e)
+        {
+            //cake falling
+            if (!carried && !shouldStop)
+            {
+                //cake touches player while being dropped
+                if (hitbox.Intersects(e.Hitbox))
+                {
+                    //damage the enemy
+                    e.Hitpoints = 0;
+                }
+
+            }
+        }
+
         /// <summary>
         /// don't call this, silly
         /// </summary>
