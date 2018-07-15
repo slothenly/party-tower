@@ -13,6 +13,7 @@ namespace Party_Tower_Main
         //TODO: Add something that tells the level whats above, below, left, and right of it
         private Tile[,] tiles = new Tile[9, 16];
         public Tile[,] Tiles { get; }
+
         public Level Above { get; set; }
         public Level Below { get; set; }
         public Level Left { get; set; }
