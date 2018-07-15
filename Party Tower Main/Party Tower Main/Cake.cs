@@ -124,7 +124,10 @@ namespace Party_Tower_Main
                 verticalVelocity += rate;
             }
         }
-
+        /// <summary>
+        /// checks for collision with enemy. Used for cake combat when cake is dropped
+        /// </summary>
+        /// <param name="e"></param>
         public void CheckCollisionWithEnemy(Enemy e)
         {
             //cake falling
