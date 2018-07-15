@@ -148,7 +148,8 @@ namespace Party_Tower_Main
         Texture2D tileGrass;
         Texture2D tileMoss;
 
-        Map currentLevelMap;
+        Map LevelMapCurrent;
+        Map LevelMapOld;
 
         //Ladder textures
         Texture2D topLadderTexture;
@@ -396,17 +397,16 @@ namespace Party_Tower_Main
 
             //Instantiate level coordinator and add the starter tiles to the list
             LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", tileTextures, defaultEnemySprite, mainTileSheet);
-            foreach (Tile currentTile in LvlCoordinator.CurrentMap)
-            {
-                tilesOnScreen.Add(currentTile);
-            }
+         
             //Actually add in levels and connect them on the map here
-            currentLevelMap = new Map(tilesOnScreen[0]);
+            LevelMapCurrent = new Map(tilesOnScreen[0]);
             Level testL = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel1"));
             Level testL2 = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel2"));
-            currentLevelMap.AddLevel(testL);
-            currentLevelMap.AddLevel(testL2);
-            currentLevelMap.PlaceRight(currentLevelMap.Root);
+            LevelMapCurrent.AddLevel(testL);
+            LevelMapCurrent.AddLevel(testL2);
+            LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
+
+            LevelMapOld = null;
 
 
             // Test Enemy Manually Made
@@ -624,6 +624,31 @@ namespace Party_Tower_Main
 
                         //false by default
                         cakeManager.CakeBlockedByTile = false;
+
+                        //update tiles in tilesOnScreen
+                        if (LevelMapOld != LevelMapCurrent)
+                        {
+                            tilesOnScreen.Clear();
+
+                            for (int i = 0; i < LevelMapCurrent.Count; i++)
+                            {
+                                if (LevelMapCurrent.Levels[i].Tiles != null)
+                                {
+                                    foreach (Tile t in LevelMapCurrent.Levels[i].Tiles)
+                                    {
+                                        tilesOnScreen.Add(t);
+                                    }
+                                }
+                            }
+
+                            //################## ADD TEST TILES HERE ##################//
+                            tilesOnScreen.Add(testPlatform);
+                            tilesOnScreen.Add(testWall);
+                            tilesOnScreen.Add(secondTestPlatform);
+                        }
+
+                        //update old level map
+                        LevelMapOld = LevelMapCurrent;
 
                         //check collision with each tile for each player AND CAKE
                         foreach (Tile t in tilesOnScreen)

@@ -19,11 +19,19 @@ namespace Party_Tower_Main
         private Level root;
         public Level Root { get { return root; } }
         private Queue<Level> levelsToPlace = new Queue<Level>();
+
+        private List<Level> levels;
+        public List<Level> Levels { get { return levels; } }
+
         Tile measurementTile;
+
+        private int count = 0;
+        public int Count { get { return count; } }
 
         public Map(Tile exampleTile)
         {
             measurementTile = exampleTile;
+            levels = new List<Level>();
         }
 
         /// <summary>
@@ -43,6 +51,9 @@ namespace Party_Tower_Main
             {
                 levelsToPlace.Enqueue(importedLevel);
             }
+
+            levels.Add(importedLevel);
+            count++;
         }
 
         #region Placing Levels
