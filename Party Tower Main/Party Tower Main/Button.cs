@@ -54,22 +54,17 @@ namespace Party_Tower_Main
         }
         public Texture2D DrawnTexture
         {
-            get { return normalTexture; }
-            //no implementation of highlighting due to different dimensions
-            //to change to highlighted change the above get property to:
-            /*            
-             *            get
-             *{
-             *  if (isHighlighted)
-             *   {
-             *       return highlightedTexture;
-             *   }
-             *   else
-             *   {
-             *       return normalTexture;
-             *   }
-             * }
-             */
+            get
+            {
+                if (isHighlighted)
+                {
+                    return highlightedTexture;
+                }
+                else
+                {
+                    return normalTexture;
+                }
+            }
         }
 
         public Button(Texture2D normalTexture, Texture2D highlightedTexture)

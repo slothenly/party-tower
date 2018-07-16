@@ -234,7 +234,6 @@ namespace Party_Tower_Main
             tilesOnScreen.Add(testPlatform);
             tilesOnScreen.Add(secondTestPlatform);
             tilesOnScreen.Add(testWall);
-
             previousGp1 = new GamePadState();
             gp1 = new GamePadState();
 
@@ -247,9 +246,9 @@ namespace Party_Tower_Main
             cursorTexture = Content.Load<Texture2D>("menuImages\\selector");
 
             //Menu buttons
-            playButton = new Button(Content.Load<Texture2D>("menuImages\\playUnselected"), Content.Load<Texture2D>("menuImages\\playSelected"));
-            menuOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsUnselected"), Content.Load<Texture2D>("menuImages\\optionsSelected"));
-            menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitUnselected"), Content.Load<Texture2D>("menuImages\\exitSelected"));
+            playButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            menuOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
             playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - Nudge(false, 1));
@@ -261,11 +260,11 @@ namespace Party_Tower_Main
             menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 12);
 
             //Options buttons/sliders
-            returnButton = new Button(Content.Load<Texture2D>("menuImages\\playSelected"), Content.Load<Texture2D>("menuImages\\playUnselected"));
-            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsSelected"), Content.Load<Texture2D>("menuImages\\optionsUnselected"));
-            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitSelected"), Content.Load<Texture2D>("menuImages\\exitSelected"), 100);
-            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playUnselected"), Content.Load<Texture2D>("menuImages\\playSelected"), 100);
-            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsUnselected"), Content.Load<Texture2D>("menuImages\\optionsSelected"), 100);
+            returnButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"), 100);
+            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), 100);
+            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"), 100);
 
             //options buttons/sliders start locations
             returnButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight / 3 - Nudge(false, 1));
@@ -297,9 +296,9 @@ namespace Party_Tower_Main
             soundEffectSlider.SetSliderButtonArea();
 
             //game buttons
-            resumeButton = new Button(Content.Load<Texture2D>("menuImages\\playUnselected"), Content.Load<Texture2D>("menuImages\\playSelected"));
-            gameOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsUnselected"), Content.Load<Texture2D>("menuImages\\optionsSelected"));
-            gameExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitUnselected"), Content.Load<Texture2D>("menuImages\\exitSelected"));
+            resumeButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            gameOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            gameExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //game buttons start locations
             resumeButton.StartLocation = new Point(graphics.PreferredBackBufferWidth / 2 - Nudge(true, 5), graphics.PreferredBackBufferHeight / 3);
@@ -312,8 +311,8 @@ namespace Party_Tower_Main
             gameExitButton.Area = new Rectangle(gameExitButton.StartX, gameExitButton.StartY, graphics.PreferredBackBufferWidth / 10, graphics.PreferredBackBufferHeight / 10);
 
             //Exit Buttons
-            yesButton = new Button(Content.Load<Texture2D>("menuImages\\exitUnselected"), Content.Load<Texture2D>("menuImages\\exitSelected"));
-            noButton = new Button(Content.Load<Texture2D>("menuImages\\playUnselected"), Content.Load<Texture2D>("menuImages\\playSelected"));
+            yesButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
+            noButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
 
             //exit buttons start locations
             noButton.StartLocation = new Point(graphics.PreferredBackBufferWidth / 3 - Nudge(true, 5), graphics.PreferredBackBufferHeight / 2 - Nudge(false, 3));
@@ -410,7 +409,7 @@ namespace Party_Tower_Main
 
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
