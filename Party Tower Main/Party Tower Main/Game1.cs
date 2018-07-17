@@ -147,6 +147,8 @@ namespace Party_Tower_Main
         Texture2D tileDirt;
         Texture2D tileGrass;
         Texture2D tileMoss;
+        Level testLevel1;
+        Level testLevel2;
 
         Map LevelMapCurrent;
         Map LevelMapOld;
@@ -396,13 +398,16 @@ namespace Party_Tower_Main
 
             //Instantiate level coordinator and add the starter tiles to the list
             LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", tileTextures, defaultEnemySprite, mainTileSheet);
-         
+
             //Actually add in levels and connect them on the map here
-            LevelMapCurrent = new Map(tilesOnScreen[0]);
-            Level testL = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel1"));
-            Level testL2 = new Level(LvlCoordinator.UpdateMapFromPath("baseLevel2"));
-            LevelMapCurrent.AddLevel(testL);
-            LevelMapCurrent.AddLevel(testL2);
+            Tile tempMeasuringStick = new Tile(false, false, false, false, mainTileSheet);
+            LevelMapCurrent = new Map(tempMeasuringStick);
+            Tile[,] tempHolder = new Tile[9, 16];
+            tempHolder = LvlCoordinator.UpdateMapFromPath("tileOrientationTest");
+            testLevel1 = new Level(tempHolder);
+            testLevel2 = new Level(LvlCoordinator.UpdateMapFromPath("tileOrientationTest"));
+            LevelMapCurrent.AddLevel(testLevel1);
+            LevelMapCurrent.AddLevel(testLevel2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
@@ -624,31 +629,6 @@ namespace Party_Tower_Main
                         //false by default
                         cakeManager.CakeBlockedByTile = false;
 
-                        //update tiles in tilesOnScreen
-                        if (LevelMapOld != LevelMapCurrent)
-                        {
-                            tilesOnScreen.Clear();
-
-                            for (int i = 0; i < LevelMapCurrent.Count; i++)
-                            {
-                                if (LevelMapCurrent.Levels[i].Tiles != null)
-                                {
-                                    foreach (Tile t in LevelMapCurrent.Levels[i].Tiles)
-                                    {
-                                        tilesOnScreen.Add(t);
-                                    }
-                                }
-                            }
-
-                            //################## ADD TEST TILES HERE ##################//
-                            tilesOnScreen.Add(testPlatform);
-                            tilesOnScreen.Add(testWall);
-                            tilesOnScreen.Add(secondTestPlatform);
-                        }
-
-                        //update old level map
-                        LevelMapOld = LevelMapCurrent;
-
                         //check collision with each tile for each player AND CAKE
                         foreach (Tile t in tilesOnScreen)
                         {
@@ -823,6 +803,34 @@ namespace Party_Tower_Main
                         else //both players not dead
                         {
                             bothPlayersDead = false;
+                        }
+
+                        #endregion
+
+                        #region UPDATE TILES
+
+                        if (LevelMapOld != LevelMapCurrent)
+                        {
+                            tilesOnScreen.Clear();
+
+                            //Update test tiles through the map system
+                            foreach (Level map in LevelMapCurrent.Levels)
+                            {
+                                foreach (Tile t in map.Tiles)
+                                {
+                                    if (t != null)
+                                    {
+                                        tilesOnScreen.Add(t);
+                                    }
+                                }
+                            }
+
+                            //Add temporary test tiles here
+                            tilesOnScreen.Add(testPlatform);
+                            tilesOnScreen.Add(secondTestPlatform);
+                            tilesOnScreen.Add(testWall);
+
+                            LevelMapOld = LevelMapCurrent;
                         }
 
                         #endregion
@@ -1266,6 +1274,11 @@ namespace Party_Tower_Main
 
                     cake.Draw(spriteBatch); //draw cake here (after players)
 
+                    //draw the tiles
+                    foreach (Tile t in tilesOnScreen)
+                    {
+                        t.Draw(spriteBatch);
+                    }
 
                     //a random rectangle, for testing onyl
                     spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
