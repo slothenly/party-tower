@@ -112,6 +112,10 @@ namespace Party_Tower_Main
 
         List<Ladder> ladders;
 
+        //Background field
+        Rectangle backgroundRect;
+        Texture2D backgroundTexture;
+
         //Enemy Fields
         PathManager pathManager;
 
@@ -241,6 +245,8 @@ namespace Party_Tower_Main
 
             previousGp2 = new GamePadState();
             gp2 = new GamePadState();
+
+            backgroundRect = new Rectangle(0, 0, 1920, 1080);
 
             #region Menu stuff
             //Menu textures
@@ -378,6 +384,7 @@ namespace Party_Tower_Main
             topLadderTexture = playerOneTexture;
             bottomLadderTexture = playerTwoTexture;
             normalLadderTexture = playerOneTexture;
+            backgroundTexture = Content.Load<Texture2D>("tempBackArt");
 
             #region Tile Textures
             //########### Add Tile Textures Here #############
@@ -403,9 +410,9 @@ namespace Party_Tower_Main
             Tile tempMeasuringStick = new Tile(false, false, false, false, mainTileSheet);
             LevelMapCurrent = new Map(tempMeasuringStick);
             Tile[,] tempHolder = new Tile[9, 16];
-            tempHolder = LvlCoordinator.UpdateMapFromPath("tileOrientationTest");
+            tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
             testLevel1 = new Level(tempHolder);
-            testLevel2 = new Level(LvlCoordinator.UpdateMapFromPath("tileOrientationTest"));
+            testLevel2 = new Level(LvlCoordinator.UpdateMapFromPath("levelTwo"));
             LevelMapCurrent.AddLevel(testLevel1);
             LevelMapCurrent.AddLevel(testLevel2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
@@ -826,9 +833,9 @@ namespace Party_Tower_Main
                             }
 
                             //Add temporary test tiles here
-                            tilesOnScreen.Add(testPlatform);
-                            tilesOnScreen.Add(secondTestPlatform);
-                            tilesOnScreen.Add(testWall);
+                            //tilesOnScreen.Add(testPlatform);
+                            //tilesOnScreen.Add(secondTestPlatform);
+                            //tilesOnScreen.Add(testWall);
 
                             LevelMapOld = LevelMapCurrent;
                         }
@@ -1236,6 +1243,8 @@ namespace Party_Tower_Main
                     spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, camera.Transform); //setup for keeping pixel art nice
                     GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;                                                //sets interpolation to nearest neighbor
 
+                    //draw background
+                    spriteBatch.Draw(backgroundTexture, backgroundRect, Color.White);
 
                     foreach (Ladder ladder in ladders)
                     {
@@ -1281,9 +1290,9 @@ namespace Party_Tower_Main
                     }
 
                     //a random rectangle, for testing onyl
-                    spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
-                    spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
-                    spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
+                    //spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
+                    //spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
+                    //spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
 
                     //debugging text for bug stomping
                     if (playerOne.IsDebugging)
