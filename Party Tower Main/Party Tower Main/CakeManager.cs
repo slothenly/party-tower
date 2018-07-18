@@ -70,7 +70,7 @@ namespace Party_Tower_Main
             foreach (Player currentPlayer in players)
             {
                 //player touches the cake if no player is already carrying it and the player isn't dead, and the cake isn't on the table already
-                if (currentPlayer.Hitbox.Intersects(cake.Hitbox) && !cake.Carried &&  currentPlayer.PlayerState != PlayerState.Die)
+                if (currentPlayer.Hitbox.Intersects(cake.Hitbox) && !cake.Carried &&  currentPlayer.PlayerState != PlayerState.Die && !table.CakePlacedOnTable)
                 {
                     //set the cake to being carried and is now being carried by a player
                     cake.Carried = true;
@@ -116,8 +116,10 @@ namespace Party_Tower_Main
                     cake.Carried = false;
 
                     //center the cake on top of the table
-                    cake.X = (table.X / 2) - (cake.X / 2);
+                    cake.X = (table.X + (table.Width / 2)) - (cake.Width / 2);
                     cake.Y = table.Y - cake.Height;
+
+                    carryingPlayer.CakeCarrying = false;
 
                     table.CakePlacedOnTable = true;
                 }

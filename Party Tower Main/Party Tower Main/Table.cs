@@ -10,14 +10,17 @@ namespace Party_Tower_Main
 {
     class Table : GameObject
     {
-        private bool cakePlacedOnTable;
+        //fields
+        private bool cakePlacedOnTable; //use this for particle system (when this is true, execute the level transition)
 
+        //properties
         public bool CakePlacedOnTable
         {
             get { return cakePlacedOnTable; }
             set { cakePlacedOnTable = value; }
         }
 
+        //constructor
         public Table(Rectangle hitbox, Texture2D defaultSprite)
         {
             this.hitbox = hitbox;

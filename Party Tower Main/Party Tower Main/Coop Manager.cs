@@ -63,7 +63,7 @@ namespace Party_Tower_Main
                 {
                     respawnSound.Play();
                     playerOne.Position = GetAlivePlayerPosition(playerTwo); //put dead player at alive player's position
-                    playerOne.PlayerState = PlayerState.IdleRight;
+                    playerOne.PlayerState = PlayerState.Fall;
                     playerOne.X = (int)playerOne.Position.X;
                     playerOne.Y = (int)playerOne.Position.Y;
                     playerOne.HorizontalVelocity = 0;
@@ -91,7 +91,7 @@ namespace Party_Tower_Main
                 {
                     respawnSound.Play();
                     playerTwo.Position = GetAlivePlayerPosition(playerOne); //put dead player at alive player's position
-                    playerTwo.PlayerState = PlayerState.IdleRight;
+                    playerTwo.PlayerState = PlayerState.Fall;
                     playerTwo.X = (int)playerTwo.Position.X;
                     playerTwo.Y = (int)playerTwo.Position.Y;
                     playerTwo.HorizontalVelocity = 0;

@@ -481,6 +481,7 @@ namespace Party_Tower_Main
                 //floor collision (collision box below player)
                 else if (bottomChecker.Intersects(t.Hitbox) && playerState != PlayerState.Carried)
                 {
+                    singleTile = t;
                     bottomIntersects = true;
                     if (goingdown)
                     {
@@ -564,7 +565,6 @@ namespace Party_Tower_Main
                                 playerState = PlayerState.IdleLeft;
                             }
                         }
-                        singleTile = t;
                         //everytime the player lands from a jump (or falls), the next time they jump they will hit the ceiling
                         topIntersects = true;
 
