@@ -197,6 +197,7 @@ namespace Party_Tower_Main
         /// <param name="pM"></param>
         public void UpdateEnemy(Player p1, Player p2, Vector2 target)
         {
+            this.target = target;
             previousPosition = position;
             previousHitbox = hitbox;
             previousEnemyState = enemyState;
@@ -614,7 +615,6 @@ namespace Party_Tower_Main
                 }
                 //give huge start velocity then transition to fall and allow gravity to create arch
                 verticalVelocity = -30;
-
                 canJump = false;
             }
             //Fall
