@@ -62,6 +62,7 @@
     <Compile Include="RandomTimer.cs" />
     <Compile Include="SpriteSheetController.cs" />
     <Compile Include="Slider.cs" />
+    <Compile Include="Table.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>

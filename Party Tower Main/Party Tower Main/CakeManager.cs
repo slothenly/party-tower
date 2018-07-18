@@ -16,16 +16,18 @@ namespace Party_Tower_Main
         private Cake cake;
         private Rectangle puttingDownChecker;
         private bool cakeBlockedByTile;
+        private Table table;
 
         SoundEffect errorSound;
         SoundEffect cakePickupSound;
         SoundEffect cakeSound;
 
         //Constructor
-        public CakeManager(List<Player> players, Cake cake,  ContentManager content)
+        public CakeManager(List<Player> players, Cake cake,  ContentManager content, Table table)
         {
             this.cake = cake;
             this.players = players;
+            this.table = table;
             puttingDownChecker = cake.Hitbox;
             cakeBlockedByTile = false;
 
@@ -67,7 +69,7 @@ namespace Party_Tower_Main
             //every player can carry the cake
             foreach (Player currentPlayer in players)
             {
-                //player touches the cake if no player is already carrying it and the player isn't dead
+                //player touches the cake if no player is already carrying it and the player isn't dead, and the cake isn't on the table already
                 if (currentPlayer.Hitbox.Intersects(cake.Hitbox) && !cake.Carried &&  currentPlayer.PlayerState != PlayerState.Die)
                 {
                     //set the cake to being carried and is now being carried by a player
@@ -86,8 +88,8 @@ namespace Party_Tower_Main
         public void CakeCarry(Player carryingPlayer)
         {
             //put the cake above the player (like they're carrying it)
-            cake.X = (int)carryingPlayer.X + (carryingPlayer.Width / 2) - (cake.Width / 2); //add on velocity to avoid sluggish delay when carrying player is moving
-            cake.Y = (int)carryingPlayer.Y - cake.Height;
+            cake.X = carryingPlayer.X + (carryingPlayer.Width / 2) - (cake.Width / 2); //add on velocity to avoid sluggish delay when carrying player is moving
+            cake.Y = carryingPlayer.Y - cake.Height;
         }
 
         public void DropCake(Player carryingPlayer,bool tryingToDrop)
@@ -107,8 +109,21 @@ namespace Party_Tower_Main
             }
             else //drop the cake next to the player
             {
-                if (carryingPlayer.IsFacingRight) //place cake right of player
+                //trying to put down the cake on a table
+                if (puttingDownChecker.Intersects(table.Hitbox))
                 {
+                    cakeSound.Play();
+                    cake.Carried = false;
+
+                    //center the cake on top of the table
+                    cake.X = (table.X / 2) - (cake.X / 2);
+                    cake.Y = table.Y - cake.Height;
+
+                    table.CakePlacedOnTable = true;
+                }
+                else if (carryingPlayer.IsFacingRight) //place cake right of player
+                {
+
                     if (!cakeBlockedByTile)
                     {
                         cakeSound.Play();

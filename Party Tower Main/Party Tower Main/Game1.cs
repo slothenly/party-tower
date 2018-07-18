@@ -103,6 +103,9 @@ namespace Party_Tower_Main
         CakeManager cakeManager;
         Cake cake;
 
+        //Cake Table
+        Table testTable;
+
         //Ladder fields
         Ladder topladder;
         Ladder bottomLadder;
@@ -381,6 +384,8 @@ namespace Party_Tower_Main
             defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
 
+            testTable = new Table(new Rectangle(200, 900, 200, 200), playerOneTexture);
+
             topLadderTexture = playerOneTexture;
             bottomLadderTexture = playerTwoTexture;
             normalLadderTexture = playerOneTexture;
@@ -421,7 +426,7 @@ namespace Party_Tower_Main
 
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
@@ -461,8 +466,8 @@ namespace Party_Tower_Main
             camera.SetMapEdge(new Vector2(5000,5000)); //<- Correct
 
             //adjust first two values to set spawn point for cake
-            cake = new Cake(100, 100, playerOneTexture);
-            cakeManager = new CakeManager(players, cake, Content);
+            cake = new Cake(200, 400, playerOneTexture);
+            cakeManager = new CakeManager(players, cake, Content, testTable);
 
             players.Add(playerOne);
             players.Add(playerTwo);
@@ -648,10 +653,14 @@ namespace Party_Tower_Main
 
                             if (t != null)
                             {
-                                //don't let the player put the cake down if it is touching a tile
-                                if (cakeManager.PuttingDownChecker.Intersects(t.Hitbox))
+                                //don't let the player put the cake down if it is touching a tile, but allow placing if the table is it is touching that
+                                if (cakeManager.PuttingDownChecker.Intersects(t.Hitbox) && !cakeManager.PuttingDownChecker.Intersects(testTable.Hitbox))
                                 {
                                     cakeManager.CakeBlockedByTile = true;
+                                }
+                                else if (cakeManager.PuttingDownChecker.Intersects(testTable.Hitbox))
+                                {
+                                    cakeManager.CakeBlockedByTile = false;
                                 }
                             }
                         }
@@ -1245,6 +1254,8 @@ namespace Party_Tower_Main
 
                     //draw background
                     spriteBatch.Draw(backgroundTexture, backgroundRect, Color.White);
+
+                    testTable.Draw(spriteBatch);
 
                     foreach (Ladder ladder in ladders)
                     {
