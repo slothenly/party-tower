@@ -156,8 +156,8 @@ namespace Party_Tower_Main
         Texture2D tileDirt;
         Texture2D tileGrass;
         Texture2D tileMoss;
-        Level testLevel1;
-        Level testLevel2;
+        Room testLevel1;
+        Room testLevel2;
 
         Map LevelMapCurrent;
         Map LevelMapOld;
@@ -557,8 +557,8 @@ namespace Party_Tower_Main
             LevelMapCurrent = new Map(tempMeasuringStick);
             Tile[,] tempHolder = new Tile[9, 16];
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testLevel1 = new Level(tempHolder);
-            testLevel2 = new Level(LvlCoordinator.UpdateMapFromPath("levelTwo"));
+            testLevel1 = new Room(tempHolder);
+            testLevel2 = new Room(LvlCoordinator.UpdateMapFromPath("levelTwo"));
             LevelMapCurrent.AddLevel(testLevel1);
             LevelMapCurrent.AddLevel(testLevel2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
@@ -880,7 +880,7 @@ namespace Party_Tower_Main
                             tilesOnScreen.Clear();
 
                             //Update test tiles through the map system
-                            foreach (Level map in LevelMapCurrent.Levels)
+                            foreach (Room map in LevelMapCurrent.Levels)
                             {
                                 foreach (Tile t in map.Tiles)
                                 {

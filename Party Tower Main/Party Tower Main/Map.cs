@@ -16,12 +16,12 @@ namespace Party_Tower_Main
         //TODO: Build in a function to place whatever level you just added & change its tiles positions
         //TODO: Have all that accessable to draw
 
-        private Level root;
-        public Level Root { get { return root; } }
-        private Queue<Level> levelsToPlace = new Queue<Level>();
+        private Room root;
+        public Room Root { get { return root; } }
+        private Queue<Room> levelsToPlace = new Queue<Room>();
 
-        private List<Level> levels;
-        public List<Level> Levels { get { return levels; } }
+        private List<Room> levels;
+        public List<Room> Levels { get { return levels; } }
 
         Tile measurementTile;
 
@@ -31,14 +31,14 @@ namespace Party_Tower_Main
         public Map(Tile exampleTile)
         {
             measurementTile = exampleTile;
-            levels = new List<Level>();
+            levels = new List<Room>();
         }
 
         /// <summary>
         /// Adds a level to the map
         /// </summary>
         /// <param name="importedLevel"></param>
-        public void AddLevel(Level importedLevel)
+        public void AddLevel(Room importedLevel)
         {
             if (root == null)
             {
@@ -61,9 +61,9 @@ namespace Party_Tower_Main
         /// Places the next item in the levels queue to the left of the level included
         /// </summary>
         /// <param name="stem"></param>
-        public void PlaceLeft(Level stem)
+        public void PlaceLeft(Room stem)
         {
-            Level current = levelsToPlace.Dequeue();
+            Room current = levelsToPlace.Dequeue();
             stem.Left = current;
 
             //All this is a fancy way of checking if this needs to hook up with other levels
@@ -130,9 +130,9 @@ namespace Party_Tower_Main
         /// Places the next item in the queue to the right of the level included
         /// </summary>
         /// <param name="stem"></param>
-        public void PlaceRight(Level stem)
+        public void PlaceRight(Room stem)
         {
-            Level current = levelsToPlace.Dequeue();
+            Room current = levelsToPlace.Dequeue();
             stem.Right = current;
 
             if (stem.Below != null)
@@ -199,9 +199,9 @@ namespace Party_Tower_Main
         /// Places the next item in the queue above the level included
         /// </summary>
         /// <param name="stem"></param>
-        public void PlaceAbove(Level stem)
+        public void PlaceAbove(Room stem)
         {
-            Level current = levelsToPlace.Dequeue();
+            Room current = levelsToPlace.Dequeue();
             stem.Above = current;
 
             if (stem.Left != null)
@@ -268,9 +268,9 @@ namespace Party_Tower_Main
         /// Places the next item in the queue below the level included
         /// </summary>
         /// <param name="stem"></param>
-        public void PlaceBelow(Level stem)
+        public void PlaceBelow(Room stem)
         {
-            Level current = levelsToPlace.Dequeue();
+            Room current = levelsToPlace.Dequeue();
             stem.Below = current;
 
             if (stem.Left != null)

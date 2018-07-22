@@ -51,7 +51,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="Ladder.cs" />
-    <Compile Include="Level.cs" />
+    <Compile Include="Room.cs" />
     <Compile Include="LevelMapCoordinator.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />

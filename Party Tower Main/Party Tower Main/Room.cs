@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Party_Tower_Main
 {
-    class Level
+    class Room
     {
         //TODO: Add the holder & accessability for the basic maps
         //TODO: Make a constructor to fill that holder
@@ -14,15 +14,15 @@ namespace Party_Tower_Main
         private Tile[,] tiles = new Tile[9, 16];
         public Tile[,] Tiles { get { return tiles; } }
 
-        public Level Above { get; set; }
-        public Level Below { get; set; }
-        public Level Left { get; set; }
-        public Level Right { get; set; }
+        public Room Above { get; set; }
+        public Room Below { get; set; }
+        public Room Left { get; set; }
+        public Room Right { get; set; }
 
         public int ShiftHoriztal { get; set; }
         public int ShiftVertical { get; set; }
 
-        public Level(Tile[,] tileset)
+        public Room(Tile[,] tileset)
         {
             tiles = tileset;
 
