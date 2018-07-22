@@ -11,12 +11,14 @@ namespace Party_Tower_Main
 {
     class Button
     {
+        //Fields
         private Rectangle area;
         private Point startLocation;
         private bool isHighlighted;
         private Texture2D normalTexture;
         private Texture2D highlightedTexture;
 
+        //Properties
         public Rectangle Area
         {
             get { return area; }
@@ -67,12 +69,12 @@ namespace Party_Tower_Main
             }
         }
 
+        //Constructor
         public Button(Texture2D normalTexture, Texture2D highlightedTexture)
         {
             this.normalTexture = normalTexture;
             this.highlightedTexture = highlightedTexture;
         }
-
 
         //Virtual Methods/Properties for Slider
         public virtual void CheckAndAlterSlider(bool pressingRight)
@@ -101,6 +103,23 @@ namespace Party_Tower_Main
         }
 
         public virtual Button SliderButton
+        {
+            get;
+        }
+
+        //Virtual Methods/Properties for RebindingButton
+        public virtual bool SetNewKey()
+        {
+            throw new Exception("Do not call this method for Button, call it for Slider only");
+        }
+
+        public virtual bool TryingToRebind
+        {
+            get;
+            set;
+        }
+
+        public virtual string VisibleText
         {
             get;
         }

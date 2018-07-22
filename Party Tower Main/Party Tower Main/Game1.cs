@@ -76,7 +76,7 @@ namespace Party_Tower_Main
         bool quitFirstFrame = false;
         bool rebindFirstFrame = false;
 
-        bool tryingToRebind = false;
+        bool displayRebindWindow = false;
 
         bool bothPlayersDead; //used to determine if game over
 
@@ -185,23 +185,23 @@ namespace Party_Tower_Main
         Button rebindButton;
 
         //Buttons for rebinding
-        Button playerOneLeftButton;
-        Button playerOneRightButton;
-        Button playerOneUpButton;
-        Button playerOneJumpButton;
-        Button playerOneRollButton;
-        Button playerOneDownDashButton;
-        Button playerOnePauseButton;
-        Button playerOneThrowButton;
+        RebindingButton playerOneLeftButton;
+        RebindingButton playerOneRightButton;
+        RebindingButton playerOneUpButton;
+        RebindingButton playerOneJumpButton;
+        RebindingButton playerOneRollButton;
+        RebindingButton playerOneDownDashButton;
+        RebindingButton playerOnePauseButton;
+        RebindingButton playerOneThrowButton;
 
-        Button playerTwoLeftButton;
-        Button playerTwoRightButton;
-        Button playerTwoUpButton;
-        Button playerTwoJumpButton;
-        Button playerTwoRollButton;
-        Button playerTwoDownDashButton;
-        Button playerTwoPauseButton;
-        Button playerTwoThrowButton;
+        RebindingButton playerTwoLeftButton;
+        RebindingButton playerTwoRightButton;
+        RebindingButton playerTwoUpButton;
+        RebindingButton playerTwoJumpButton;
+        RebindingButton playerTwoRollButton;
+        RebindingButton playerTwoDownDashButton;
+        RebindingButton playerTwoPauseButton;
+        RebindingButton playerTwoThrowButton;
 
         Button optionsReturnButton;
         Button controllerMapButton;
@@ -228,6 +228,8 @@ namespace Party_Tower_Main
 
         int buttonHoldingCounter = 0; //used for delay for fast navigation
         int sliderHoldingCounter = 0;
+
+        double drawUnit;
 
         #endregion
 
@@ -276,7 +278,56 @@ namespace Party_Tower_Main
 
             backgroundRect = new Rectangle(0, 0, 1920, 1080);
 
+            //Placeholder textures for now
+            playerOneTexture = Content.Load<Texture2D>("white");
+            playerTwoTexture = Content.Load<Texture2D>("white");
+            defaultEnemySprite = Content.Load<Texture2D>("enemy");
+            testFont = Content.Load<SpriteFont>("DefaultText");
+
+            #region Player-Initalization
+            players = new List<Player>();
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
+
+            playerOne.BindableKb.Add("left", Keys.A);
+            playerOne.BindableKb.Add("right", Keys.D);
+            playerOne.BindableKb.Add("up", Keys.W); //added for menu navigation
+            playerOne.BindableKb.Add("jump", Keys.Space);
+            playerOne.BindableKb.Add("roll", Keys.LeftShift);
+            playerOne.BindableKb.Add("downDash", Keys.S);
+            playerOne.BindableKb.Add("pause", Keys.P);
+            playerOne.BindableKb.Add("throw", Keys.C);
+
+            //currently only player 1 can navigate menu, might change this if we do rebindable buttons
+            playerTwo.BindableKb.Add("left", Keys.Left);
+            playerTwo.BindableKb.Add("right", Keys.Right);
+            playerTwo.BindableKb.Add("jump", Keys.Up);
+            playerTwo.BindableKb.Add("roll", Keys.RightControl);
+            playerTwo.BindableKb.Add("downDash", Keys.Down);
+            playerTwo.BindableKb.Add("pause", Keys.P);
+            playerTwo.BindableKb.Add("throw", Keys.OemQuestion);
+            playerTwo.BindableKb.Add("up", Keys.RightShift);
+
+            coopManager = new Coop_Manager(playerOne, playerTwo, Content);
+            pathManager = new PathManager(GraphicsDevice.Viewport);
+            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
+            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
+            //camera.SetMapEdge(LvlCoordinator.MapEdge); <- Correct
+            camera.SetMapEdge(new Vector2(5000, 5000)); //<- Correct
+
+            //adjust first two values to set spawn point for cake
+            cake = new Cake(200, 400, playerOneTexture);
+            cakeManager = new CakeManager(players, cake, Content, testTable);
+
+            players.Add(playerOne);
+            players.Add(playerTwo);
+            #endregion Player-Initalization
+
             #region Menu stuff
+
+            //used for determining width of buttons for rebinding keys
+            drawUnit = graphics.PreferredBackBufferWidth * (2.5 / 100.0);
+
             //Menu textures
             mainMenuTexture = Content.Load<Texture2D>("menuImages\\partyTowerMenuBG");
             cursorTexture = Content.Load<Texture2D>("menuImages\\selector");
@@ -303,23 +354,23 @@ namespace Party_Tower_Main
             soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"), 100);
             rebindButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
 
-            playerOneLeftButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneRightButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneUpButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneJumpButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneRollButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneDownDashButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOnePauseButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerOneThrowButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            playerOneLeftButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "left", playerOne);
+            playerOneRightButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "right", playerOne);
+            playerOneUpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "up", playerOne);
+            playerOneJumpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "jump", playerOne);
+            playerOneRollButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "roll", playerOne);
+            playerOneDownDashButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "downDash", playerOne);
+            playerOnePauseButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "pause", playerOne);
+            playerOneThrowButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "throw", playerOne);
 
-            playerTwoLeftButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoRightButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoUpButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoJumpButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoRollButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoDownDashButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoPauseButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
-            playerTwoThrowButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            playerTwoLeftButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "left", playerTwo);
+            playerTwoRightButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "right", playerTwo);
+            playerTwoUpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "up", playerTwo);
+            playerTwoJumpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "jump", playerTwo);
+            playerTwoRollButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "roll", playerTwo);
+            playerTwoDownDashButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "downDash", playerTwo);
+            playerTwoPauseButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "pause", playerTwo);
+            playerTwoThrowButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "throw", playerTwo);
 
             optionsReturnButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
             controllerMapButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
@@ -474,12 +525,6 @@ namespace Party_Tower_Main
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //Placeholder textures for now
-            playerOneTexture = Content.Load<Texture2D>("white");
-            playerTwoTexture = Content.Load<Texture2D>("white");
-            defaultEnemySprite = Content.Load<Texture2D>("enemy");
-            testFont = Content.Load<SpriteFont>("DefaultText");
-
             testTable = new Table(new Rectangle(200, 900, 200, 200), playerOneTexture);
 
             topLadderTexture = playerOneTexture;
@@ -530,44 +575,7 @@ namespace Party_Tower_Main
             testWall.TileSheet = mainTileSheet;
 
             //had to move this to load content because the textures are null if you try to instantiate a player in Initialize
-            #region Player-Initalization
-            players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
 
-            playerOne.BindableKb.Add("left", Keys.A);
-            playerOne.BindableKb.Add("right", Keys.D);
-            playerOne.BindableKb.Add("up", Keys.W); //added for menu navigation
-            playerOne.BindableKb.Add("jump", Keys.Space);
-            playerOne.BindableKb.Add("roll", Keys.LeftShift);
-            playerOne.BindableKb.Add("downDash", Keys.S);
-            playerOne.BindableKb.Add("pause", Keys.P);
-            playerOne.BindableKb.Add("throw", Keys.C);
-
-            //currently only player 1 can navigate menu, might change this if we do rebindable buttons
-            playerTwo.BindableKb.Add("left", Keys.Left);
-            playerTwo.BindableKb.Add("right", Keys.Right);
-            playerTwo.BindableKb.Add("jump", Keys.Up);
-            playerTwo.BindableKb.Add("roll", Keys.RightControl);
-            playerTwo.BindableKb.Add("downDash", Keys.Down);
-            playerTwo.BindableKb.Add("pause", Keys.P);
-            playerTwo.BindableKb.Add("throw", Keys.OemQuestion);
-            playerTwo.BindableKb.Add("up", Keys.RightShift);
-
-            coopManager = new Coop_Manager(playerOne, playerTwo, Content);
-            pathManager = new PathManager(GraphicsDevice.Viewport);
-            cameraLimiters = new CameraLimiters(GraphicsDevice.Viewport, playerOne.Hitbox);
-            camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
-            //camera.SetMapEdge(LvlCoordinator.MapEdge); <- Correct
-            camera.SetMapEdge(new Vector2(5000, 5000)); //<- Correct
-
-            //adjust first two values to set spawn point for cake
-            cake = new Cake(200, 400, playerOneTexture);
-            cakeManager = new CakeManager(players, cake, Content, testTable);
-
-            players.Add(playerOne);
-            players.Add(playerTwo);
-            #endregion Player-Initalization
 
 
             //sound stuff
@@ -1102,7 +1110,7 @@ namespace Party_Tower_Main
                         menuRow = 0;
                         menuColumn = 0;
 
-                        tryingToRebind = true;
+                        displayRebindWindow = true;
                     }
                     //traverse all buttons
                     for (int row = 0; row < menuChoices.GetLength(0); row++)
@@ -1130,7 +1138,7 @@ namespace Party_Tower_Main
                         }
                     }
                     //use escape to leave options
-                    if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.B)) && !tryingToRebind)
+                    if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.B)) && !displayRebindWindow)
                     {
                         menuChoices[menuRow, menuColumn].IsHighlighted = false;
                         menuSelectSound.Play();
@@ -1262,7 +1270,7 @@ namespace Party_Tower_Main
                     spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
 
                     //draw rebind window
-                    if (tryingToRebind)
+                    if (displayRebindWindow)
                     {
                         spriteBatch.Draw(mainMenuTexture, new Rectangle(graphics.PreferredBackBufferWidth / 10, graphics.PreferredBackBufferHeight / 10,
                             graphics.PreferredBackBufferWidth * 8 / 10, graphics.PreferredBackBufferHeight * 8 / 10), Color.White);
@@ -1283,6 +1291,14 @@ namespace Party_Tower_Main
                             spriteBatch.Draw(currentButton.SliderButton.DrawnTexture, currentButton.SliderButton.Area, Color.White);
                             spriteBatch.DrawString(testFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 5),
                                 currentButton.StartY + Nudge(false, 5)), Color.Black);
+                        }
+                        //draw the overlaying text for the buttons, and adjust the width of the buttons for the variable text
+                        if (currentButton is RebindingButton)
+                        {
+                            //each character correlates to 3% of the screen
+                            currentButton.Area = new Rectangle(currentButton.StartX, currentButton.StartY, 
+                                (int)(drawUnit * currentButton.VisibleText.Length), currentButton.Area.Height);
+                            spriteBatch.DrawString(testFont, currentButton.VisibleText, new Vector2(currentButton.StartX, currentButton.StartY), Color.Purple);
                         }
                     }
                     spriteBatch.End();
@@ -1340,11 +1356,6 @@ namespace Party_Tower_Main
                     {
                         t.Draw(spriteBatch);
                     }
-
-                    //a random rectangle, for testing onyl
-                    //spriteBatch.Draw(playerOneTexture, testPlatform.Hitbox, Color.Black);
-                    //spriteBatch.Draw(playerTwoTexture, testWall.Hitbox, Color.Red);
-                    //spriteBatch.Draw(playerOneTexture, secondTestPlatform.Hitbox, Color.Black);
 
                     //debugging text for bug stomping
                     if (playerOne.IsDebugging)
@@ -1773,13 +1784,7 @@ namespace Party_Tower_Main
                 }
                 else if (menuChoices[currentRow, currentColumn].Equals(yesButton))
                 {
-                    //save data
-                    textWriter = new StreamWriter("save.txt");
-
-                    textWriter.WriteLine(masterVolumeSlider.ReturnedValue);
-                    textWriter.WriteLine(musicSlider.ReturnedValue);
-                    textWriter.WriteLine(soundEffectSlider.ReturnedValue);
-                    textWriter.Close();
+                    //saving done in overriden "OnExiting" Method near the bottom of this class
                     Exit();
                 }
                 else if (menuChoices[currentRow, currentColumn].Equals(rebindButton))
@@ -1798,11 +1803,15 @@ namespace Party_Tower_Main
                     menuChoices[5, 0] = rebindButton;
                     menuRow = 5;
                     menuColumn = 0;
-                    tryingToRebind = false;
+                    displayRebindWindow = false;
                 }
                 else if (menuChoices[currentRow, currentColumn].Equals(controllerMapButton))
                 {
                     //do controller image stuff once that's implemented
+                }
+                else if (menuChoices[currentRow,currentColumn] is RebindingButton)
+                {
+                    menuChoices[currentRow,currentColumn].TryingToRebind = !menuChoices[currentRow,currentColumn].TryingToRebind; //toggle whether or not rebinding with enter
                 }
             }
             else if (SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.B))
@@ -1836,7 +1845,7 @@ namespace Party_Tower_Main
                     }
                 }
                 //escape from rebindpopup
-                else if (tryingToRebind)
+                else if (displayRebindWindow)
                 {
                     menuChoices = new Button[6, 1];
                     menuChoices[0, 0] = returnButton;
@@ -1847,10 +1856,24 @@ namespace Party_Tower_Main
                     menuChoices[5, 0] = rebindButton;
                     menuRow = 5;
                     menuColumn = 0;
-                    tryingToRebind = false;
+                    displayRebindWindow = false;
                 }
-
             }
+            //only check for rebinding keys if in the right window
+            if (displayRebindWindow)
+            {
+                //trying to rebind a key
+                if (menuChoices[currentRow, currentColumn] is RebindingButton && menuChoices[currentRow, currentColumn].TryingToRebind)
+                {
+                    lockedSelection = menuChoices[currentRow, currentColumn].SetNewKey(); //lock the selection until a key is pressed, then adjust the key once it is pressed
+                }
+                //otherwise, unlock selection
+                else if (menuChoices[currentRow, currentColumn] is RebindingButton)
+                {
+                    lockedSelection = false;
+                }
+            }
+
         }
         /// <summary>
         /// Check if a key has been pressed for this frame only
