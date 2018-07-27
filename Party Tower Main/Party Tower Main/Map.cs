@@ -37,22 +37,22 @@ namespace Party_Tower_Main
         /// <summary>
         /// Adds a level to the map
         /// </summary>
-        /// <param name="importedLevel"></param>
-        public void AddLevel(Room importedLevel)
+        /// <param name="importedRoom"></param>
+        public void AddRoom(Room importedRoom)
         {
             if (root == null)
             {
-                importedLevel.ShiftHoriztal = 0;
-                importedLevel.ShiftHoriztal = 0;
-                root = importedLevel;
+                importedRoom.ShiftHoriztal = 0;
+                importedRoom.ShiftHoriztal = 0;
+                root = importedRoom;
             }
 
             else
             {
-                levelsToPlace.Enqueue(importedLevel);
+                levelsToPlace.Enqueue(importedRoom);
             }
 
-            levels.Add(importedLevel);
+            levels.Add(importedRoom);
             count++;
         }
 

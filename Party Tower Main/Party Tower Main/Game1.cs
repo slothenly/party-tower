@@ -559,8 +559,8 @@ namespace Party_Tower_Main
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
             testLevel1 = new Room(tempHolder);
             testLevel2 = new Room(LvlCoordinator.UpdateMapFromPath("levelTwo"));
-            LevelMapCurrent.AddLevel(testLevel1);
-            LevelMapCurrent.AddLevel(testLevel2);
+            LevelMapCurrent.AddRoom(testLevel1);
+            LevelMapCurrent.AddRoom(testLevel2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
