@@ -47,6 +47,9 @@ namespace Party_Tower_Main
         List<Ladder> ladderHolder;
         public List<Ladder> LadderHolder { get { return ladderHolder; } }
 
+        List<Table> tableHolder;
+        public List<Table> TableHolder { get { return tableHolder; } }
+
         Texture2D defaultEnemy;
         Texture2D defaultTileSheet;
         Dictionary<string, int> translator = new Dictionary<string, int>();
@@ -88,9 +91,16 @@ namespace Party_Tower_Main
             enemyHolder = new List<Enemy>();
 
             initializationsRun++;
+
+            //clear out table and ladder holders following the first run through
             if (ladderHolder != null)
             {
                 ladderHolder.Clear();
+            }
+
+            if (tableHolder != null)
+            {
+                tableHolder.Clear();
             }
 
             #region Reading in info from text tile and plopping it into a 2d array
@@ -233,6 +243,14 @@ namespace Party_Tower_Main
                         }
 
                         // ### TABLES ###
+                        //if the string indicates a table, add that to the tables list
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ta")
+                        {
+                            Table tempTable = new Table(currentMap[rows, columns].Hitbox, textureList[0]);
+                            tableHolder.Add(tempTable);
+
+                            currentMap[rows, columns] = null;
+                        }
 
                         //in the case where the string doesn't indicate an otherwise, it's a tile
                         else

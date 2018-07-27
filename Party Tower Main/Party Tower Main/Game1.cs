@@ -146,16 +146,13 @@ namespace Party_Tower_Main
         GamePadState gp2;
 
         //Level & Tile Information
-        List<Texture2D> tileTextures = new List<Texture2D>();
+        List<Texture2D> etcTextures = new List<Texture2D>();
         LevelMapCoordinator LvlCoordinator;
         List<string[]> levelMap;
         Texture2D defaultTile;
         List<Tile> tilesOnScreen = new List<Tile>();
         Texture2D mainTileSheet;
-        Texture2D tileBrick;
-        Texture2D tileDirt;
-        Texture2D tileGrass;
-        Texture2D tileMoss;
+        Texture2D tableTexture;
         Room testRoom;
         Room testRoom2;
 
@@ -533,25 +530,19 @@ namespace Party_Tower_Main
 
             cakeManager = new CakeManager(players, cake, Content, testTable);
 
-            #region Tile Textures
-            //########### Add Tile Textures Here #############
-            tileBrick = Content.Load<Texture2D>("brick");
-            tileDirt = Content.Load<Texture2D>("dirt");
-            tileGrass = Content.Load<Texture2D>("grass");
-            tileMoss = Content.Load<Texture2D>("moss");
+            #region Etc Textures
+            //########### Add Textures Here #############
             defaultTile = Content.Load<Texture2D>("default");
             mainTileSheet = Content.Load<Texture2D>(@"textures\basicTileSheet");
+            tableTexture = Content.Load<Texture2D>(@"textures\table");
 
-            //########## Add to Texture Lists Here ###########
-            tileTextures.Add(tileBrick);
-            tileTextures.Add(tileDirt);
-            tileTextures.Add(tileGrass);
-            tileTextures.Add(tileMoss);
-            tileTextures.Add(defaultTile);
+            etcTextures.Add(tableTexture);
+
+            
             #endregion
 
             //Instantiate level coordinator and add the starter tiles to the list
-            LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", tileTextures, defaultEnemySprite, mainTileSheet);
+            LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", etcTextures, defaultEnemySprite, mainTileSheet);
             Tile tempMeasuringStick = new Tile(false, false, false, false, mainTileSheet);
             Tile[,] tempHolder = new Tile[9, 16];
 
@@ -560,7 +551,7 @@ namespace Party_Tower_Main
 
             // ### STEPS FOR ADDING A ROOM TO A MAP ###
             // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
-            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
 
@@ -568,19 +559,16 @@ namespace Party_Tower_Main
             // For more in depth info about level placement, see the Architecture doc
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
-           
-            // Add ladders to the game
-            
 
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));

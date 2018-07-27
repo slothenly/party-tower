@@ -192,7 +192,7 @@ namespace External_Level_Designer_Tool
             //8 Characters per line
             AddNewTile("brick", "Brick", typeSelector);
             AddNewTile("ladder", "Ladder", typeSelector);
-            AddNewTile("grass", "Grass", typeSelector);
+            AddNewTile("table", "Table", typeSelector);
             AddNewTile("moss", "Moss", typeSelector);                //            <=== Add Tilesets here
             AddNewTile("enemy", "Enemy", typeSelector);
             //AddNewTile("path",   "display name", container); 
@@ -216,7 +216,7 @@ namespace External_Level_Designer_Tool
             textTranslater.Add("Moss", "mo");
             textTranslater.Add("Enemy", "e1");
             textTranslater.Add("Ladder", "la");
-            
+            textTranslater.Add("Table", "ta");
             
             #endregion
         }

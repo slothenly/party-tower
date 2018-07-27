@@ -15,10 +15,10 @@ namespace Party_Tower_Main
         public Tile[,] Tiles { get { return tiles; } }
 
         private List<Ladder> ladders = new List<Ladder>();
-        public List<Ladder> Ladders
-        {
-            get { return ladders; }
-        }
+        public List<Ladder> Ladders { get { return ladders; } }
+
+        private List<Table> tables = new List<Table>();
+        public List<Table> Table { get { return tables; } }
 
         public Room Above { get; set; }
         public Room Below { get; set; }
@@ -33,7 +33,7 @@ namespace Party_Tower_Main
         /// instantiates the room and adds the tileset passed in to 
         /// </summary>
         /// <param name="tileset"></param>
-        public Room(Tile[,] tileset, List<Ladder> ladderList)
+        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList)
         {
             tiles = tileset;
 
