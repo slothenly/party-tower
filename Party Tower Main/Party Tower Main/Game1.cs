@@ -317,7 +317,6 @@ namespace Party_Tower_Main
 
             //adjust first two values to set spawn point for cake
             cake = new Cake(200, 400, playerOneTexture);
-            cakeManager = new CakeManager(players, cake, Content, testTable);
 
             players.Add(playerOne);
             players.Add(playerTwo);
@@ -531,6 +530,8 @@ namespace Party_Tower_Main
             bottomLadderTexture = playerTwoTexture;
             normalLadderTexture = playerOneTexture;
             backgroundTexture = Content.Load<Texture2D>("tempBackArt");
+
+            cakeManager = new CakeManager(players, cake, Content, testTable);
 
             #region Tile Textures
             //########### Add Tile Textures Here #############
