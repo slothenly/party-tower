@@ -14,6 +14,12 @@ namespace Party_Tower_Main
         private Tile[,] tiles = new Tile[9, 16];
         public Tile[,] Tiles { get { return tiles; } }
 
+        private List<Ladder> ladders = new List<Ladder>();
+        public List<Ladder> Ladders
+        {
+            get { return ladders; }
+        }
+
         public Room Above { get; set; }
         public Room Below { get; set; }
         public Room Left { get; set; }
@@ -22,7 +28,12 @@ namespace Party_Tower_Main
         public int ShiftHoriztal { get; set; }
         public int ShiftVertical { get; set; }
 
-        public Room(Tile[,] tileset)
+
+        /// <summary>
+        /// instantiates the room and adds the tileset passed in to 
+        /// </summary>
+        /// <param name="tileset"></param>
+        public Room(Tile[,] tileset, List<Ladder> ladderList)
         {
             tiles = tileset;
 
@@ -30,6 +41,8 @@ namespace Party_Tower_Main
             Below = null;
             Left  = null;
             Right = null;
+
+            ladders = ladderList;
         }
 
         /// <summary>
@@ -45,6 +58,15 @@ namespace Party_Tower_Main
                 {
                     t.X += ShiftHoriztal;
                     t.Y += ShiftVertical;
+                }
+            }
+
+            if (ladders != null)
+            {
+                foreach (Ladder l in ladders)
+                {
+                    l.X += ShiftHoriztal;
+                    l.Y += ShiftHoriztal;
                 }
             }
         }

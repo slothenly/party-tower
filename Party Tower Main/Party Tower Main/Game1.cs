@@ -156,8 +156,8 @@ namespace Party_Tower_Main
         Texture2D tileDirt;
         Texture2D tileGrass;
         Texture2D tileMoss;
-        Room testLevel1;
-        Room testLevel2;
+        Room testRoom;
+        Room testRoom2;
 
         Map LevelMapCurrent;
         Map LevelMapOld;
@@ -552,20 +552,35 @@ namespace Party_Tower_Main
 
             //Instantiate level coordinator and add the starter tiles to the list
             LvlCoordinator = new LevelMapCoordinator("tileOrientationTest", tileTextures, defaultEnemySprite, mainTileSheet);
-
-            //Actually add in levels and connect them on the map here
             Tile tempMeasuringStick = new Tile(false, false, false, false, mainTileSheet);
-            LevelMapCurrent = new Map(tempMeasuringStick);
             Tile[,] tempHolder = new Tile[9, 16];
+
+            //Instantiating the current map
+            LevelMapCurrent = new Map(tempMeasuringStick);
+
+            // ### STEPS FOR ADDING A ROOM TO A MAP ###
+            // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
+            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
+            // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
+
+            // Repeat as needed for each new room 
+            // For more in depth info about level placement, see the Architecture doc
+
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testLevel1 = new Room(tempHolder);
-            testLevel2 = new Room(LvlCoordinator.UpdateMapFromPath("levelTwo"));
-            LevelMapCurrent.AddRoom(testLevel1);
-            LevelMapCurrent.AddRoom(testLevel2);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            LevelMapCurrent.AddRoom(testRoom);
+            //first room is automatically placed as the root
+
+            tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder);
+            LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
-
+           
+            // Add ladders to the game
+            
 
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));

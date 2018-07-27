@@ -91,6 +91,8 @@
     <Content Include="Resources\dirtTileset.png" />
     <Content Include="Resources\grass.png" />
     <Content Include="Resources\grassTileset.png" />
+    <Content Include="Resources\ladder.png" />
+    <Content Include="Resources\ladderTileset.png" />
     <Content Include="Resources\moss.png" />
     <Content Include="Resources\mossTileset.png" />
     <Content Include="Resources\noTexture.png" />

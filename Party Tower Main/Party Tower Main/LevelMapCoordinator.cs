@@ -42,7 +42,11 @@ namespace Party_Tower_Main
 
         int initializationsRun = 0;     //tracking meta data to see if things are running multiple times
         List<Texture2D> textureList;
+
         List<Enemy> enemyHolder;
+        List<Ladder> ladderHolder;
+        public List<Ladder> LadderHolder { get { return ladderHolder; } }
+
         Texture2D defaultEnemy;
         Texture2D defaultTileSheet;
         Dictionary<string, int> translator = new Dictionary<string, int>();
@@ -84,6 +88,10 @@ namespace Party_Tower_Main
             enemyHolder = new List<Enemy>();
 
             initializationsRun++;
+            if (ladderHolder != null)
+            {
+                ladderHolder.Clear();
+            }
 
             #region Reading in info from text tile and plopping it into a 2d array
             StreamReader interpreter = new StreamReader(@"..\..\..\..\Resources\levelExports\" + path + ".txt");
@@ -174,6 +182,7 @@ namespace Party_Tower_Main
                         //first, split up the raw, then distribute the info into the tile's slots
                         char[] currentRawSplit = currentMapRaw[rows, columns].ToCharArray();
 
+                        // ### ENEMIES ###
                         //if the string indicates an enemy, add them to a list then add that list to the main list at the end
                         if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "e1")
                         {
@@ -182,7 +191,50 @@ namespace Party_Tower_Main
                             CurrentMapRaw[rows, columns] = null;
                         }
 
-                        //in the case where the string doesn't indicate an enemy, it's a tile
+                        // ### LADDERS ###
+                        //if the string indicate a ladder, add that ladder to the ladders list and mark top/bottom edges
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "la")
+                        {
+                            string topRaw = null;
+                            string botRaw = null;
+
+                            //by default, mark the ladder as both top and bottom
+                            bool checkTop = true;
+                            bool checkBottom = true;
+
+                            //if there is a ladder above this one, mark this one as not being top
+                            if (currentMapRaw[rows-1, columns] != null)
+                            {
+                                char[] topRawSplit = currentMapRaw[rows - 1, columns].ToCharArray();
+                                topRaw = topRawSplit[0].ToString() + topRawSplit[1].ToString();
+
+                                if (topRaw == "la")
+                                {
+                                    checkTop = false;
+                                }
+                            }
+
+                            //if there is a ladder below this one, mark this one as not being bottom
+                            if (currentMapRaw[rows+1, columns] != null)
+                            {
+                                char[] botRawSplit = currentMapRaw[rows - 1, columns].ToCharArray();
+                                botRaw = botRawSplit[0].ToString() + botRawSplit[1].ToString();
+
+                                if (topRaw == "la")
+                                {
+                                    checkBottom = false;
+                                }
+                            }
+
+                            Ladder temp = new Ladder(checkTop, checkBottom, currentMap[rows, columns].X, currentMap[rows, columns].Y);
+                            ladderHolder.Add(temp);
+
+                            currentMap[rows, columns] = null;
+                        }
+
+                        // ### TABLES ###
+
+                        //in the case where the string doesn't indicate an otherwise, it's a tile
                         else
                         {
                             int textureKey = translator[currentRawSplit[0].ToString() + currentRawSplit[1].ToString()];
