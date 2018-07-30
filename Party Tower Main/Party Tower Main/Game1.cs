@@ -7,15 +7,6 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 
-enum GameState
-{
-    Menu,
-    Options,
-    Game,
-    GameOver,
-    LoadLevel
-}
-
 namespace Party_Tower_Main
 {
     /// <summary>
@@ -30,7 +21,7 @@ namespace Party_Tower_Main
             Menu,
             Options,
             Game,
-            LoadLevel,
+            Credits,
             Pause,
             GameOver
         }
@@ -167,6 +158,7 @@ namespace Party_Tower_Main
         //Buttons for Menu
         Button playButton;
         Button menuOptionsButton;
+        Button creditsButton;
         Button menuExitButton;
 
         //Menu images
@@ -213,7 +205,7 @@ namespace Party_Tower_Main
         Button noButton;
 
         //Game Over stuff
-        Timer gameOverTimer = new Timer(3);
+        Timer gameOverTimer = new Timer(1);
 
 
         //Menu navigation using 2d array
@@ -257,7 +249,6 @@ namespace Party_Tower_Main
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             levelMap = new List<string[]>();
             levelMap.Add(new string[2]);
             enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
@@ -281,29 +272,48 @@ namespace Party_Tower_Main
             defaultEnemySprite = Content.Load<Texture2D>("enemy");
             testFont = Content.Load<SpriteFont>("DefaultText");
 
-            #region Player-Initalization
+
+
+            #region Player-Initalization AND loading
             players = new List<Player>();
             playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
             playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
 
-            playerOne.BindableKb.Add("left", Keys.A);
-            playerOne.BindableKb.Add("right", Keys.D);
-            playerOne.BindableKb.Add("up", Keys.W); //added for menu navigation
-            playerOne.BindableKb.Add("jump", Keys.Space);
-            playerOne.BindableKb.Add("roll", Keys.LeftShift);
-            playerOne.BindableKb.Add("downDash", Keys.S);
-            playerOne.BindableKb.Add("pause", Keys.P);
-            playerOne.BindableKb.Add("throw", Keys.C);
+            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"), 100);
+            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), 100);
+            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"), 100);
 
-            //currently only player 1 can navigate menu, might change this if we do rebindable buttons
-            playerTwo.BindableKb.Add("left", Keys.Left);
-            playerTwo.BindableKb.Add("right", Keys.Right);
-            playerTwo.BindableKb.Add("jump", Keys.Up);
-            playerTwo.BindableKb.Add("roll", Keys.RightControl);
-            playerTwo.BindableKb.Add("downDash", Keys.Down);
-            playerTwo.BindableKb.Add("pause", Keys.P);
-            playerTwo.BindableKb.Add("throw", Keys.OemQuestion);
-            playerTwo.BindableKb.Add("up", Keys.RightShift);
+            //loading from save file
+            textReader = new StreamReader("save.txt");
+
+
+            masterVolumeSlider.ReturnedValue = float.Parse(textReader.ReadLine());
+            musicSlider.ReturnedValue = float.Parse(textReader.ReadLine());
+            soundEffectSlider.ReturnedValue = float.Parse(textReader.ReadLine());
+
+            //DEFAULT CONTROLS
+            // A,D,W,Space,LeftShift,S,P,C  left,right,up,RightControl,Down,P,OemQuestion,RightShift
+
+            playerOne.BindableKb.Add("left", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("right", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("up", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine())); //added for menu navigation
+            playerOne.BindableKb.Add("jump", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("roll", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("downDash", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("pause", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerOne.BindableKb.Add("throw", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+
+
+            playerTwo.BindableKb.Add("left", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("right", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("jump", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("roll", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("downDash", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("pause", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("throw", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("up", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+
+            textReader.Close();
 
             coopManager = new Coop_Manager(playerOne, playerTwo, Content);
             pathManager = new PathManager(GraphicsDevice.Viewport);
@@ -317,7 +327,7 @@ namespace Party_Tower_Main
 
             players.Add(playerOne);
             players.Add(playerTwo);
-            #endregion Player-Initalization
+            #endregion Player-Initalization AND loading
 
             #region Menu stuff
 
@@ -331,23 +341,23 @@ namespace Party_Tower_Main
             //Menu buttons
             playButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             menuOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            creditsButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
-            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - Nudge(false, 1));
-            menuOptionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 - Nudge(false, 1));
+            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 - Nudge(false, 1));
+            menuOptionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - Nudge(false, 1));
+            creditsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 - Nudge(false, 1));
             menuExitButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 8 / 9 + Nudge(false, 1));
 
             playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
             menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, graphics.PreferredBackBufferWidth / 10, graphics.PreferredBackBufferHeight / 10);
+            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
             menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 12);
 
-            //Options buttons/sliders
+            //Options buttons (SLIDERS ARE IN LOADING SECTION ABOVE TO PREVENT NULL EXCEPTIONS)
             returnButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
-            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"), 100);
-            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), 100);
-            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"), 100);
             rebindButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
 
             playerOneLeftButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "left", playerOne);
@@ -434,16 +444,6 @@ namespace Party_Tower_Main
             optionsReturnButton.Area = new Rectangle(optionsReturnButton.StartX, optionsReturnButton.StartY, graphics.PreferredBackBufferWidth / 11, graphics.PreferredBackBufferHeight / 10);
             controllerMapButton.Area = new Rectangle(controllerMapButton.StartX, controllerMapButton.StartY, graphics.PreferredBackBufferWidth / 11, graphics.PreferredBackBufferHeight / 10);
 
-            //loading from save file
-            textReader = new StreamReader("save.txt");
-
-            //default for now, will use text files to save settings
-            masterVolumeSlider.ReturnedValue = float.Parse(textReader.ReadLine());
-            musicSlider.ReturnedValue = float.Parse(textReader.ReadLine());
-            soundEffectSlider.ReturnedValue = float.Parse(textReader.ReadLine());
-
-            textReader.Close();
-
             //set the positions of the sliderButtons on the actual sliders
             masterVolumeSlider.SetSliderButtonArea();
             musicSlider.SetSliderButtonArea();
@@ -480,10 +480,11 @@ namespace Party_Tower_Main
             gameState = GameState.Menu;
 
             //arranging the buttons in the correct order
-            menuChoices = new Button[3, 1];
+            menuChoices = new Button[4, 1];
             menuChoices[0, 0] = playButton;
             menuChoices[1, 0] = menuOptionsButton;
-            menuChoices[2, 0] = menuExitButton;
+            menuChoices[2, 0] = creditsButton;
+            menuChoices[3, 0] = menuExitButton;
             menuRow = 0;
             menuColumn = 0;
 
@@ -1005,10 +1006,11 @@ namespace Party_Tower_Main
                     paused = false;
                     if (menuFirstFrame)
                     {
-                        menuChoices = new Button[3, 1];
+                        menuChoices = new Button[4, 1];
                         menuChoices[0, 0] = playButton;
                         menuChoices[1, 0] = menuOptionsButton;
-                        menuChoices[2, 0] = menuExitButton;
+                        menuChoices[2, 0] = creditsButton;
+                        menuChoices[3, 0] = menuExitButton;
 
                         //play the music first frame of the menu
                         if (startMenuMusic)
@@ -1215,14 +1217,25 @@ namespace Party_Tower_Main
                     //any key is pressed after a certain delay
                     if (gameOverTimer.UpdateTimer(gameTime))
                     {
-                        if (kb.GetPressedKeys().Length > previousKb.GetPressedKeys().Length)
+                        gameOverTimer = new Timer(0); //turns off timer
+                        if (kb.GetPressedKeys().Length > previousKb.GetPressedKeys().Length || AnyButtonPressed())
                         {
+                            //reset everything
+                            gameOverTimer = new Timer(1);
                             gameState = GameState.Menu;
                             menuFirstFrame = true;
                             startMenuMusic = true;
                         }
                     }
 
+                    break;
+                case GameState.Credits:
+                    if (SingleKeyPress(Keys.Escape) || SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.Back) || SingleButtonPress(Buttons.Start))
+                    {
+                        menuFirstFrame = true;
+                        gameState = GameState.Menu;
+                        startMenuMusic = true;
+                    }
                     break;
 
             }
@@ -1444,13 +1457,13 @@ namespace Party_Tower_Main
 
                 case GameState.GameOver:
                     spriteBatch.Begin();
-                    // ?
+                    spriteBatch.DrawString(testFont, "Press any key to return to menu", new Vector2(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight / 3), Color.White);
                     spriteBatch.End();
                     break;
 
-                case GameState.LoadLevel:
+                case GameState.Credits:
                     spriteBatch.Begin();
-                    // ?
+                    spriteBatch.DrawString(testFont,"Credits will go here!", new Vector2(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight / 3), Color.White);
                     spriteBatch.End();
                     break;
             }
@@ -1720,6 +1733,12 @@ namespace Party_Tower_Main
                     gameState = GameState.Options;
                     optionsFirstFrame = true;
                 }
+                else if (menuChoices[currentRow, currentColumn].Equals(creditsButton))
+                {
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    gameState = GameState.Credits;
+                    MediaPlayer.Play(gameSongs[0]);
+                }
                 else if (menuChoices[currentRow, currentColumn].Equals(menuExitButton))
                 {
                     menuChoices[currentRow, currentColumn].IsHighlighted = false;
@@ -1985,9 +2004,22 @@ namespace Party_Tower_Main
             //save data
             textWriter = new StreamWriter("save.txt");
 
+            //sound settings
             textWriter.WriteLine(masterVolumeSlider.ReturnedValue);
             textWriter.WriteLine(musicSlider.ReturnedValue);
             textWriter.WriteLine(soundEffectSlider.ReturnedValue);
+
+            //keybinding settings
+            
+            //to iterate through a dictionary, use KeyValuePair
+            foreach (KeyValuePair<string, Keys> entry in playerOne.BindableKb)
+            {
+                textWriter.WriteLine(entry.Value); //just need the actual key, not the associated string
+            }
+            foreach (KeyValuePair<string, Keys> entry in playerTwo.BindableKb)
+            {
+                textWriter.WriteLine(entry.Value); //just need the actual key, not the associated string
+            }
             textWriter.Close();
 
         }
@@ -2113,5 +2145,22 @@ namespace Party_Tower_Main
             }
         }
         #endregion
+        /// <summary>
+        /// returns true if any button is pressed by any controller (for a single frame), returns false otherwise
+        /// </summary>
+        /// <returns></returns>
+        public bool AnyButtonPressed()
+        {
+            Buttons[] buttonArray = (Buttons[])Enum.GetValues(typeof(Buttons));
+
+            foreach (Buttons button in buttonArray)
+            {
+                if (SingleButtonPress(button))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
