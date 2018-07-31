@@ -313,6 +313,13 @@ namespace Party_Tower_Main
             playerTwo.BindableKb.Add("throw", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("up", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
 
+
+            if (bool.Parse(textReader.ReadLine()))
+            {
+                graphics.ToggleFullScreen();
+            }
+
+
             textReader.Close();
 
             coopManager = new Coop_Manager(playerOne, playerTwo, Content);
@@ -2020,6 +2027,9 @@ namespace Party_Tower_Main
             {
                 textWriter.WriteLine(entry.Value); //just need the actual key, not the associated string
             }
+
+            //fullscreen toggle
+            textWriter.WriteLine(graphics.IsFullScreen.ToString());
             textWriter.Close();
 
         }

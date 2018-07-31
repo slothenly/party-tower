@@ -84,7 +84,7 @@ namespace Party_Tower_Main
                         smallestDifference = currentDifference;
                     }
                 }
-                sliderButton.X = Area.X + (int)((Area.Width / length) * currentIndex);
+                sliderButton.X = Area.X + (int)((Area.Width / length) * currentIndex) - (sliderButton.Area.Width / 2);
                 return currentIndex;
             }
         }
@@ -115,13 +115,13 @@ namespace Party_Tower_Main
         {
             if (pressingRight && returnedValue < length)
             {
-                sliderButton.X += (Area.Width / 100);
                 returnedValue++;
+                sliderButton.X = Area.X + (int)((Area.Width / length) * returnedValue) - (sliderButton.Area.Width / 2);
             }
             else if (!pressingRight && returnedValue > 0)
             {
-                sliderButton.X -= (Area.Width / 100);
                 returnedValue--;
+                sliderButton.X = Area.X + (int)((Area.Width / length) * returnedValue) - (sliderButton.Area.Width / 2);
             }
         }
 
