@@ -112,6 +112,10 @@ namespace Party_Tower_Main
         {
             throw new Exception("Do not call this method for Button, call it for Slider only");
         }
+        public virtual void SetNewKey(Keys key)
+        {
+            throw new Exception("Do not call this method for Button, call it for Slider only");
+        }
 
         public virtual bool TryingToRebind
         {

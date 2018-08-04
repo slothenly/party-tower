@@ -64,5 +64,10 @@ namespace Party_Tower_Main
             return true;
 
         }
+        public override void SetNewKey(Keys selectedKey)
+        {
+            visibleText = selectedKey.ToString();
+            player.BindableKb[key] = selectedKey;
+        }
     }
 }

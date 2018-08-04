@@ -11,10 +11,10 @@ P
 C
 Left
 Right
+RightShift
 Up
-RightControl
+OemQuestion
 Down
 P
-OemQuestion
-C
+RightShift
 False
