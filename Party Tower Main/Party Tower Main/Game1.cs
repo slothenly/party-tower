@@ -38,6 +38,7 @@ namespace Party_Tower_Main
         List<Song> gameSongs;
         Song menuMusic;
         SoundEffect menuSelectSound;
+        SoundEffect errorSound;
 
         //first frames used to fill Button Array when the user goes to these gameStates
         bool menuFirstFrame = true;
@@ -622,6 +623,7 @@ namespace Party_Tower_Main
 
             menuMusic = Content.Load<Song>("sound/menumusic");
             menuSelectSound = Content.Load<SoundEffect>("sound/menuselect");
+            errorSound = Content.Load<SoundEffect>("sound/cakeError");
             // TODO: use this.Content to load your game content here
         }
 
@@ -1802,155 +1804,163 @@ namespace Party_Tower_Main
             if (SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.A) || SingleButtonPress(Buttons.Start)
                 || (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
             {
-                menuSelectSound.Play();
-                if (menuChoices[currentRow, currentColumn].Equals(playButton))
+                //not allowed to select this button
+                if (menuChoices[currentRow, currentColumn].IsLocked)
                 {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    secondaryGameState = gameState;
-                    gameState = GameState.Game;
+                    errorSound.Play();
                 }
-                else if (menuChoices[currentRow, currentColumn].Equals(levelSelectButton))
+                else //allowed to select the button
                 {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    gameState = GameState.LevelSelect;
-                    levelSelectFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(menuOptionsButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    gameState = GameState.Options;
-                    optionsFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(creditsButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    gameState = GameState.Credits;
-                    MediaPlayer.Play(gameSongs[0]);
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(menuExitButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    quitFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(levelSelectReturnButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    gameState = GameState.Menu;
-                    menuFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(returnButton))
-                {
-                    //go to correct state depending on what menu the player is in
-                    if (menuPaused)
+                    menuSelectSound.Play();
+                    if (menuChoices[currentRow, currentColumn].Equals(playButton))
                     {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        secondaryGameState = gameState;
                         gameState = GameState.Game;
-                        escapeFirstFrame = true;
                     }
-                    else
+                    else if (menuChoices[currentRow, currentColumn].Equals(levelSelectButton))
                     {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.LevelSelect;
+                        levelSelectFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(menuOptionsButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.Options;
+                        optionsFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(creditsButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        gameState = GameState.Credits;
+                        MediaPlayer.Play(gameSongs[0]);
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(menuExitButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        quitFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(levelSelectReturnButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
                         gameState = GameState.Menu;
                         menuFirstFrame = true;
                     }
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(fullscreenButton))
-                {
-                    graphics.ToggleFullScreen();
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(resumeButton))
-                {
-                    menuPaused = false;
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    MediaPlayer.Resume();
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(gameOptionsButton))
-                {
-                    gameState = GameState.Options;
-                    optionsFirstFrame = true;
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(gameExitButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    quitFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(noButton))
-                {
-                    tryingToQuit = false;
-                    //escape menu
-                    if (menuPaused)
+                    else if (menuChoices[currentRow, currentColumn].Equals(returnButton))
                     {
-                        menuRow = 2;
-                        menuColumn = 0;
-
-                        menuChoices = new Button[3, 1];
-                        menuChoices[0, 0] = resumeButton;
-                        menuChoices[1, 0] = gameOptionsButton;
-                        menuChoices[2, 0] = gameExitButton;
+                        //go to correct state depending on what menu the player is in
+                        if (menuPaused)
+                        {
+                            gameState = GameState.Game;
+                            escapeFirstFrame = true;
+                        }
+                        else
+                        {
+                            gameState = GameState.Menu;
+                            menuFirstFrame = true;
+                        }
                     }
-                    //normal menu
-                    else
+                    else if (menuChoices[currentRow, currentColumn].Equals(fullscreenButton))
                     {
-                        menuChoices = new Button[3, 1];
-                        menuChoices[0, 0] = playButton;
-                        menuChoices[1, 0] = menuOptionsButton;
-                        menuChoices[2, 0] = menuExitButton;
-
-                        menuRow = 2;
-                        menuColumn = 0;
+                        graphics.ToggleFullScreen();
                     }
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(yesButton))
-                {
-                    //saving done in overriden "OnExiting" Method near the bottom of this class
-                    Exit();
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(rebindButton))
-                {
-                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
-                    rebindFirstFrame = true;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(controllerMapButton))
-                {
-                    //do controller image stuff once that's implemented
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(optionsReturnButton))
-                {
-                    menuChoices = new Button[6, 1];
-                    menuChoices[0, 0] = returnButton;
-                    menuChoices[1, 0] = fullscreenButton;
-                    menuChoices[2, 0] = masterVolumeSlider;
-                    menuChoices[3, 0] = musicSlider;
-                    menuChoices[4, 0] = soundEffectSlider;
-                    menuChoices[5, 0] = rebindButton;
-                    menuRow = 5;
-                    menuColumn = 0;
-                    displayRebindWindow = false;
-                }
-                else if (menuChoices[currentRow, currentColumn].Equals(resetButton))
-                {
-                    playerOneLeftButton.SetNewKey(Keys.A);
-                    playerOneRightButton.SetNewKey(Keys.D);
-                    playerOneUpButton.SetNewKey(Keys.W);
-                    playerOneJumpButton.SetNewKey(Keys.Space);
-                    playerOneRollButton.SetNewKey(Keys.LeftShift);
-                    playerOneDownDashButton.SetNewKey(Keys.S);
-                    playerOnePauseButton.SetNewKey(Keys.P);
-                    playerOneThrowButton.SetNewKey(Keys.C);
+                    else if (menuChoices[currentRow, currentColumn].Equals(resumeButton))
+                    {
+                        menuPaused = false;
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        MediaPlayer.Resume();
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(gameOptionsButton))
+                    {
+                        gameState = GameState.Options;
+                        optionsFirstFrame = true;
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(gameExitButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        quitFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(noButton))
+                    {
+                        tryingToQuit = false;
+                        //escape menu
+                        if (menuPaused)
+                        {
+                            menuRow = 2;
+                            menuColumn = 0;
+
+                            menuChoices = new Button[3, 1];
+                            menuChoices[0, 0] = resumeButton;
+                            menuChoices[1, 0] = gameOptionsButton;
+                            menuChoices[2, 0] = gameExitButton;
+                        }
+                        //normal menu
+                        else
+                        {
+                            menuChoices = new Button[3, 1];
+                            menuChoices[0, 0] = playButton;
+                            menuChoices[1, 0] = menuOptionsButton;
+                            menuChoices[2, 0] = menuExitButton;
+
+                            menuRow = 2;
+                            menuColumn = 0;
+                        }
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(yesButton))
+                    {
+                        //saving done in overriden "OnExiting" Method near the bottom of this class
+                        Exit();
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(rebindButton))
+                    {
+                        menuChoices[currentRow, currentColumn].IsHighlighted = false;
+                        rebindFirstFrame = true;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(controllerMapButton))
+                    {
+                        //do controller image stuff once that's implemented
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(optionsReturnButton))
+                    {
+                        menuChoices = new Button[6, 1];
+                        menuChoices[0, 0] = returnButton;
+                        menuChoices[1, 0] = fullscreenButton;
+                        menuChoices[2, 0] = masterVolumeSlider;
+                        menuChoices[3, 0] = musicSlider;
+                        menuChoices[4, 0] = soundEffectSlider;
+                        menuChoices[5, 0] = rebindButton;
+                        menuRow = 5;
+                        menuColumn = 0;
+                        displayRebindWindow = false;
+                    }
+                    else if (menuChoices[currentRow, currentColumn].Equals(resetButton))
+                    {
+                        playerOneLeftButton.SetNewKey(Keys.A);
+                        playerOneRightButton.SetNewKey(Keys.D);
+                        playerOneUpButton.SetNewKey(Keys.W);
+                        playerOneJumpButton.SetNewKey(Keys.Space);
+                        playerOneRollButton.SetNewKey(Keys.LeftShift);
+                        playerOneDownDashButton.SetNewKey(Keys.S);
+                        playerOnePauseButton.SetNewKey(Keys.P);
+                        playerOneThrowButton.SetNewKey(Keys.C);
 
 
-                    playerTwoLeftButton.SetNewKey(Keys.Left);
-                    playerTwoRightButton.SetNewKey(Keys.Right);
-                    playerTwoUpButton.SetNewKey(Keys.RightShift);
-                    playerTwoJumpButton.SetNewKey(Keys.Up);
-                    playerTwoRollButton.SetNewKey(Keys.OemQuestion);
-                    playerTwoDownDashButton.SetNewKey(Keys.Down);
-                    playerTwoPauseButton.SetNewKey(Keys.P);
-                    playerTwoThrowButton.SetNewKey(Keys.RightShift);
-                }
-                else if (menuChoices[currentRow,currentColumn] is RebindingButton)
-                {
-                    menuChoices[currentRow,currentColumn].TryingToRebind = !menuChoices[currentRow,currentColumn].TryingToRebind; //toggle whether or not rebinding with enter
-                }
+                        playerTwoLeftButton.SetNewKey(Keys.Left);
+                        playerTwoRightButton.SetNewKey(Keys.Right);
+                        playerTwoUpButton.SetNewKey(Keys.RightShift);
+                        playerTwoJumpButton.SetNewKey(Keys.Up);
+                        playerTwoRollButton.SetNewKey(Keys.OemQuestion);
+                        playerTwoDownDashButton.SetNewKey(Keys.Down);
+                        playerTwoPauseButton.SetNewKey(Keys.P);
+                        playerTwoThrowButton.SetNewKey(Keys.RightShift);
+                    }
+                    else if (menuChoices[currentRow, currentColumn] is RebindingButton)
+                    {
+                        menuChoices[currentRow, currentColumn].TryingToRebind = !menuChoices[currentRow, currentColumn].TryingToRebind; //toggle whether or not rebinding with enter
+                    }
+                }     
             }
             else if (SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.B))
             {

@@ -18,6 +18,8 @@ namespace Party_Tower_Main
         private Texture2D normalTexture;
         private Texture2D highlightedTexture;
 
+        private bool isLocked; //used for level select
+
         //Properties
         public Rectangle Area
         {
@@ -54,6 +56,11 @@ namespace Party_Tower_Main
             get { return isHighlighted; }
             set { isHighlighted = value; }
         }
+        public bool IsLocked
+        {
+            get { return isLocked; }
+            set { isLocked = value; }
+        }
         public Texture2D DrawnTexture
         {
             get
@@ -74,6 +81,8 @@ namespace Party_Tower_Main
         {
             this.normalTexture = normalTexture;
             this.highlightedTexture = highlightedTexture;
+
+            isLocked = false;
         }
 
         //Virtual Methods/Properties for Slider
