@@ -168,6 +168,7 @@ namespace Party_Tower_Main
         //Menu images
         Texture2D mainMenuTexture;
         Texture2D cursorTexture;
+        Texture2D menuBoxTexture;
 
         //Buttons for Options
         Button fullscreenButton;
@@ -211,6 +212,29 @@ namespace Party_Tower_Main
 
         //Level Select Buttons
         Button levelSelectReturnButton;
+        Button levelOneButton;
+        Button levelTwoButton;
+        Button levelThreeButton;
+        Button levelFourButton;
+        Button levelFiveButton;
+        Button levelSixButton;
+        Button levelSevenButton;
+        Button levelEightButton;
+        Button levelNineButton;
+
+        //Level Select Textures;
+        Texture2D levelStartTexture;
+        Texture2D leveOneTexture;
+        Texture2D levelTwoTexture;
+        Texture2D levelThreeTexture;
+        Texture2D levelFourTexture;
+        Texture2D levelFiveTexture;
+        Texture2D levelSixTexture;
+        Texture2D levelSevenTexture;
+        Texture2D levelEightTexture;
+
+        //sets the appropriate image to this variable based on how many levels unlocked
+        Texture2D levelSelectScreen;
 
         //Game Over stuff
         Timer gameOverTimer = new Timer(1);
@@ -352,6 +376,7 @@ namespace Party_Tower_Main
             //Menu textures
             mainMenuTexture = Content.Load<Texture2D>("menuImages\\partyTowerMenuBG");
             cursorTexture = Content.Load<Texture2D>("menuImages\\selector");
+            menuBoxTexture = Content.Load<Texture2D>("menuImages/menuBox");
 
             //Menu buttons
             playButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
@@ -361,11 +386,11 @@ namespace Party_Tower_Main
             menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
-            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 4 / 9 - Nudge(false, 1));
-            levelSelectButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 - Nudge(false, 1));
-            menuOptionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 - Nudge(false, 1));
-            creditsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 - Nudge(false, 1));
-            menuExitButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 4 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 8 / 9 + Nudge(false, 1));
+            playButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 2 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 3 / 9 + Nudge(false, 2));
+            levelSelectButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 2 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 4 / 9 + Nudge(false, 2));
+            menuOptionsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 2 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 5 / 9 + Nudge(false, 2));
+            creditsButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 2 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 2 / 3 + Nudge(false, 2));
+            menuExitButton.StartLocation = new Point(graphics.PreferredBackBufferWidth * 2 / 9 + Nudge(true, 1), graphics.PreferredBackBufferHeight * 7 / 9 + Nudge(false, 3));
 
             playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
             levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10);
@@ -471,8 +496,32 @@ namespace Party_Tower_Main
             musicSlider.SetSliderButtonArea();
             soundEffectSlider.SetSliderButtonArea();
 
+
+            //Level select textures
+            levelStartTexture = Content.Load<Texture2D>("menuImages/levelSelect/none_unlocked");
+            leveOneTexture = Content.Load<Texture2D>("menuImages/levelSelect/1_unlocked");
+            levelTwoTexture = Content.Load<Texture2D>("menuImages/levelSelect/2_unlocked");
+            levelThreeTexture = Content.Load<Texture2D>("menuImages/levelSelect/3_unlocked");
+            levelFourTexture = Content.Load<Texture2D>("menuImages/levelSelect/4_unlocked");
+            levelFiveTexture = Content.Load<Texture2D>("menuImages/levelSelect/5_unlocked");
+            levelSixTexture = Content.Load<Texture2D>("menuImages/levelSelect/6_unlocked");
+            levelSevenTexture = Content.Load<Texture2D>("menuImages/levelSelect/7_unlocked");
+            levelEightTexture = Content.Load<Texture2D>("menuImages/levelSelect/all_unlocked");
+
+            levelSelectScreen = levelStartTexture;
+
             //Level select buttons
             levelSelectReturnButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
+            levelOneButton = new Button(playerOneTexture, playerTwoTexture);
+            levelTwoButton = new Button(playerOneTexture, playerTwoTexture);
+            levelThreeButton = new Button(playerOneTexture, playerTwoTexture);
+            levelFourButton = new Button(playerOneTexture, playerTwoTexture);
+            levelFiveButton = new Button(playerOneTexture, playerTwoTexture);
+            levelSixButton = new Button(playerOneTexture, playerTwoTexture);
+            levelSevenButton = new Button(playerOneTexture, playerTwoTexture);
+            levelEightButton = new Button(playerOneTexture, playerTwoTexture);
+            levelNineButton = new Button(playerOneTexture, playerTwoTexture);
+
 
             //level select buttons start location
             levelSelectReturnButton.StartLocation = new Point(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight * 2 / 3);
@@ -605,7 +654,7 @@ namespace Party_Tower_Main
             LevelMapOld = null;
 
             // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
@@ -1337,6 +1386,11 @@ namespace Party_Tower_Main
                             graphics.PreferredBackBufferWidth / 3, graphics.PreferredBackBufferHeight / 3), Color.White);
                     }
 
+
+                    //Draw the menu box for the buttons
+                    spriteBatch.Draw(menuBoxTexture, new Rectangle(graphics.PreferredBackBufferWidth / 6, graphics.PreferredBackBufferHeight * 7 / 24 + Nudge(false, -2),
+                        graphics.PreferredBackBufferWidth * 11 / 48, graphics.PreferredBackBufferHeight * 53 / 72), Color.White);
+
                     //draw each button
                     foreach (Button currentButton in menuChoices)
                     {
@@ -1353,10 +1407,20 @@ namespace Party_Tower_Main
                     break;
                 case GameState.LevelSelect:
                     spriteBatch.Begin();
+
+                    spriteBatch.Draw(levelSelectScreen, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
                     //draw each button
                     foreach (Button currentButton in menuChoices)
                     {
-                        spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+                        if (currentButton != levelSelectReturnButton)
+                        {
+                            spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White * 0); //draw the texture as transparent
+                        }
+                        else
+                        {
+                            spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+                        }
+
                         if (currentButton.IsHighlighted)
                         {
                             //draw cursor next to button
@@ -1899,12 +1963,14 @@ namespace Party_Tower_Main
                         //normal menu
                         else
                         {
-                            menuChoices = new Button[3, 1];
+                            menuChoices = new Button[5, 1];
                             menuChoices[0, 0] = playButton;
-                            menuChoices[1, 0] = menuOptionsButton;
-                            menuChoices[2, 0] = menuExitButton;
+                            menuChoices[1, 0] = levelSelectButton;
+                            menuChoices[2, 0] = menuOptionsButton;
+                            menuChoices[3, 0] = creditsButton;
+                            menuChoices[4, 0] = menuExitButton;
 
-                            menuRow = 2;
+                            menuRow = 4;
                             menuColumn = 0;
                         }
                     }
@@ -1924,14 +1990,15 @@ namespace Party_Tower_Main
                     }
                     else if (menuChoices[currentRow, currentColumn].Equals(optionsReturnButton))
                     {
-                        menuChoices = new Button[6, 1];
+                        menuChoices = new Button[7, 1];
                         menuChoices[0, 0] = returnButton;
                         menuChoices[1, 0] = fullscreenButton;
                         menuChoices[2, 0] = masterVolumeSlider;
                         menuChoices[3, 0] = musicSlider;
                         menuChoices[4, 0] = soundEffectSlider;
-                        menuChoices[5, 0] = rebindButton;
-                        menuRow = 5;
+                        menuChoices[5, 0] = controllerMapButton;
+                        menuChoices[6, 0] = rebindButton;
+                        menuRow = 6;
                         menuColumn = 0;
                         displayRebindWindow = false;
                     }
@@ -1995,14 +2062,15 @@ namespace Party_Tower_Main
                 //escape from rebindpopup
                 else if (displayRebindWindow)
                 {
-                    menuChoices = new Button[6, 1];
+                    menuChoices = new Button[7, 1];
                     menuChoices[0, 0] = returnButton;
                     menuChoices[1, 0] = fullscreenButton;
                     menuChoices[2, 0] = masterVolumeSlider;
                     menuChoices[3, 0] = musicSlider;
                     menuChoices[4, 0] = soundEffectSlider;
-                    menuChoices[5, 0] = rebindButton;
-                    menuRow = 5;
+                    menuChoices[5, 0] = controllerMapButton;
+                    menuChoices[6, 0] = rebindButton;
+                    menuRow = 6;
                     menuColumn = 0;
                     displayRebindWindow = false;
                 }
