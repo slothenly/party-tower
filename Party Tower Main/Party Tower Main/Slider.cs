@@ -15,6 +15,7 @@ namespace Party_Tower_Main
         private float length;
         private float returnedValue;
         private Button sliderButton;
+        private string displayedString;
 
         //Properties
         //Highlighted only important for the actual button of the slider
@@ -36,13 +37,18 @@ namespace Party_Tower_Main
         {
             get { return sliderButton; }
         }
+        public override string DisplayedString
+        {
+            get { return displayedString; }
+        }
 
         //Constructor
-        public Slider(Texture2D normalTexture, Texture2D highlightedTexture, float length)
+        public Slider(Texture2D normalTexture, Texture2D highlightedTexture, float length, string displayedString)
             : base(normalTexture, highlightedTexture)
         {
             sliderButton = new Button(highlightedTexture, normalTexture);
             this.length = length;
+            this.displayedString = displayedString;
 
         }
 
@@ -59,13 +65,13 @@ namespace Party_Tower_Main
             //beyond the upper bound
             if (sliderButton.X > Area.X + Area.Width)
             {
-                sliderButton.X = Area.X + Area.Width;
+                sliderButton.X = Area.X + Area.Width - (sliderButton.Area.Width / 2);
                 return (int)length;
             }
             //below the lower bound
             else if (sliderButton.X < Area.X)
             {
-                sliderButton.X = Area.X;
+                sliderButton.X = Area.X - (sliderButton.Area.Width / 2);
                 return 0;
             }
             //legitimate rounding

@@ -20,6 +20,14 @@ namespace Party_Tower_Main
         public Room Root { get { return root; } }
         private Queue<Room> levelsToPlace = new Queue<Room>();
 
+        //used to keep track of what the level number is (order of played and level selection), hard coded for now
+        private int levelNumber;
+        public int LevelNumber
+        {
+            get { return levelNumber; }
+            set { levelNumber = value; }
+        }
+
         private List<Room> levels;
         public List<Room> Levels { get { return levels; } }
 
@@ -28,10 +36,11 @@ namespace Party_Tower_Main
         private int count = 0;
         public int Count { get { return count; } }
 
-        public Map(Tile exampleTile)
+        public Map(Tile exampleTile, int levelNumber)
         {
             measurementTile = exampleTile;
             levels = new List<Room>();
+            this.levelNumber = levelNumber;
         }
 
         /// <summary>

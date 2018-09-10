@@ -18,6 +18,8 @@ namespace Party_Tower_Main
         private Texture2D normalTexture;
         private Texture2D highlightedTexture;
 
+        private int correspondingLevel;
+
         private bool isLocked; //used for level select
 
         //Properties
@@ -61,6 +63,11 @@ namespace Party_Tower_Main
             get { return isLocked; }
             set { isLocked = value; }
         }
+        public int CorrespondingLevel
+        {
+            get { return correspondingLevel; }
+            set { correspondingLevel = value; }
+        }
         public Texture2D DrawnTexture
         {
             get
@@ -76,9 +83,20 @@ namespace Party_Tower_Main
             }
         }
 
-        //Constructor
+        //Normal Constructor
         public Button(Texture2D normalTexture, Texture2D highlightedTexture)
         {
+            this.normalTexture = normalTexture;
+            this.highlightedTexture = highlightedTexture;
+
+            isLocked = false;
+            correspondingLevel = -1; //default value if corresponding value not needed
+        }
+
+        //Constructor used for level selection
+        public Button(Texture2D normalTexture, Texture2D highlightedTexture, int correspondingLevel)
+        {
+            this.correspondingLevel = correspondingLevel;
             this.normalTexture = normalTexture;
             this.highlightedTexture = highlightedTexture;
 
@@ -112,6 +130,10 @@ namespace Party_Tower_Main
         }
 
         public virtual Button SliderButton
+        {
+            get;
+        }
+        public virtual string DisplayedString
         {
             get;
         }
