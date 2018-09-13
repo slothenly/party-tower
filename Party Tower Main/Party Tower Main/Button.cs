@@ -133,7 +133,7 @@ namespace Party_Tower_Main
         {
             get;
         }
-        public virtual string DisplayedString
+        public virtual Texture2D DisplayedIcon
         {
             get;
         }

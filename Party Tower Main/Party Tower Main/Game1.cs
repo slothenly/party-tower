@@ -332,9 +332,12 @@ namespace Party_Tower_Main
             playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
             playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
 
-            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"), 100, "Master Volume");
-            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), 100, "Music Volume");
-            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"), 100, "SFX Volume");
+            masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
+                100, Content.Load<Texture2D>("menuImages\\masterVolumeIcon"));
+            musicSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
+                100, Content.Load<Texture2D>("menuImages\\musicVolumeIcon"));
+            soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
+                100, Content.Load<Texture2D>("menuImages\\sfxVolumeIcon"));
 
             //loading from save file
             textReader = new StreamReader("save.txt");
@@ -402,8 +405,8 @@ namespace Party_Tower_Main
             //Menu buttons
             playButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             menuOptionsButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
-            levelSelectButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
-            creditsButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            levelSelectButton = new Button(Content.Load<Texture2D>("menuImages\\level_unbolded"), Content.Load<Texture2D>("menuImages\\level_bolded"));
+            creditsButton = new Button(Content.Load<Texture2D>("menuImages\\credits_unbolded"), Content.Load<Texture2D>("menuImages\\credits_bolded"));
             menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
@@ -413,14 +416,14 @@ namespace Party_Tower_Main
             creditsButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 2 / 3 + Nudge(false, 2));
             menuExitButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 7 / 9 + Nudge(false, 3));
 
-            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, width / 12, height / 10);
-            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, width / 12, height / 10);
-            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, width / 10, height / 10);
-            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, width / 12, height / 10);
+            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, width / 12, height / 12);
+            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, width / 11, height / 14);
+            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, width / 10, height / 12);
+            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, width / 10, height / 14);
             menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, width / 12, height / 12);
 
             //Options buttons (SLIDERS ARE IN LOADING SECTION ABOVE TO PREVENT NULL EXCEPTIONS)
-            returnButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
+            returnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
             fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
             rebindButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             controllerMapButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
@@ -443,16 +446,16 @@ namespace Party_Tower_Main
             playerTwoPauseButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "pause", playerTwo);
             playerTwoThrowButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "throw", playerTwo);
 
-            optionsReturnButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
+            optionsReturnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
             resetButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
 
 
             //options buttons/sliders start locations
             returnButton.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 1 / 9 - Nudge(false, 1));
             fullscreenButton.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 2 / 9 - Nudge(false, 1));
-            masterVolumeSlider.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 3 / 9);
-            musicSlider.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 3 / 9 + Nudge(false, 10));
-            soundEffectSlider.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 3 / 9 + Nudge(false, 20));
+            masterVolumeSlider.StartLocation = new Point(width * 4 / 9 - Nudge(true, 4), height * 3 / 9);
+            musicSlider.StartLocation = new Point(width * 4 / 9 - Nudge(true, 4), height * 3 / 9 + Nudge(false, 10));
+            soundEffectSlider.StartLocation = new Point(width * 4 / 9 - Nudge(true, 4), height * 3 / 9 + Nudge(false, 20));
             controllerMapButton.StartLocation = new Point(width * 4 / 9, height * 6 / 9);
             rebindButton.StartLocation = new Point(width * 4 / 9 + Nudge(true, 1), height * 7 / 9);
 
@@ -481,11 +484,11 @@ namespace Party_Tower_Main
 
 
             //area of buttons in options
-            returnButton.Area = new Rectangle(returnButton.StartX, returnButton.StartY, width / 11, height / 10);
+            returnButton.Area = new Rectangle(returnButton.StartX, returnButton.StartY, width / 14, height / 12);
             fullscreenButton.Area = new Rectangle(fullscreenButton.StartX, fullscreenButton.StartY, width / 11, height / 10);
-            masterVolumeSlider.Area = new Rectangle(masterVolumeSlider.StartX, masterVolumeSlider.StartY, width / 5, height / 10);
-            musicSlider.Area = new Rectangle(musicSlider.StartX, musicSlider.StartY, width / 5, height / 10);
-            soundEffectSlider.Area = new Rectangle(soundEffectSlider.StartX, soundEffectSlider.StartY, width / 5, height / 10);
+            masterVolumeSlider.Area = new Rectangle(masterVolumeSlider.StartX, masterVolumeSlider.StartY, width / 5, (width / 5) / (53 / 3));
+            musicSlider.Area = new Rectangle(musicSlider.StartX, musicSlider.StartY, width / 5, (width / 5) / (53 / 3));
+            soundEffectSlider.Area = new Rectangle(soundEffectSlider.StartX, soundEffectSlider.StartY, width / 5, (width / 5) / (53 / 3));
             controllerMapButton.Area = new Rectangle(controllerMapButton.StartX, controllerMapButton.StartY, width / 11, height / 10);
             rebindButton.Area = new Rectangle(rebindButton.StartX, rebindButton.StartY, width / 9, height / 10);
 
@@ -509,7 +512,7 @@ namespace Party_Tower_Main
             playerTwoThrowButton.Area = new Rectangle(playerTwoThrowButton.StartX, playerTwoThrowButton.StartY, width / 11, height / 10);
 
 
-            optionsReturnButton.Area = new Rectangle(optionsReturnButton.StartX, optionsReturnButton.StartY, width / 11, height / 10);
+            optionsReturnButton.Area = new Rectangle(optionsReturnButton.StartX, optionsReturnButton.StartY, width / 14, height / 12);
             resetButton.Area = new Rectangle(resetButton.StartX, resetButton.StartY, width / 11, height / 10);
 
             //set the positions of the sliderButtons on the actual sliders
@@ -1487,8 +1490,8 @@ namespace Party_Tower_Main
                         if (currentButton.IsHighlighted)
                         {
                             //draw cursor next to button
-                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
-                                width / 40, height / 40), Color.White);
+                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3),
+                               currentButton.StartY + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
                         }
                     }
 
@@ -1513,8 +1516,8 @@ namespace Party_Tower_Main
                         if (currentButton.IsHighlighted)
                         {
                             //draw cursor next to button
-                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
-                                width / 40, height / 40), Color.White);
+                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), 
+                                currentButton.StartY + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
                         }
                     }
                     spriteBatch.End();
@@ -1546,21 +1549,35 @@ namespace Party_Tower_Main
                         if (currentButton.IsHighlighted)
                         {
                             spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
-                            //draw cursor next to button
-                            spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
-                                width / 40, height / 40), Color.White);
+                            if (currentButton.IsHighlighted)
+                            {
+                                if (currentButton is Slider) //position cursor differently if slider
+                                {
+                                    spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 4), currentButton.StartY - Nudge(false, 1.4),
+                                        width / 40, height / 20), Color.White);
+                                }
+                                else
+                                {
+                                    //draw cursor next to button
+                                    spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), 
+                                        currentButton.StartY + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
+                                }
+
+                            }
                         }
                         if (currentButton is Slider)
                         {
                             spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
-                            //draw the displayed string of the slider
-                            spriteBatch.DrawString(testFont, currentButton.DisplayedString, new Vector2(currentButton.X - currentButton.Area.Width,
-                                currentButton.Y), Color.White);
+                            //draw the displayed icon of the slider
+                            spriteBatch.Draw(currentButton.DisplayedIcon, new Rectangle(currentButton.X - currentButton.Area.Width / 2,
+                                currentButton.Y - ((width / 25) / 2), width / 20, width / 21), Color.White);
 
                             //draw the sliderButton of the slider
                             spriteBatch.Draw(currentButton.SliderButton.DrawnTexture, currentButton.SliderButton.Area, Color.White);
-                            spriteBatch.DrawString(testFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 5),
-                                currentButton.StartY + Nudge(false, 5)), Color.Black);
+
+                            //draw the number value of the slider
+                            spriteBatch.DrawString(testFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 2),
+                                currentButton.StartY - Nudge(false, 2.5)), Color.Black);
                         }
                         //draw the overlaying text for the buttons, and adjust the width of the buttons for the variable text
                         if (currentButton is RebindingButton)
@@ -1694,14 +1711,8 @@ namespace Party_Tower_Main
                             if (currentButton.IsHighlighted)
                             {
                                 //draw cursor next to button
-                                spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), currentButton.StartY + Nudge(false, 3),
-                                    width / 40, height / 40), Color.White);
-                            }
-                            if (currentButton is Slider)
-                            {
-                                //draw the SliderButton of the slider
-                                spriteBatch.DrawString(testFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + Nudge(true, 10),
-                                    currentButton.StartY + Nudge(false, 3)), Color.Black);
+                                spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), 
+                                    currentButton.StartY + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
                             }
                         }
                     }

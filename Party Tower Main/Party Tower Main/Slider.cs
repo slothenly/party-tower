@@ -15,7 +15,7 @@ namespace Party_Tower_Main
         private float length;
         private float returnedValue;
         private Button sliderButton;
-        private string displayedString;
+        private Texture2D displayedIcon;
 
         //Properties
         //Highlighted only important for the actual button of the slider
@@ -37,18 +37,18 @@ namespace Party_Tower_Main
         {
             get { return sliderButton; }
         }
-        public override string DisplayedString
+        public override Texture2D DisplayedIcon
         {
-            get { return displayedString; }
+            get { return displayedIcon; }
         }
 
         //Constructor
-        public Slider(Texture2D normalTexture, Texture2D highlightedTexture, float length, string displayedString)
-            : base(normalTexture, highlightedTexture)
+        public Slider(Texture2D normalTexture, Texture2D highlightedTexture, float length, Texture2D displayedIcon)
+            : base(normalTexture, normalTexture)
         {
-            sliderButton = new Button(highlightedTexture, normalTexture);
+            sliderButton = new Button(highlightedTexture, highlightedTexture);
             this.length = length;
-            this.displayedString = displayedString;
+            this.displayedIcon = displayedIcon;
 
         }
 
@@ -104,11 +104,11 @@ namespace Party_Tower_Main
 
             //adjust these two values for dimensions
             solution.Width = Area.Width / 10;
-            solution.Height = Area.Height / 2;
+            solution.Height = Area.Height * 2;
 
 
             solution.X = Area.X + (int)(returnedValue * (Area.Width / length)) - (solution.Width / 2);
-            solution.Y = Area.Y + (solution.Height / 2);
+            solution.Y = Area.Y - (Area.Height / 2);
 
             sliderButton.Area = solution;
         }
