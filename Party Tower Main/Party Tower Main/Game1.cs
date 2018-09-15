@@ -720,12 +720,12 @@ namespace Party_Tower_Main
             // For more in depth info about level placement, see the Architecture doc
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
@@ -835,10 +835,10 @@ namespace Party_Tower_Main
                         //check for ladder interaction
                         foreach (Player player in players)
                         {
-                            foreach (Ladder ladder in ladders)
+                            foreach (Ladder currentLadder in ladders)
                             {
                                 //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(ladder) && ladder.IsActive)
+                                if (player.CheckLadderCollision(currentLadder) && currentLadder.IsActive)
                                 {
                                     player.CanClimb = true;
                                     break; //this will only break out of ladder list

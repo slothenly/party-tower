@@ -33,7 +33,7 @@ namespace Party_Tower_Main
         /// instantiates the room and adds the tileset passed in to 
         /// </summary>
         /// <param name="tileset"></param>
-        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList)
+        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList, List<Cake> cakeList, List<Exit> exitList)
         {
             tiles = tileset;
 
