@@ -87,8 +87,12 @@
   <ItemGroup>
     <Content Include="Resources\brick.png" />
     <Content Include="Resources\brickTileset.png" />
+    <Content Include="Resources\cake.png" />
+    <Content Include="Resources\cakeTileset.png" />
     <Content Include="Resources\dirt.png" />
     <Content Include="Resources\dirtTileset.png" />
+    <Content Include="Resources\exit.png" />
+    <Content Include="Resources\exitTileset.png" />
     <Content Include="Resources\grass.png" />
     <Content Include="Resources\grassTileset.png" />
     <Content Include="Resources\ladder.png" />
