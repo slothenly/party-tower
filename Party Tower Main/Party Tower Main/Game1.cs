@@ -717,12 +717,12 @@ namespace Party_Tower_Main
             // For more in depth info about level placement, see the Architecture doc
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
