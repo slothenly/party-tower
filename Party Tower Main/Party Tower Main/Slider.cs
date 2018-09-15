@@ -103,7 +103,7 @@ namespace Party_Tower_Main
             Rectangle solution = new Rectangle(0, 0, 0, 0);
 
             //adjust these two values for dimensions
-            solution.Width = Area.Width / 10;
+            solution.Width = Area.Width / 12;
             solution.Height = Area.Height * 2;
 
 

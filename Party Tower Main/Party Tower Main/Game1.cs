@@ -329,8 +329,8 @@ namespace Party_Tower_Main
 
             #region Player-Initalization AND loading
             players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 60, 100), Color.White, Content);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 60, 100), Color.Red, Content);
 
             masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
                 100, Content.Load<Texture2D>("menuImages\\masterVolumeIcon"));
@@ -410,17 +410,17 @@ namespace Party_Tower_Main
             menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
-            playButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 3 / 9 + Nudge(false, 2));
-            levelSelectButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 4 / 9 + Nudge(false, 2));
-            menuOptionsButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 5 / 9 + Nudge(false, 2));
-            creditsButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 2 / 3 + Nudge(false, 2));
-            menuExitButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 7 / 9 + Nudge(false, 3));
+            playButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 3 / 9 + Nudge(false, 3.7));
+            levelSelectButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 4 / 9 + Nudge(false, 3.9));
+            menuOptionsButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 5 / 9 + Nudge(false, 2.9));
+            creditsButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 2 / 3 + Nudge(false, 2.4));
+            menuExitButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 7 / 9 + Nudge(false, .5));
 
-            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, width / 12, height / 12);
-            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, width / 11, height / 14);
-            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, width / 10, height / 12);
-            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, width / 10, height / 14);
-            menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, width / 12, height / 12);
+            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, 190, 115);
+            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, 260, 90);
+            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, 295, 115);
+            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, 295, 115);
+            menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, 165,116);
 
             //Options buttons (SLIDERS ARE IN LOADING SECTION ABOVE TO PREVENT NULL EXCEPTIONS)
             returnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
@@ -835,7 +835,7 @@ namespace Party_Tower_Main
                             foreach (Ladder ladder in ladders)
                             {
                                 //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(ladder))
+                                if (player.CheckLadderCollision(ladder) && ladder.IsActive)
                                 {
                                     player.CanClimb = true;
                                     break; //this will only break out of ladder list
@@ -987,6 +987,10 @@ namespace Party_Tower_Main
 
                         foreach (Enemy currentEnemy in enemyList)
                         {
+                            if (currentEnemy.Hitpoints == 0)
+                            {
+                                currentEnemy.IsActive = false;
+                            }
                             if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
                             {
                                 currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
@@ -1469,8 +1473,8 @@ namespace Party_Tower_Main
                     spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, width, height), Color.White);
 
                     //Draw the menu box for the buttons
-                    spriteBatch.Draw(menuBoxTexture, new Rectangle(width / 6, height * 7 / 24 + Nudge(false, -2),
-                        width * 11 / 48, height * 53 / 72), Color.White);
+                    spriteBatch.Draw(Content.Load<Texture2D>("menuImages/baseBox"), new Rectangle(width / 6, height * 7 / 24 + Nudge(false, 3.5),
+                        440, 650), Color.White);
 
                     //draw yes/no window
                     if (tryingToQuit)
@@ -1614,18 +1618,22 @@ namespace Party_Tower_Main
 
                     foreach (Ladder ladder in ladders)
                     {
-                        if (ladder.IsTop)
+                        if (ladder.IsDrawn)
                         {
-                            spriteBatch.Draw(topLadderTexture, ladder.Hitbox, Color.Violet);
+                            if (ladder.IsTop)
+                            {
+                                spriteBatch.Draw(topLadderTexture, ladder.Hitbox, Color.Violet);
+                            }
+                            else if (ladder.IsBottom)
+                            {
+                                spriteBatch.Draw(bottomLadderTexture, ladder.Hitbox, Color.Purple);
+                            }
+                            else
+                            {
+                                spriteBatch.Draw(normalLadderTexture, ladder.Hitbox, Color.Black);
+                            }
                         }
-                        else if (ladder.IsBottom)
-                        {
-                            spriteBatch.Draw(bottomLadderTexture, ladder.Hitbox, Color.Purple);
-                        }
-                        else
-                        {
-                            spriteBatch.Draw(normalLadderTexture, ladder.Hitbox, Color.Black);
-                        }
+
                     }
 
                     //Drawing each player
