@@ -339,6 +339,16 @@ namespace Party_Tower_Main
             soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
                 100, Content.Load<Texture2D>("menuImages\\sfxVolumeIcon"));
 
+            levelOneButton = new Button(playerOneTexture, playerTwoTexture, 1);
+            levelTwoButton = new Button(playerOneTexture, playerTwoTexture, 2);
+            levelThreeButton = new Button(playerOneTexture, playerTwoTexture, 3);
+            levelFourButton = new Button(playerOneTexture, playerTwoTexture, 4);
+            levelFiveButton = new Button(playerOneTexture, playerTwoTexture, 5);
+            levelSixButton = new Button(playerOneTexture, playerTwoTexture, 6);
+            levelSevenButton = new Button(playerOneTexture, playerTwoTexture, 7);
+            levelEightButton = new Button(playerOneTexture, playerTwoTexture, 8);
+            levelNineButton = new Button(playerOneTexture, playerTwoTexture, 9);
+
             //loading from save file
             textReader = new StreamReader("save.txt");
 
@@ -376,6 +386,15 @@ namespace Party_Tower_Main
             }
 
 
+
+            levelTwoButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelThreeButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelFourButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelFiveButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelSixButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelSevenButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelEightButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelNineButton.IsLocked = bool.Parse(textReader.ReadLine());
             textReader.Close();
 
             coopManager = new Coop_Manager(playerOne, playerTwo, Content);
@@ -424,7 +443,7 @@ namespace Party_Tower_Main
 
             //Options buttons (SLIDERS ARE IN LOADING SECTION ABOVE TO PREVENT NULL EXCEPTIONS)
             returnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
-            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\fullscreenNormal"), Content.Load<Texture2D>("menuImages\\fullscreenHighlighted"));
             rebindButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             controllerMapButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
 
@@ -536,24 +555,8 @@ namespace Party_Tower_Main
 
             //Level select buttons
             levelSelectReturnButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
-            levelOneButton = new Button(playerOneTexture, playerTwoTexture, 1);
-            levelTwoButton = new Button(playerOneTexture, playerTwoTexture, 2);
-            levelThreeButton = new Button(playerOneTexture, playerTwoTexture,3);
-            levelFourButton = new Button(playerOneTexture, playerTwoTexture,4);
-            levelFiveButton = new Button(playerOneTexture, playerTwoTexture,5);
-            levelSixButton = new Button(playerOneTexture, playerTwoTexture,6);
-            levelSevenButton = new Button(playerOneTexture, playerTwoTexture,7);
-            levelEightButton = new Button(playerOneTexture, playerTwoTexture,8);
-            levelNineButton = new Button(playerOneTexture, playerTwoTexture,9);
+            //ACTUAL BUTTONS ARE ABOVE HERE FOR TEXTREADER
 
-            levelTwoButton.IsLocked = true;
-            levelThreeButton.IsLocked = true;
-            levelFourButton.IsLocked = true;
-            levelFiveButton.IsLocked = true;
-            levelSixButton.IsLocked = true;
-            levelSevenButton.IsLocked = true;
-            levelEightButton.IsLocked = true;
-            levelNineButton.IsLocked = true;
 
 
 
@@ -2401,6 +2404,15 @@ namespace Party_Tower_Main
 
             //fullscreen toggle
             textWriter.WriteLine(graphics.IsFullScreen.ToString());
+
+            textWriter.WriteLine(levelTwoButton.IsLocked.ToString());
+            textWriter.WriteLine(levelThreeButton.IsLocked.ToString());
+            textWriter.WriteLine(levelFourButton.IsLocked.ToString());
+            textWriter.WriteLine(levelFiveButton.IsLocked.ToString());
+            textWriter.WriteLine(levelSixButton.IsLocked.ToString());
+            textWriter.WriteLine(levelSevenButton.IsLocked.ToString());
+            textWriter.WriteLine(levelEightButton.IsLocked.ToString());
+            textWriter.WriteLine(levelNineButton.IsLocked.ToString());
             textWriter.Close();
 
         }

@@ -18,3 +18,11 @@ Down
 P
 RightShift
 False
+True
+True
+True
+True
+True
+True
+True
+True

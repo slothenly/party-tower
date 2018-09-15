@@ -75,6 +75,9 @@ namespace Party_Tower_Main
             this.defaultEnemy = defaultEnemy;
             defaultTileSheet = TileSheet;
             UpdateMapFromPath(initialPath);
+
+            ladderHolder = new List<Ladder>();
+            cakeHolder = new List<Cake>();
         }
 
         /// <summary>
