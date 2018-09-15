@@ -290,6 +290,9 @@ namespace Party_Tower_Main
 
                             //set texture
                             currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+
+
+
                         }
 
                     }
