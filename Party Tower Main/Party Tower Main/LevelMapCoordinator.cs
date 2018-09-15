@@ -81,6 +81,8 @@ namespace Party_Tower_Main
 
             ladderHolder = new List<Ladder>();
             cakeHolder = new List<Cake>();
+            exitHolder = new List<Exit>();
+            tableHolder = new List<Table>();
         }
 
         /// <summary>
