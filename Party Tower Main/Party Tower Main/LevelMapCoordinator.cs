@@ -43,11 +43,14 @@ namespace Party_Tower_Main
         int initializationsRun = 0;     //tracking meta data to see if things are running multiple times
         List<Texture2D> textureList;
 
+        // Holders and Properties
         List<Enemy> enemyHolder;
-        List<Ladder> ladderHolder;
         List<Cake> cakeHolder;
+        public List<Cake> CakeHolder { get { return cakeHolder; } }
+        List<Exit> exitHolder;
+        public List<Exit> ExitHolder { get { return exitHolder; } }
+        List<Ladder> ladderHolder;
         public List<Ladder> LadderHolder { get { return ladderHolder; } }
-
         List<Table> tableHolder;
         public List<Table> TableHolder { get { return tableHolder; } }
 
@@ -206,6 +209,12 @@ namespace Party_Tower_Main
                         else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ca")
                         {
                             Cake temp = new Cake(CurrentMap[rows, columns].X + 20, currentMap[rows, columns].Y + 88, null);
+                        }
+
+                        // ### EXIT ###{
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ex")
+                        {
+                            exitHolder.Add(new Exit(new Rectangle(CurrentMap[rows, columns].X, CurrentMap[rows, columns].X, 120, 60), null));
                         }
 
                         // ### LADDERS ###

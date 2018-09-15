@@ -832,10 +832,10 @@ namespace Party_Tower_Main
                         //check for ladder interaction
                         foreach (Player player in players)
                         {
-                            foreach (Ladder ladder in ladders)
+                            foreach (Ladder currentLadder in ladders)
                             {
                                 //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(ladder) && ladder.IsActive)
+                                if (player.CheckLadderCollision(currentLadder) && currentLadder.IsActive)
                                 {
                                     player.CanClimb = true;
                                     break; //this will only break out of ladder list
