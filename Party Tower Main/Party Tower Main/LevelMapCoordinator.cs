@@ -45,6 +45,7 @@ namespace Party_Tower_Main
 
         List<Enemy> enemyHolder;
         List<Ladder> ladderHolder;
+        List<Cake> cakeHolder;
         public List<Ladder> LadderHolder { get { return ladderHolder; } }
 
         List<Table> tableHolder;
@@ -199,6 +200,12 @@ namespace Party_Tower_Main
                             enemyHolder.Add(GetEnemy(CurrentMap[rows, columns].X, currentMap[rows, columns].Y));
                             currentMap[rows, columns] = null;
                             CurrentMapRaw[rows, columns] = null;
+                        }
+
+                        // ### CAKE ###
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ca")
+                        {
+                            Cake temp = new Cake(CurrentMap[rows, columns].X + 20, currentMap[rows, columns].Y + 88, null);
                         }
 
                         // ### LADDERS ###

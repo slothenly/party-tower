@@ -195,7 +195,9 @@ namespace External_Level_Designer_Tool
             AddNewTile("table", "Table", typeSelector);
             AddNewTile("moss", "Moss", typeSelector);                //            <=== Add Tilesets here
             AddNewTile("enemy", "Enemy", typeSelector);
-            //AddNewTile("path",   "display name", container); 
+            AddNewTile("cake", "Cake", typeSelector);
+            AddNewTile("exit", "Exit", typeSelector);
+            //AddNewTile("path", "display name", container); 
             #endregion
 
             //  #############################################################################
@@ -208,7 +210,7 @@ namespace External_Level_Designer_Tool
 
             //  #############################################################################
 
-            #region Translator Dictionaly Initialization
+            #region Translator Dictioraly Initialization
 
             textTranslater.Add("Brick", "br");
             textTranslater.Add("Dirt", "di");
@@ -217,6 +219,8 @@ namespace External_Level_Designer_Tool
             textTranslater.Add("Enemy", "e1");
             textTranslater.Add("Ladder", "la");
             textTranslater.Add("Table", "ta");
+            textTranslater.Add("Cake", "ca");
+            textTranslater.Add("Exit", "ex");
             
             #endregion
         }
