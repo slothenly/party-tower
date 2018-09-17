@@ -103,12 +103,12 @@ namespace Party_Tower_Main
             Rectangle solution = new Rectangle(0, 0, 0, 0);
 
             //adjust these two values for dimensions
-            solution.Width = Area.Width / 10;
-            solution.Height = Area.Height * 2;
+            solution.Width = 20;
+            solution.Height = 50;
 
 
             solution.X = Area.X + (int)(returnedValue * (Area.Width / length)) - (solution.Width / 2);
-            solution.Y = Area.Y - (Area.Height / 2);
+            solution.Y = Area.Y - (solution.Height / 3);
 
             sliderButton.Area = solution;
         }
@@ -167,8 +167,7 @@ namespace Party_Tower_Main
                     //Then adjust if the mouse is beyond the limits
                     returnedValue = RoundToNearestValidPosition();
                 }
-            }
-           
+            }      
         }
     }
 }

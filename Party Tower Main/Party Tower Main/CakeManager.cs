@@ -154,7 +154,7 @@ namespace Party_Tower_Main
                         cake.RespawnTimer.ResetTimer();
 
 
-                        cake.X = carryingPlayer.X - carryingPlayer.Width;
+                        cake.X = cake.X - (int)(cake.Width * 1.3);
                         carryingPlayer.CakeCarrying = false;
                     }
                     else

@@ -65,7 +65,7 @@ namespace Party_Tower_Main
         MouseState previousMs;
         Rectangle mouseRect; //used to check for clicking on certain elements
 
-        bool paused = false; //used to determine which 
+         //used to determine which 
                              //game logic is run based on if game is paused or not
         bool menuPaused = false;
 
@@ -86,7 +86,7 @@ namespace Party_Tower_Main
         Tile testPlatform = new Tile(false, true, false, false, null);
         Tile secondTestPlatform = new Tile(false, true, false, false, null);
         Tile testWall = new Tile(false, false, false, true, null);
-        SpriteFont testFont;
+        SpriteFont textFont;
 
         //Shared keyboard
         KeyboardState kb;
@@ -203,7 +203,6 @@ namespace Party_Tower_Main
         RebindingButton playerOneJumpButton;
         RebindingButton playerOneRollButton;
         RebindingButton playerOneDownDashButton;
-        RebindingButton playerOnePauseButton;
         RebindingButton playerOneThrowButton;
 
         RebindingButton playerTwoLeftButton;
@@ -212,7 +211,6 @@ namespace Party_Tower_Main
         RebindingButton playerTwoJumpButton;
         RebindingButton playerTwoRollButton;
         RebindingButton playerTwoDownDashButton;
-        RebindingButton playerTwoPauseButton;
         RebindingButton playerTwoThrowButton;
 
         Button optionsReturnButton;
@@ -323,14 +321,14 @@ namespace Party_Tower_Main
             playerOneTexture = Content.Load<Texture2D>("white");
             playerTwoTexture = Content.Load<Texture2D>("white");
             defaultEnemySprite = Content.Load<Texture2D>("enemy");
-            testFont = Content.Load<SpriteFont>("DefaultText");
+            textFont = Content.Load<SpriteFont>("textFont");
 
 
 
             #region Player-Initalization AND loading
             players = new List<Player>();
-            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 64, 64), Color.White, Content);
-            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 64, 64), Color.Red, Content);
+            playerOne = new Player(1, 0, playerOneTexture, new Rectangle(300, 300, 60, 100), Color.White, Content);
+            playerTwo = new Player(2, 1, playerTwoTexture, new Rectangle(400, 300, 60, 100), Color.Red, Content);
 
             masterVolumeSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
                 100, Content.Load<Texture2D>("menuImages\\masterVolumeIcon"));
@@ -338,6 +336,16 @@ namespace Party_Tower_Main
                 100, Content.Load<Texture2D>("menuImages\\musicVolumeIcon"));
             soundEffectSlider = new Slider(Content.Load<Texture2D>("menuImages\\sliderBar"), Content.Load<Texture2D>("menuImages\\sliderButton"), 
                 100, Content.Load<Texture2D>("menuImages\\sfxVolumeIcon"));
+
+            levelOneButton = new Button(playerOneTexture, playerTwoTexture, 1);
+            levelTwoButton = new Button(playerOneTexture, playerTwoTexture, 2);
+            levelThreeButton = new Button(playerOneTexture, playerTwoTexture, 3);
+            levelFourButton = new Button(playerOneTexture, playerTwoTexture, 4);
+            levelFiveButton = new Button(playerOneTexture, playerTwoTexture, 5);
+            levelSixButton = new Button(playerOneTexture, playerTwoTexture, 6);
+            levelSevenButton = new Button(playerOneTexture, playerTwoTexture, 7);
+            levelEightButton = new Button(playerOneTexture, playerTwoTexture, 8);
+            levelNineButton = new Button(playerOneTexture, playerTwoTexture, 9);
 
             //loading from save file
             textReader = new StreamReader("save.txt");
@@ -348,7 +356,7 @@ namespace Party_Tower_Main
             soundEffectSlider.ReturnedValue = float.Parse(textReader.ReadLine());
 
             //DEFAULT CONTROLS
-            // A,D,W,Space,LeftShift,S,P,C  left,right,RightShift,up,OemQuestion,Down,P,RightShift
+            // A,D,W,Space,LeftShift,S,P,C  left,right,RightShift,up,RightControl,Down,P,Enter
 
             playerOne.BindableKb.Add("left", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerOne.BindableKb.Add("right", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
@@ -356,18 +364,17 @@ namespace Party_Tower_Main
             playerOne.BindableKb.Add("jump", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerOne.BindableKb.Add("roll", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerOne.BindableKb.Add("downDash", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
-            playerOne.BindableKb.Add("pause", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerOne.BindableKb.Add("throw", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
 
 
             playerTwo.BindableKb.Add("left", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("right", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+            playerTwo.BindableKb.Add("up", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("jump", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("roll", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("downDash", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
-            playerTwo.BindableKb.Add("pause", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
             playerTwo.BindableKb.Add("throw", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
-            playerTwo.BindableKb.Add("up", (Keys)Enum.Parse(typeof(Keys), textReader.ReadLine()));
+
 
 
             if (bool.Parse(textReader.ReadLine()))
@@ -376,6 +383,15 @@ namespace Party_Tower_Main
             }
 
 
+
+            levelTwoButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelThreeButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelFourButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelFiveButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelSixButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelSevenButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelEightButton.IsLocked = bool.Parse(textReader.ReadLine());
+            levelNineButton.IsLocked = bool.Parse(textReader.ReadLine());
             textReader.Close();
 
             coopManager = new Coop_Manager(playerOne, playerTwo, Content);
@@ -410,21 +426,21 @@ namespace Party_Tower_Main
             menuExitButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
 
             //Menu button locations and areas
-            playButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 3 / 9 + Nudge(false, 2));
-            levelSelectButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 4 / 9 + Nudge(false, 2));
-            menuOptionsButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 5 / 9 + Nudge(false, 2));
-            creditsButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 2 / 3 + Nudge(false, 2));
-            menuExitButton.StartLocation = new Point(width * 2 / 9 + Nudge(true, 1), height * 7 / 9 + Nudge(false, 3));
+            playButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 3 / 9 + Nudge(false, 3.7));
+            levelSelectButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 4 / 9 + Nudge(false, 3.9));
+            menuOptionsButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 5 / 9 + Nudge(false, 2.9));
+            creditsButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 2 / 3 + Nudge(false, 2.4));
+            menuExitButton.StartLocation = new Point(width * 2 / 9 - Nudge(true, 1.2), height * 7 / 9 + Nudge(false, .5));
 
-            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, width / 12, height / 12);
-            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, width / 11, height / 14);
-            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, width / 10, height / 12);
-            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, width / 10, height / 14);
-            menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, width / 12, height / 12);
+            playButton.Area = new Rectangle(playButton.StartX, playButton.StartY, 190, 115);
+            levelSelectButton.Area = new Rectangle(levelSelectButton.StartX, levelSelectButton.StartY, 260, 90);
+            menuOptionsButton.Area = new Rectangle(menuOptionsButton.StartX, menuOptionsButton.StartY, 295, 115);
+            creditsButton.Area = new Rectangle(creditsButton.StartX, creditsButton.StartY, 295, 115);
+            menuExitButton.Area = new Rectangle(menuExitButton.StartX, menuExitButton.StartY, 165,116);
 
             //Options buttons (SLIDERS ARE IN LOADING SECTION ABOVE TO PREVENT NULL EXCEPTIONS)
             returnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
-            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
+            fullscreenButton = new Button(Content.Load<Texture2D>("menuImages\\fullscreenNormal"), Content.Load<Texture2D>("menuImages\\fullscreenHighlighted"));
             rebindButton = new Button(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"));
             controllerMapButton = new Button(Content.Load<Texture2D>("menuImages\\optionsNeutral"), Content.Load<Texture2D>("menuImages\\optionsHovered"));
 
@@ -434,7 +450,6 @@ namespace Party_Tower_Main
             playerOneJumpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "jump", playerOne);
             playerOneRollButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "roll", playerOne);
             playerOneDownDashButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "downDash", playerOne);
-            playerOnePauseButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "pause", playerOne);
             playerOneThrowButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "throw", playerOne);
 
             playerTwoLeftButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "left", playerTwo);
@@ -443,7 +458,6 @@ namespace Party_Tower_Main
             playerTwoJumpButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "jump", playerTwo);
             playerTwoRollButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "roll", playerTwo);
             playerTwoDownDashButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "downDash", playerTwo);
-            playerTwoPauseButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "pause", playerTwo);
             playerTwoThrowButton = new RebindingButton(Content.Load<Texture2D>("menuImages\\playNeutral"), Content.Load<Texture2D>("menuImages\\playHovered"), "throw", playerTwo);
 
             optionsReturnButton = new Button(Content.Load<Texture2D>("menuImages\\ok_unbolded"), Content.Load<Texture2D>("menuImages\\ok_bolded"));
@@ -466,7 +480,6 @@ namespace Party_Tower_Main
             playerOneJumpButton.StartLocation = new Point(width / 3, height * 1 / 9 + Nudge(false, 34));
             playerOneRollButton.StartLocation = new Point(width / 3, height * 1 / 9 + Nudge(false, 42));
             playerOneDownDashButton.StartLocation = new Point(width / 3, height * 1 / 9 + Nudge(false, 50));
-            playerOnePauseButton.StartLocation = new Point(width / 3, height * 1 / 9 + Nudge(false, 58));
             playerOneThrowButton.StartLocation = new Point(width / 3, height * 1 / 9 + Nudge(false, 66));
 
             playerTwoLeftButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 10));
@@ -475,7 +488,6 @@ namespace Party_Tower_Main
             playerTwoJumpButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 34));
             playerTwoRollButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 42));
             playerTwoDownDashButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 50));
-            playerTwoPauseButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 58));
             playerTwoThrowButton.StartLocation = new Point(width * 6 / 9, height * 1 / 9 + Nudge(false, 66));
 
             optionsReturnButton.StartLocation = new Point(width / 3, height * 1 / 9);
@@ -498,7 +510,6 @@ namespace Party_Tower_Main
             playerOneJumpButton.Area = new Rectangle(playerOneJumpButton.StartX, playerOneJumpButton.StartY, width / 11, height / 10);
             playerOneRollButton.Area = new Rectangle(playerOneRollButton.StartX, playerOneRollButton.StartY, width / 11, height / 10);
             playerOneDownDashButton.Area = new Rectangle(playerOneDownDashButton.StartX, playerOneDownDashButton.StartY, width / 11, height / 10);
-            playerOnePauseButton.Area = new Rectangle(playerOnePauseButton.StartX, playerOnePauseButton.StartY, width / 11, height / 10);
             playerOneThrowButton.Area = new Rectangle(playerOneThrowButton.StartX, playerOneThrowButton.StartY, width / 11, height / 10);
 
 
@@ -508,7 +519,6 @@ namespace Party_Tower_Main
             playerTwoJumpButton.Area = new Rectangle(playerTwoJumpButton.StartX, playerTwoJumpButton.StartY, width / 11, height / 10);
             playerTwoRollButton.Area = new Rectangle(playerTwoRollButton.StartX, playerTwoRollButton.StartY, width / 11, height / 10);
             playerTwoDownDashButton.Area = new Rectangle(playerTwoDownDashButton.StartX, playerTwoDownDashButton.StartY, width / 11, height / 10);
-            playerTwoPauseButton.Area = new Rectangle(playerTwoPauseButton.StartX, playerTwoPauseButton.StartY, width / 11, height / 10);
             playerTwoThrowButton.Area = new Rectangle(playerTwoThrowButton.StartX, playerTwoThrowButton.StartY, width / 11, height / 10);
 
 
@@ -536,24 +546,8 @@ namespace Party_Tower_Main
 
             //Level select buttons
             levelSelectReturnButton = new Button(Content.Load<Texture2D>("menuImages\\exitNeutral"), Content.Load<Texture2D>("menuImages\\exitHovered"));
-            levelOneButton = new Button(playerOneTexture, playerTwoTexture, 1);
-            levelTwoButton = new Button(playerOneTexture, playerTwoTexture, 2);
-            levelThreeButton = new Button(playerOneTexture, playerTwoTexture,3);
-            levelFourButton = new Button(playerOneTexture, playerTwoTexture,4);
-            levelFiveButton = new Button(playerOneTexture, playerTwoTexture,5);
-            levelSixButton = new Button(playerOneTexture, playerTwoTexture,6);
-            levelSevenButton = new Button(playerOneTexture, playerTwoTexture,7);
-            levelEightButton = new Button(playerOneTexture, playerTwoTexture,8);
-            levelNineButton = new Button(playerOneTexture, playerTwoTexture,9);
+            //ACTUAL BUTTONS ARE ABOVE HERE FOR TEXTREADER
 
-            levelTwoButton.IsLocked = true;
-            levelThreeButton.IsLocked = true;
-            levelFourButton.IsLocked = true;
-            levelFiveButton.IsLocked = true;
-            levelSixButton.IsLocked = true;
-            levelSevenButton.IsLocked = true;
-            levelEightButton.IsLocked = true;
-            levelNineButton.IsLocked = true;
 
 
 
@@ -717,12 +711,13 @@ namespace Party_Tower_Main
             // For more in depth info about level placement, see the Architecture doc
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
+            levelMap[0] = LvlCoordinator.PathManagerMap;
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
@@ -731,7 +726,6 @@ namespace Party_Tower_Main
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
-            levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
             secondTestPlatform.TileSheet = mainTileSheet;
             testWall.TileSheet = mainTileSheet;
@@ -799,7 +793,7 @@ namespace Party_Tower_Main
             switch (gameState)
             {
                 case GameState.Game:
-                    if (!paused && !menuPaused) //do normal stuff
+                    if (!menuPaused) //do normal stuff
                     {
                         #region UPDATE PLAYER                   
                         //first adjust the needed coop manager states, then adjust states and movement of both players
@@ -832,10 +826,10 @@ namespace Party_Tower_Main
                         //check for ladder interaction
                         foreach (Player player in players)
                         {
-                            foreach (Ladder ladder in ladders)
+                            foreach (Ladder currentLadder in ladders)
                             {
                                 //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(ladder))
+                                if (player.CheckLadderCollision(currentLadder) && currentLadder.IsActive)
                                 {
                                     player.CanClimb = true;
                                     break; //this will only break out of ladder list
@@ -967,7 +961,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        pathManager.UpdatePlayersOnMap(/*String of Constructed A* Map goes here*/ levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
@@ -981,12 +975,21 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        /* if the cake has been set down, simply check to see if each ladder should be active and drawn if it's
+                         * hit box interacts with the camera.IsDrawn and camera.IsUpdated scene.*/
+
+
+
                         #endregion
 
                         #region UPDATE ENEMY
 
                         foreach (Enemy currentEnemy in enemyList)
                         {
+                            if (currentEnemy.Hitpoints == 0)
+                            {
+                                currentEnemy.IsActive = false;
+                            }
                             if (currentEnemy.Type == EnemyType.Alive && currentEnemy.IsActive) //only type of enemy with movement
                             {
                                 currentEnemy.UpdateEnemy(playerOne, playerTwo, pathManager.Following(currentEnemy));
@@ -1065,7 +1068,7 @@ namespace Party_Tower_Main
                         #endregion
 
                     }
-                    else if (menuPaused) //paused using escape
+                    else //paused using escape
                     {
                         //fill with correct buttons
                         if (escapeFirstFrame)
@@ -1161,7 +1164,6 @@ namespace Party_Tower_Main
             {
                 case GameState.Menu:
                     //only create/fill the array if this is the first frame of the menu state
-                    paused = false;
                     if (menuFirstFrame)
                     {
                         menuChoices = new Button[5, 1];
@@ -1301,7 +1303,7 @@ namespace Party_Tower_Main
                     //rebind keys buttons
                     else if (rebindFirstFrame)
                     {
-                        menuChoices = new Button[9, 2];
+                        menuChoices = new Button[8, 2];
                         //put buttons here
                         menuChoices[0, 0] = optionsReturnButton;
                         menuChoices[0, 1] = resetButton;
@@ -1312,8 +1314,7 @@ namespace Party_Tower_Main
                         menuChoices[4, 0] = playerOneJumpButton;
                         menuChoices[5, 0] = playerOneRollButton;
                         menuChoices[6, 0] = playerOneDownDashButton;
-                        menuChoices[7, 0] = playerOnePauseButton;
-                        menuChoices[8, 0] = playerOneThrowButton;
+                        menuChoices[7, 0] = playerOneThrowButton;
 
                         menuChoices[1, 1] = playerTwoLeftButton;
                         menuChoices[2, 1] = playerTwoRightButton;
@@ -1321,8 +1322,7 @@ namespace Party_Tower_Main
                         menuChoices[4, 1] = playerTwoJumpButton;
                         menuChoices[5, 1] = playerTwoRollButton;
                         menuChoices[6, 1] = playerTwoDownDashButton;
-                        menuChoices[7, 1] = playerTwoPauseButton;
-                        menuChoices[8, 1] = playerTwoThrowButton;
+                        menuChoices[7, 1] = playerTwoThrowButton;
 
 
                         rebindFirstFrame = false;
@@ -1389,24 +1389,8 @@ namespace Party_Tower_Main
                     }
                     foreach (Player player in players) //any player can do this
                     {
-                        //player 1 & 2 controller can pause
-                        if ((SingleKeyPress(player.BindableKb["pause"]) || SingleButtonPress(Buttons.Start)) && !menuPaused)
-                        {
-                            menuSelectSound.Play();
-                            if (paused)
-                            {
-                                paused = false;
-                                MediaPlayer.Resume();
-                            }
-                            else
-                            {
-                                paused = true;
-                                MediaPlayer.Pause();
-                            }
-                            break;
-                        }
                         //escape to menu / resume game (only allow B on Controller to work if game is paused
-                        else if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.Back) || (SingleButtonPress(Buttons.B) && menuPaused) && !tryingToQuit))
+                        if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.Back) || (SingleButtonPress(Buttons.B) && menuPaused) && !tryingToQuit))
                         {
                             menuSelectSound.Play();
                             if (menuPaused) //resume game
@@ -1469,8 +1453,8 @@ namespace Party_Tower_Main
                     spriteBatch.Draw(mainMenuTexture, new Rectangle(0, 0, width, height), Color.White);
 
                     //Draw the menu box for the buttons
-                    spriteBatch.Draw(menuBoxTexture, new Rectangle(width / 6, height * 7 / 24 + Nudge(false, -2),
-                        width * 11 / 48, height * 53 / 72), Color.White);
+                    spriteBatch.Draw(Content.Load<Texture2D>("menuImages/baseBox"), new Rectangle(width / 6, height * 7 / 24 + Nudge(false, 3.5),
+                        440, 650), Color.White);
 
                     //draw yes/no window
                     if (tryingToQuit)
@@ -1576,7 +1560,7 @@ namespace Party_Tower_Main
                             spriteBatch.Draw(currentButton.SliderButton.DrawnTexture, currentButton.SliderButton.Area, Color.White);
 
                             //draw the number value of the slider
-                            spriteBatch.DrawString(testFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 2),
+                            spriteBatch.DrawString(textFont, currentButton.ReturnedValue.ToString(), new Vector2(currentButton.StartX + currentButton.Area.Width + Nudge(true, 2),
                                 currentButton.StartY - Nudge(false, 2.5)), Color.Black);
                         }
                         //draw the overlaying text for the buttons, and adjust the width of the buttons for the variable text
@@ -1596,7 +1580,7 @@ namespace Party_Tower_Main
                                     (int)(drawUnit * currentButton.VisibleText.Length), currentButton.Area.Height);
                             }
 
-                            spriteBatch.DrawString(testFont, currentButton.VisibleText, new Vector2(currentButton.StartX, currentButton.StartY), Color.Purple);
+                            spriteBatch.DrawString(textFont, currentButton.VisibleText, new Vector2(currentButton.StartX, currentButton.StartY), Color.Purple);
                         }
                     }
                     spriteBatch.End();
@@ -1614,18 +1598,22 @@ namespace Party_Tower_Main
 
                     foreach (Ladder ladder in ladders)
                     {
-                        if (ladder.IsTop)
+                        if (ladder.IsDrawn)
                         {
-                            spriteBatch.Draw(topLadderTexture, ladder.Hitbox, Color.Violet);
+                            if (ladder.IsTop)
+                            {
+                                spriteBatch.Draw(topLadderTexture, ladder.Hitbox, Color.Violet);
+                            }
+                            else if (ladder.IsBottom)
+                            {
+                                spriteBatch.Draw(bottomLadderTexture, ladder.Hitbox, Color.Purple);
+                            }
+                            else
+                            {
+                                spriteBatch.Draw(normalLadderTexture, ladder.Hitbox, Color.Black);
+                            }
                         }
-                        else if (ladder.IsBottom)
-                        {
-                            spriteBatch.Draw(bottomLadderTexture, ladder.Hitbox, Color.Purple);
-                        }
-                        else
-                        {
-                            spriteBatch.Draw(normalLadderTexture, ladder.Hitbox, Color.Black);
-                        }
+
                     }
 
                     //Drawing each player
@@ -1658,18 +1646,18 @@ namespace Party_Tower_Main
                     //debugging text for bug stomping
                     if (playerOne.IsDebugging)
                     {
-                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerOne.HorizontalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 500), Color.Cyan);
-                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerOne.VerticalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 465), Color.Cyan);
-                        spriteBatch.DrawString(testFont, "Player State: " + playerOne.PlayerState, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 430), Color.Cyan);
-                        spriteBatch.DrawString(testFont, "Facing right?: " + playerOne.IsFacingRight, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 395), Color.Cyan);
+                        spriteBatch.DrawString(textFont, "Horizontal Velocity: " + playerOne.HorizontalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 500), Color.Cyan);
+                        spriteBatch.DrawString(textFont, "Vertical Velocity: " + playerOne.VerticalVelocity, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 465), Color.Cyan);
+                        spriteBatch.DrawString(textFont, "Player State: " + playerOne.PlayerState, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 430), Color.Cyan);
+                        spriteBatch.DrawString(textFont, "Facing right?: " + playerOne.IsFacingRight, new Vector2(camera.CameraCenter.X - 900, camera.CameraCenter.Y - 395), Color.Cyan);
                         spriteBatch.Draw(playerTwoTexture, cakeManager.PuttingDownChecker, Color.Blue); //cake collision checker
                     }
                     if (playerTwo.IsDebugging)
                     {
-                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + playerTwo.HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 500), Color.Red);
-                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + playerTwo.VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 465), Color.Red);
-                        spriteBatch.DrawString(testFont, "Player State: " + playerTwo.PlayerState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 430), Color.Red);
-                        spriteBatch.DrawString(testFont, "Facing right?: " + playerTwo.IsFacingRight, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 395), Color.Red);
+                        spriteBatch.DrawString(textFont, "Horizontal Velocity: " + playerTwo.HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 500), Color.Red);
+                        spriteBatch.DrawString(textFont, "Vertical Velocity: " + playerTwo.VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 465), Color.Red);
+                        spriteBatch.DrawString(textFont, "Player State: " + playerTwo.PlayerState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 430), Color.Red);
+                        spriteBatch.DrawString(textFont, "Facing right?: " + playerTwo.IsFacingRight, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y - 395), Color.Red);
                         spriteBatch.Draw(playerTwoTexture, cakeManager.PuttingDownChecker, Color.Blue); //cake collision checker
                     }
 
@@ -1678,19 +1666,13 @@ namespace Party_Tower_Main
 
                     if (playerTwo.IsDebugging)
                     {
-                        spriteBatch.DrawString(testFont, "Horizontal Velocity: " + enemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "Vertical Velocity: " + enemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "Enemy State: " + enemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
-                        spriteBatch.DrawString(testFont, "C Map: \n" + pathManager.CorrectMap, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y - 300), Color.Yellow);
-                    }
-
-                    //moved this stuff to the bottom so that it draws last (hence on top)
-                    if (paused)
-                    {
-                        spriteBatch.DrawString(testFont, "PAUSED", new Vector2(camera.CameraCenter.X - 100, camera.CameraCenter.Y - 20), Color.White);
+                        spriteBatch.DrawString(textFont, "Horizontal Velocity: " + enemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Vertical Velocity: " + enemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Enemy State: " + enemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "C Map: \n" + pathManager.CorrectMap, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y - 300), Color.Yellow);
                     }
 
                     if (menuPaused)
@@ -1732,13 +1714,13 @@ namespace Party_Tower_Main
 
                 case GameState.GameOver:
                     spriteBatch.Begin();
-                    spriteBatch.DrawString(testFont, "Press any key to return to menu", new Vector2(width / 4, height / 3), Color.White);
+                    spriteBatch.DrawString(textFont, "Press any key to return to menu", new Vector2(width / 4, height / 3), Color.White);
                     spriteBatch.End();
                     break;
 
                 case GameState.Credits:
                     spriteBatch.Begin();
-                    spriteBatch.DrawString(testFont,"Credits will go here!", new Vector2(width / 4, height / 3), Color.White);
+                    spriteBatch.DrawString(textFont,"Credits will go here!", new Vector2(width / 4, height / 3), Color.White);
                     spriteBatch.End();
                     break;
             }
@@ -2152,7 +2134,6 @@ namespace Party_Tower_Main
                         playerOneJumpButton.SetNewKey(Keys.Space);
                         playerOneRollButton.SetNewKey(Keys.LeftShift);
                         playerOneDownDashButton.SetNewKey(Keys.S);
-                        playerOnePauseButton.SetNewKey(Keys.P);
                         playerOneThrowButton.SetNewKey(Keys.C);
 
 
@@ -2160,10 +2141,9 @@ namespace Party_Tower_Main
                         playerTwoRightButton.SetNewKey(Keys.Right);
                         playerTwoUpButton.SetNewKey(Keys.RightShift);
                         playerTwoJumpButton.SetNewKey(Keys.Up);
-                        playerTwoRollButton.SetNewKey(Keys.OemQuestion);
+                        playerTwoRollButton.SetNewKey(Keys.RightControl);
                         playerTwoDownDashButton.SetNewKey(Keys.Down);
-                        playerTwoPauseButton.SetNewKey(Keys.P);
-                        playerTwoThrowButton.SetNewKey(Keys.RightShift);
+                        playerTwoThrowButton.SetNewKey(Keys.Enter);
                     }
                     else if (menuChoices[currentRow, currentColumn] is RebindingButton)
                     {
@@ -2177,6 +2157,7 @@ namespace Party_Tower_Main
                             {
                                 menuChoices[currentRow, currentColumn].IsHighlighted = false;
                                 LevelMapCurrent = targetLevel;
+                                /* Set up rest of info from target LEvel into this.*/
                                 gameState = GameState.Game;
                                 break;
                             }
@@ -2216,9 +2197,11 @@ namespace Party_Tower_Main
                         menuColumn = 0;
                     }
                 }
-                //escape from rebindpopup
-                else if (displayRebindWindow)
+                //escape from rebindpopup if not trying to rebind
+                else if (displayRebindWindow && !menuChoices[currentRow,currentColumn].TryingToRebind)
                 {
+                    menuChoices[currentRow, currentColumn].IsHighlighted = false;
+
                     menuChoices = new Button[7, 1];
                     menuChoices[0, 0] = returnButton;
                     menuChoices[1, 0] = fullscreenButton;
@@ -2393,6 +2376,15 @@ namespace Party_Tower_Main
 
             //fullscreen toggle
             textWriter.WriteLine(graphics.IsFullScreen.ToString());
+
+            textWriter.WriteLine(levelTwoButton.IsLocked.ToString());
+            textWriter.WriteLine(levelThreeButton.IsLocked.ToString());
+            textWriter.WriteLine(levelFourButton.IsLocked.ToString());
+            textWriter.WriteLine(levelFiveButton.IsLocked.ToString());
+            textWriter.WriteLine(levelSixButton.IsLocked.ToString());
+            textWriter.WriteLine(levelSevenButton.IsLocked.ToString());
+            textWriter.WriteLine(levelEightButton.IsLocked.ToString());
+            textWriter.WriteLine(levelNineButton.IsLocked.ToString());
             textWriter.Close();
 
         }

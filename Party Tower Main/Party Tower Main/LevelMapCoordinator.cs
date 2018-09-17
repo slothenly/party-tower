@@ -43,10 +43,14 @@ namespace Party_Tower_Main
         int initializationsRun = 0;     //tracking meta data to see if things are running multiple times
         List<Texture2D> textureList;
 
+        // Holders and Properties
         List<Enemy> enemyHolder;
+        List<Cake> cakeHolder;
+        public List<Cake> CakeHolder { get { return cakeHolder; } }
+        List<Exit> exitHolder;
+        public List<Exit> ExitHolder { get { return exitHolder; } }
         List<Ladder> ladderHolder;
         public List<Ladder> LadderHolder { get { return ladderHolder; } }
-
         List<Table> tableHolder;
         public List<Table> TableHolder { get { return tableHolder; } }
 
@@ -74,6 +78,11 @@ namespace Party_Tower_Main
             this.defaultEnemy = defaultEnemy;
             defaultTileSheet = TileSheet;
             UpdateMapFromPath(initialPath);
+
+            ladderHolder = new List<Ladder>();
+            cakeHolder = new List<Cake>();
+            exitHolder = new List<Exit>();
+            tableHolder = new List<Table>();
         }
 
         /// <summary>
@@ -201,6 +210,18 @@ namespace Party_Tower_Main
                             CurrentMapRaw[rows, columns] = null;
                         }
 
+                        // ### CAKE ###
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ca")
+                        {
+                            Cake temp = new Cake(CurrentMap[rows, columns].X + 20, currentMap[rows, columns].Y + 88, null);
+                        }
+
+                        // ### EXIT ###{
+                        else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ex")
+                        {
+                            exitHolder.Add(new Exit(new Rectangle(CurrentMap[rows, columns].X, CurrentMap[rows, columns].X, 120, 60), null));
+                        }
+
                         // ### LADDERS ###
                         //if the string indicate a ladder, add that ladder to the ladders list and mark top/bottom edges
                         else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "la")
@@ -269,6 +290,9 @@ namespace Party_Tower_Main
 
                             //set texture
                             currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+
+
+
                         }
 
                     }

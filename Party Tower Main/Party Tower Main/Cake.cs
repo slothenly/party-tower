@@ -50,7 +50,7 @@ namespace Party_Tower_Main
         public Cake(int x, int y, Texture2D defaultTexture)
         {
             spawnLocation = new Vector2(x, y);
-            hitbox = new Rectangle(x, y, 25, 25);
+            hitbox = new Rectangle(x, y, 80, 32);
 
             carried = false;
             shouldStop = true;
