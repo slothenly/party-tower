@@ -167,8 +167,7 @@ namespace Party_Tower_Main
                     //Then adjust if the mouse is beyond the limits
                     returnedValue = RoundToNearestValidPosition();
                 }
-            }
-           
+            }      
         }
     }
 }
