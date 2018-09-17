@@ -93,7 +93,7 @@ namespace Party_Tower_Main
         KeyboardState previousKb;
 
         //enemy list
-        List<Enemy> enemyList;
+        List<Enemy> currentEnemyList;
 
         //Player fields
         Player playerOne;
@@ -303,7 +303,7 @@ namespace Party_Tower_Main
             // TODO: Add your initialization logic here
             levelMap = new List<string[]>();
             levelMap.Add(new string[2]);
-            enemyList = new List<Enemy>();  //when you instantiate any enemy, add it to this list
+            currentEnemyList = new List<Enemy>();
             levelList = new List<Map>();
 
             bothPlayersDead = false;
@@ -680,7 +680,7 @@ namespace Party_Tower_Main
             Tile tempMeasuringStick = new Tile(false, false, false, false, mainTileSheet);
             Tile[,] tempHolder = new Tile[9, 16];
 
-
+            #region Create Empty # Levels for Game and Add
 
             levelTwo = new Map(tempMeasuringStick, 2);
             levelThree = new Map(tempMeasuringStick, 3);
@@ -705,6 +705,10 @@ namespace Party_Tower_Main
             levelList.Add(levelEight);
             levelList.Add(levelNine);
 
+            #endregion Create Empty # Levels for Game and Add
+
+            #region How To Add Room to Map
+
             // ### STEPS FOR ADDING A ROOM TO A MAP ###
             // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
             // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
@@ -714,22 +718,64 @@ namespace Party_Tower_Main
             // Repeat as needed for each new room 
             // For more in depth info about level placement, see the Architecture doc
 
+            #endregion How to Add Room to Map
+
+            #region Testing Levels
+
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
+            levelMap[0] = LvlCoordinator.PathManagerMap;
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
 
-            // Test Enemy Manually Made
-            enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            #endregion Testing Levels
 
-            levelMap[0] = (LvlCoordinator.PathManagerMap);
+            #region Level 1
+
+            #endregion Level 1
+
+            #region Level 2
+
+            #endregion Level 2
+
+            #region Level 3
+
+            #endregion Level 3
+
+            #region Level 4
+
+            #endregion Level 4
+
+            #region Level 5
+
+            #endregion Level 5
+
+            #region Level 6
+
+            #endregion Level 6
+
+            #region Level 7
+
+            #endregion Level 7
+
+            #region Level 8
+
+            #endregion Level 8
+
+            #region Level 9
+
+            #endregion Level 9
+
+            // Test Enemy Manually Made
+            currentEnemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+
             testPlatform.TileSheet = mainTileSheet;
             secondTestPlatform.TileSheet = mainTileSheet;
             testWall.TileSheet = mainTileSheet;
@@ -965,7 +1011,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        pathManager.UpdatePlayersOnMap(/*String of Constructed A* Map goes here*/ levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         previousCameraCenter = camera.CameraCenter;
 
@@ -993,21 +1039,25 @@ namespace Party_Tower_Main
                             noButton.Y += difference;
                         }
 
-
-                        if (enemyList != null)
+                        if (currentEnemyList != null)
                         {
-                            foreach (Enemy e in enemyList)
+                            foreach (Enemy e in currentEnemyList)
                             {
                                 e.IsDrawn = camera.IsDrawn(e.Hitbox);
                                 e.IsActive = camera.IsUpdated(e.Hitbox);
                             }
                         }
 
+                        /* if the cake has been set down, simply check to see if each ladder should be active and drawn if it's
+                         * hit box interacts with the camera.IsDrawn and camera.IsUpdated scene.*/
+
+
+
                         #endregion
 
                         #region UPDATE ENEMY
 
-                        foreach (Enemy currentEnemy in enemyList)
+                        foreach (Enemy currentEnemy in currentEnemyList)
                         {
                             if (currentEnemy.Hitpoints == 0)
                             {
@@ -1032,7 +1082,7 @@ namespace Party_Tower_Main
                         //check player colliding with enemy
                         foreach (Player currentPlayer in players)
                         {
-                            foreach (Enemy currentEnemy in enemyList)
+                            foreach (Enemy currentEnemy in currentEnemyList)
                             {
                                 if (currentEnemy.Hitpoints > 0 && currentPlayer.PlayerState != PlayerState.Die)
                                 {
@@ -1041,7 +1091,7 @@ namespace Party_Tower_Main
                             }
                         }
 
-                        foreach (Enemy currentEnemy in enemyList)
+                        foreach (Enemy currentEnemy in currentEnemyList)
                         {
                             cake.CheckCollisionWithEnemy(currentEnemy);
                         }
@@ -1657,7 +1707,7 @@ namespace Party_Tower_Main
                     }
 
 
-                    foreach (Enemy e in enemyList)
+                    foreach (Enemy e in currentEnemyList)
                     {
                         if (e.Hitpoints > 0)
                         {
@@ -1697,11 +1747,11 @@ namespace Party_Tower_Main
 
                     if (playerTwo.IsDebugging)
                     {
-                        spriteBatch.DrawString(textFont, "Horizontal Velocity: " + enemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
-                        spriteBatch.DrawString(textFont, "Vertical Velocity: " + enemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
-                        spriteBatch.DrawString(textFont, "Enemy State: " + enemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
-                        spriteBatch.DrawString(textFont, "Walking State: " + enemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
-                        spriteBatch.DrawString(textFont, "Target: " + enemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Horizontal Velocity: " + currentEnemyList[0].HorizontalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 260), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Vertical Velocity: " + currentEnemyList[0].VerticalVelocity, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 300), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Enemy State: " + currentEnemyList[0].EnemyState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 340), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Walking State: " + currentEnemyList[0].WalkingState, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 380), Color.Yellow);
+                        spriteBatch.DrawString(textFont, "Target: " + currentEnemyList[0].TargetDebug, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 420), Color.Yellow);
                         spriteBatch.DrawString(textFont, "TargetLoc: " + pathManager.TargetLocation, new Vector2(camera.CameraCenter.X + 300, camera.CameraCenter.Y + 460), Color.Yellow);
                         spriteBatch.DrawString(textFont, "C Map: \n" + pathManager.CorrectMap, new Vector2(camera.CameraCenter.X + -900, camera.CameraCenter.Y - 300), Color.Yellow);
                     }
@@ -2188,6 +2238,7 @@ namespace Party_Tower_Main
                             {
                                 menuChoices[currentRow, currentColumn].IsHighlighted = false;
                                 LevelMapCurrent = targetLevel;
+                                /* Set up rest of info from target LEvel into this.*/
                                 gameState = GameState.Game;
                                 break;
                             }
