@@ -20,6 +20,12 @@ namespace Party_Tower_Main
         private List<Table> tables = new List<Table>();
         public List<Table> Table { get { return tables; } }
 
+        private List<Cake> cakes = new List<Cake>();
+        public List<Cake> Cakes { get { return Cakes; } }
+
+        private List<Exit> exits = new List<Exit>();
+        public List<Exit> Exits { get { return exits; } }
+
         public Room Above { get; set; }
         public Room Below { get; set; }
         public Room Left { get; set; }
@@ -28,12 +34,15 @@ namespace Party_Tower_Main
         public int ShiftHoriztal { get; set; }
         public int ShiftVertical { get; set; }
 
+        //A* Path Storage for this Room
+        public string[] RoomMap { get; set; }
+
 
         /// <summary>
         /// instantiates the room and adds the tileset passed in to 
         /// </summary>
         /// <param name="tileset"></param>
-        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList, List<Cake> cakeList, List<Exit> exitList)
+        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList, List<Cake> cakeList, List<Exit> exitList, string[] roomMap)
         {
             tiles = tileset;
 
@@ -42,7 +51,14 @@ namespace Party_Tower_Main
             Left  = null;
             Right = null;
 
+            // Add Lists Here
             ladders = ladderList;
+            tables = tableList;
+            cakes = cakeList;
+            exits = exitList;
+
+            //A Star Map Here
+            RoomMap = roomMap;
         }
 
         /// <summary>

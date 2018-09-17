@@ -717,12 +717,13 @@ namespace Party_Tower_Main
             // For more in depth info about level placement, see the Architecture doc
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
-            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
+            testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
+            levelMap[0] = LvlCoordinator.PathManagerMap;
             LevelMapCurrent.AddRoom(testRoom);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
-            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder);
+            testRoom2 = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
             LevelMapCurrent.AddRoom(testRoom2);
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
@@ -731,7 +732,6 @@ namespace Party_Tower_Main
             // Test Enemy Manually Made
             enemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
-            levelMap[0] = (LvlCoordinator.PathManagerMap);
             testPlatform.TileSheet = mainTileSheet;
             secondTestPlatform.TileSheet = mainTileSheet;
             testWall.TileSheet = mainTileSheet;
@@ -967,7 +967,7 @@ namespace Party_Tower_Main
                         }
 
                         // Update A* Map of current players
-                        pathManager.UpdatePlayersOnMap(levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
+                        pathManager.UpdatePlayersOnMap(/*String of Constructed A* Map goes here*/ levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
