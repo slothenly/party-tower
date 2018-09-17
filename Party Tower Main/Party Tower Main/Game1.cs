@@ -975,6 +975,11 @@ namespace Party_Tower_Main
                             }
                         }
 
+                        /* if the cake has been set down, simply check to see if each ladder should be active and drawn if it's
+                         * hit box interacts with the camera.IsDrawn and camera.IsUpdated scene.*/
+
+
+
                         #endregion
 
                         #region UPDATE ENEMY
@@ -2152,6 +2157,7 @@ namespace Party_Tower_Main
                             {
                                 menuChoices[currentRow, currentColumn].IsHighlighted = false;
                                 LevelMapCurrent = targetLevel;
+                                /* Set up rest of info from target LEvel into this.*/
                                 gameState = GameState.Game;
                                 break;
                             }
