@@ -39,7 +39,7 @@ namespace Party_Tower_Main
         {
             this.key = key;
             this.player = player;
-            visibleText = player.BindableKb[key].ToString();
+            visibleText = player.BindableKb[key].ToString().ToLower();
 
             timerNumber = 0;
         }
@@ -53,12 +53,17 @@ namespace Party_Tower_Main
 
             keys = Keyboard.GetState().GetPressedKeys(); //get the keys being pressed
 
-            if (keys.Length > 0 && timerNumber > 5 && keys[0] != Keys.Enter) //allow changing if it's been 5 frames since selecting a key to rebind
-            {                                                                // and the key isn't enter (because changing that can very easily break menu navigation)
+            if (keys.Length > 0 && timerNumber > 5 && keys[0] != Keys.Enter && keys[0] != Keys.Escape) //allow changing if it's been 5 frames since selecting a key to rebind
+            {                                                                // and the key isn't enter or escape (because changing that can very easily break menu navigation)
                 timerNumber = 0;
                 player.BindableKb[key] = keys[0]; //set the new key
                 visibleText = player.BindableKb[key].ToString(); //update the visual string
                 tryingToRebind = false; //since we rebound a key, no need to keep trying to rebind
+                return false;
+            }
+            else if (keys.Length > 0 && keys[0] == Keys.Escape) //stop trying to rebind if the user hits escape
+            {
+                tryingToRebind = false;
                 return false;
             }
             return true;
@@ -66,7 +71,7 @@ namespace Party_Tower_Main
         }
         public override void SetNewKey(Keys selectedKey)
         {
-            visibleText = selectedKey.ToString();
+            visibleText = selectedKey.ToString().ToLower();
             player.BindableKb[key] = selectedKey;
         }
     }

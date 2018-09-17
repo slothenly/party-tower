@@ -78,6 +78,11 @@ namespace Party_Tower_Main
             this.defaultEnemy = defaultEnemy;
             defaultTileSheet = TileSheet;
             UpdateMapFromPath(initialPath);
+
+            ladderHolder = new List<Ladder>();
+            cakeHolder = new List<Cake>();
+            exitHolder = new List<Exit>();
+            tableHolder = new List<Table>();
         }
 
         /// <summary>
@@ -285,6 +290,9 @@ namespace Party_Tower_Main
 
                             //set texture
                             currentMap[rows, columns].DefaultSprite = textureList[textureKey];
+
+
+
                         }
 
                     }
