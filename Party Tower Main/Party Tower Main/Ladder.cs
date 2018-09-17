@@ -34,6 +34,9 @@ namespace Party_Tower_Main
             X = x;
             Y = y;
 
+            isDrawn = true; //TEMPORARY
+            isActive = true;
+
             hitbox = new Rectangle(x, y, 1920 / 16, 1080 / 8);
         }
 
