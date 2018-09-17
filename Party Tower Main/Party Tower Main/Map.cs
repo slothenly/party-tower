@@ -16,6 +16,14 @@ namespace Party_Tower_Main
         //TODO: Build in a function to place whatever level you just added & change its tiles positions
         //TODO: Have all that accessable to draw
 
+        private List<Enemy> mapsEnemies;
+        public List<Enemy> MapsEnemies
+        {
+            get
+            {
+                return mapsEnemies;
+            }
+        }
         private Room root;
         public Room Root { get { return root; } }
         private Queue<Room> levelsToPlace = new Queue<Room>();
@@ -40,6 +48,7 @@ namespace Party_Tower_Main
         {
             measurementTile = exampleTile;
             levels = new List<Room>();
+            mapsEnemies = new List<Enemy>();
             this.levelNumber = levelNumber;
         }
 

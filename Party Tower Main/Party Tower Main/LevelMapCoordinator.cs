@@ -45,6 +45,7 @@ namespace Party_Tower_Main
 
         // Holders and Properties
         List<Enemy> enemyHolder;
+        public List<Enemy> EnemyHolder { get { return EnemyHolder; } }
         List<Cake> cakeHolder;
         public List<Cake> CakeHolder { get { return cakeHolder; } }
         List<Exit> exitHolder;
@@ -394,18 +395,6 @@ namespace Party_Tower_Main
             }
         }
 
-        /// <summary>
-        /// Acts like a get function for the list of enemies
-        /// </summary>
-        /// <param name="holder"></param>
-        /// <returns></returns>
-        public Enemy[] GetEnemies()
-        {
-            Enemy[] temp = enemyHolder.ToArray();
-            enemyHolder.Clear();
-            return temp;
-        }
-
         #region Helper Functions
 
         /// <summary>
@@ -542,6 +531,7 @@ namespace Party_Tower_Main
         private Enemy GetEnemy(int xPos, int yPos)
         {
             Rectangle hitbox = new Rectangle(xPos, yPos, 64, 64);
+            // Needs to specify if enemy is alive or stationary from enemy builder in map
             Enemy tempE = new Enemy(EnemyType.Alive, hitbox, defaultEnemy, 20);
             return tempE;
         }
