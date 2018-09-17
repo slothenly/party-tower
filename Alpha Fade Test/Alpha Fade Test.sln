@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alpha Fade Test", "Alpha Fade Test\Alpha Fade Test.csproj", "{420315CA-E573-4F18-A670-C9832AF032A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{420315CA-E573-4F18-A670-C9832AF032A1}.Debug|x86.ActiveCfg = Debug|x86
+		{420315CA-E573-4F18-A670-C9832AF032A1}.Debug|x86.Build.0 = Debug|x86
+		{420315CA-E573-4F18-A670-C9832AF032A1}.Release|x86.ActiveCfg = Release|x86
+		{420315CA-E573-4F18-A670-C9832AF032A1}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {527D2F63-C28C-4D09-BCC5-EA9DEBCE839B}
+	EndGlobalSection
+EndGlobal
