@@ -65,8 +65,14 @@ namespace Party_Tower_Main
         MouseState previousMs;
         Rectangle mouseRect; //used to check for clicking on certain elements
 
+        Vector2 resumeDifference;
+        Vector2 optionsDifference;
+        Vector2 exitDifference;
+        Vector2 yesDifference;
+        Vector2 noDifference;
+
          //used to determine which 
-                             //game logic is run based on if game is paused or not
+         //game logic is run based on if game is paused or not
         bool menuPaused = false;
 
         //used to determine which buttons/screens to draw/instantiate
@@ -774,7 +780,7 @@ namespace Party_Tower_Main
             #endregion Level 9
 
             // Test Enemy Manually Made
-            currentEnemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            currentEnemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             testPlatform.TileSheet = mainTileSheet;
             secondTestPlatform.TileSheet = mainTileSheet;
@@ -1018,6 +1024,7 @@ namespace Party_Tower_Main
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
 
+
                         if (previousCameraCenter.X != camera.CameraCenter.X && previousCameraCenter.X != 0) //if the camera has moved
                         {
                             int difference = (int)(camera.CameraCenter.X - previousCameraCenter.X); 
@@ -1027,6 +1034,7 @@ namespace Party_Tower_Main
                             gameExitButton.X += difference;
                             yesButton.X += difference;
                             noButton.X += difference;
+
                         }
                         if (previousCameraCenter.Y != camera.CameraCenter.Y && previousCameraCenter.Y != 0)
                         {
@@ -1169,6 +1177,30 @@ namespace Party_Tower_Main
                             tryingToQuit = true;
                         }
 
+                        #region Hard Coding Button positions
+                        resumeDifference = new Vector2(resumeButton.X - resumeButton.StartX, resumeButton.Y - resumeButton.StartY);
+                        optionsDifference = new Vector2(gameOptionsButton.X - gameOptionsButton.StartX, gameOptionsButton.Y - gameOptionsButton.StartY);
+                        exitDifference = new Vector2(gameExitButton.X - gameExitButton.StartX, gameExitButton.Y - gameExitButton.StartY);
+                        yesDifference = new Vector2(yesButton.X - yesButton.StartX, yesButton.Y - yesButton.StartY);
+                        noDifference = new Vector2(noButton.X - noButton.StartX, noButton.Y - noButton.StartY);
+
+                        resumeButton.X = resumeButton.StartX;
+                        resumeButton.Y = resumeButton.StartY;
+
+                        gameOptionsButton.X = gameOptionsButton.StartX;
+                        gameOptionsButton.Y = gameOptionsButton.StartY;
+
+                        gameExitButton.X = gameExitButton.StartX;
+                        gameExitButton.Y = gameExitButton.StartY;
+
+                        yesButton.X = yesButton.StartX;
+                        yesButton.Y = yesButton.StartY;
+
+                        noButton.X = noButton.StartX;
+                        noButton.Y = noButton.StartY;
+                        #endregion
+
+
                         //traverse all buttons
                         for (int row = 0; row < menuChoices.GetLength(0); row++)
                         {
@@ -1194,6 +1226,23 @@ namespace Party_Tower_Main
                                 }
                             }
                         }
+
+                        #region Hard Coding Button positions
+                        resumeButton.X += (int)resumeDifference.X;
+                        resumeButton.Y += (int)resumeDifference.Y;
+
+                        gameOptionsButton.X += (int)optionsDifference.X;
+                        gameOptionsButton.Y += (int)optionsDifference.Y;
+
+                        gameExitButton.X += (int)exitDifference.X;
+                        gameExitButton.Y += (int)exitDifference.Y;
+
+                        yesButton.X += (int)yesDifference.X;
+                        yesButton.Y += (int)yesDifference.Y;
+
+                        noButton.X += (int)noDifference.X;
+                        noButton.Y += (int)noDifference.Y;
+                        #endregion
 
                         NavigateMenu(menuRow, menuColumn);
 
@@ -1245,6 +1294,9 @@ namespace Party_Tower_Main
                         menuChoices[2, 0] = menuOptionsButton;
                         menuChoices[3, 0] = creditsButton;
                         menuChoices[4, 0] = menuExitButton;
+
+                        yesButton.X = yesButton.StartX;
+                        yesButton.Y = yesButton.StartY;
 
                         //play the music first frame of the menu
                         if (startMenuMusic)
@@ -1771,6 +1823,7 @@ namespace Party_Tower_Main
                         foreach (Button currentButton in menuChoices)
                         {
                             spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+
                             if (currentButton.IsHighlighted)
                             {
                                 //draw cursor next to button
@@ -2055,6 +2108,23 @@ namespace Party_Tower_Main
         /// <param name="currentColumn"></param>
         public void ButtonSelection(int currentRow, int currentColumn)
         {
+            #region Hard Coding Button positions
+            resumeButton.X = resumeButton.StartX;
+            resumeButton.Y = resumeButton.StartY;
+
+            gameOptionsButton.X = gameOptionsButton.StartX;
+            gameOptionsButton.Y = gameOptionsButton.StartY;
+
+            gameExitButton.X = gameExitButton.StartX;
+            gameExitButton.Y = gameExitButton.StartY;
+
+            yesButton.X = yesButton.StartX;
+            yesButton.Y = yesButton.StartY;
+
+            noButton.X = noButton.StartX;
+            noButton.Y = noButton.StartY;
+            #endregion
+
             if (SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.A) || 
                 (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
             {
@@ -2175,7 +2245,7 @@ namespace Party_Tower_Main
                             menuFirstFrame = true;
                             tryingToQuit = false;
                             menuPaused = false;
-                            
+
                         }
                         else //exit from the menu hence quit the game
                         {
@@ -2330,6 +2400,27 @@ namespace Party_Tower_Main
                     lockedSelection = false;
                 }
             }
+
+            #region Hard Coding Button positions
+            resumeButton.X += (int)resumeDifference.X;
+            resumeButton.Y += (int)resumeDifference.Y;
+
+            gameOptionsButton.X += (int)optionsDifference.X;
+            gameOptionsButton.Y += (int)optionsDifference.Y;
+
+            gameExitButton.X += (int)exitDifference.X;
+            gameExitButton.Y += (int)exitDifference.Y;
+
+            if (gameState != GameState.Menu)
+            {
+                yesButton.X += (int)yesDifference.X;
+                yesButton.Y += (int)yesDifference.Y;
+
+                noButton.X += (int)noDifference.X;
+                noButton.Y += (int)noDifference.Y;
+            }
+            #endregion
+
 
         }
         /// <summary>
