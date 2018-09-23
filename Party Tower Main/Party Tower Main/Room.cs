@@ -162,8 +162,13 @@ namespace Party_Tower_Main
             return importantObj;
         }
 
+        public List<Enemy> RoomEnemies()
+        {
+            return enemies;
+        }
 
-        //TODO: Add a music queueing variable & make it accessable via the map
 
-    }
+            //TODO: Add a music queueing variable & make it accessable via the map
+
+        }
 }

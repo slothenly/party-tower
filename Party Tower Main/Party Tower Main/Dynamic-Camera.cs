@@ -16,7 +16,7 @@ namespace Party_Tower_Main
 
         private Matrix transform;                   // Transform matrix
         private Vector2 cameraCenter;               // Center of the Camera
-        private Vector2 mapEdge;                  // Furthest point allowed on map
+        private Vector2 mapEdge;                    // Furthest point allowed on map
         private Rectangle resolutionBounds;         // Resolution of the Current Chosen Screen
         private int updateAreaStandard;             // Standard which is used to create the Update Rectangle
         private Rectangle updateRectangle;          // Rectangle that determines what non-player objects get updated in game

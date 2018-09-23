@@ -11,6 +11,7 @@ namespace Party_Tower_Main
     /// </summary>
     class Map
     {
+        #region Marco Data 
         // Holds Camera Limiters to be set within Dynamic Camera.SetMapEdge() when Map's Switch
 
         public int Above { get; set; }
@@ -18,19 +19,13 @@ namespace Party_Tower_Main
         public int Right { get; set; }
         public int Left { get; set; }
 
+        #endregion Marco Data
+
         //TODO: Build in an add function which takes in a level and sets it as the root
         //TODO: Build in an add function which takes in a level and just adds it to a collection to be placed
         //TODO: Build in a function to place whatever level you just added & change its tiles positions
         //TODO: Have all that accessable to draw
 
-        private List<Enemy> mapsEnemies;
-        public List<Enemy> MapsEnemies
-        {
-            get
-            {
-                return mapsEnemies;
-            }
-        }
         private Room root;
         public Room Root { get { return root; } }
         private Queue<Room> levelsToPlace = new Queue<Room>();
@@ -55,8 +50,29 @@ namespace Party_Tower_Main
         {
             measurementTile = exampleTile;
             levels = new List<Room>();
-            mapsEnemies = new List<Enemy>();
             this.levelNumber = levelNumber;
+        }
+
+        public List<GameObject> MapImportantObjects()
+        {
+            List<GameObject> importantShit = new List<GameObject>();\
+
+            foreach(Room r in levels)
+            {
+                importantShit.AddRange(r.ImportantObjects());
+            }
+            return importantShit;
+        }
+
+        public List<Enemy> MapEnemies()
+        {
+            List<Enemy> mapenemies = new List<Enemy>();
+
+            foreach (Room r in levels)
+            {
+                mapenemies.AddRange(r.RoomEnemies());
+            }
+            return mapenemies;
         }
 
         /// <summary>

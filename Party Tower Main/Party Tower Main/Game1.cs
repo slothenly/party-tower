@@ -712,38 +712,26 @@ namespace Party_Tower_Main
             //Instantiating the current map
             LevelMapCurrent = new Map(tempMeasuringStick, 1);
 
-            //Add all the levels to the list
-            levelList.Add(LevelMapCurrent);
-            levelList.Add(levelTwo);
-            levelList.Add(levelThree);
-            levelList.Add(levelFour);
-            levelList.Add(levelFive);
-            levelList.Add(levelSix);
-            levelList.Add(levelSeven);
-            levelList.Add(levelEight);
-            levelList.Add(levelNine);
-
             #endregion Create Empty # Levels for Game and Add
 
             #region How To Add Room to Map
 
-            // IF New Map...
-            // Step 1
-            // Specify how many rooms will be added... 
+            // ### STEPS FOR MAKING A NEW MAP ###
+            // 
+            // Step 1. Specify how many rooms will be added... 
             // from above of the root  ---->                        mapName.Above = # of Rooms Above
             // from below of the root  ---->                        mapName.Above = # of Rooms Below
             // from the right of the root.  ---->                   mapName.Above = # of Rooms Left
             // from the left of the root.  ---->                    mapName.Above = # of Rooms Right
 
-            // Step 2
-            // Generate the proper pathmanager Map Size with        mapName.GenerateMap();
+
+            // Step 2. Generate the proper pathmanager Map ->       mapName.GenerateMap();
 
             // ### STEPS FOR ADDING A ROOM TO A MAP ###
             // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
             // Step 2. Instantiate your room -->                    roomName = nnew Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
-            // Step 5. Add important things to the list -->         importantObjects.AddRange(testRoom.ImportantObjects());
 
             // Repeat as needed for each new room 
             // For more in depth info about level placement, see the Architecture doc
@@ -805,6 +793,21 @@ namespace Party_Tower_Main
             #region Level 9
 
             #endregion Level 9
+
+            #region Add Levels to the Level List
+
+            //Add all the levels to the list
+            levelList.Add(LevelMapCurrent);
+            levelList.Add(levelTwo);
+            levelList.Add(levelThree);
+            levelList.Add(levelFour);
+            levelList.Add(levelFive);
+            levelList.Add(levelSix);
+            levelList.Add(levelSeven);
+            levelList.Add(levelEight);
+            levelList.Add(levelNine);
+
+            #endregion Add Levels to the Level List
 
             // Test Enemy Manually Made
             currentEnemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
@@ -1626,6 +1629,8 @@ namespace Party_Tower_Main
                         if (fader_exists != fader_last_frame)
                         {
                             LevelMapCurrent = levelList[LevelMapCurrent.LevelNumber + 1];
+                            importantObjects = LevelMapCurrent.MapImportantObjects();
+                            currentEnemyList = LevelMapCurrent.MapEnemies();
                             //reset player & camera position manually to center of root node
                             //start playing different random track
 
