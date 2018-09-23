@@ -138,6 +138,7 @@ namespace Party_Tower_Main
         float fading_screen_alpha_percent = 0.0f;
         Rectangle fading_screen_rect;
         bool fader_exists;
+        bool fader_last_frame;
         Texture2D fading_screen_texture;
 
         //Shared Fields
@@ -679,7 +680,6 @@ namespace Party_Tower_Main
             normalLadderTexture = playerOneTexture;
             backgroundTexture = Content.Load<Texture2D>("tempBackArt");
             fading_screen_texture = Content.Load<Texture2D>("black_pixel");
-
             cakeManager = new CakeManager(players, cake, Content, testTable);
 
             #region Etc Textures
@@ -700,14 +700,14 @@ namespace Party_Tower_Main
 
             #region Create Empty # Levels for Game and Add
 
-            levelTwo = new Map(tempMeasuringStick, 2);
-            levelThree = new Map(tempMeasuringStick, 3);
-            levelFour = new Map(tempMeasuringStick, 4);
-            levelFive = new Map(tempMeasuringStick, 5);
-            levelSix = new Map(tempMeasuringStick, 6);
-            levelSeven = new Map(tempMeasuringStick, 7);
-            levelEight = new Map(tempMeasuringStick, 8);
-            levelNine = new Map(tempMeasuringStick, 9);
+            levelTwo = new Map(tempMeasuringStick, 1);
+            levelThree = new Map(tempMeasuringStick, 2);
+            levelFour = new Map(tempMeasuringStick, 3);
+            levelFive = new Map(tempMeasuringStick, 4);
+            levelSix = new Map(tempMeasuringStick, 5);
+            levelSeven = new Map(tempMeasuringStick, 6);
+            levelEight = new Map(tempMeasuringStick, 7);
+            levelNine = new Map(tempMeasuringStick, 8);
 
             //Instantiating the current map
             LevelMapCurrent = new Map(tempMeasuringStick, 1);
@@ -1593,7 +1593,7 @@ namespace Party_Tower_Main
                     }
                     break;
                 case GameState.LoadScreen:
-                    //Fade to black screen
+                    //Instantiate fader
                     if (!fader_exists)
                     {
                         fader = new Fader(60);
@@ -1602,18 +1602,30 @@ namespace Party_Tower_Main
                     }
                     else
                     {
+                        //fade to black screen
                         if (!fader.finished)
                         {
+                            fader_last_frame = fader.finished;
                             fading_screen_alpha_percent = fader.change_alpha_percent_positive(fading_screen_alpha_percent);
                         }
 
+                        //once the screen is black, actually switch levels
+                        if (fader_exists != fader_last_frame)
+                        {
+                            LevelMapCurrent = levelList[LevelMapCurrent.LevelNumber + 1];
+                            //reset player & camera position manually to center of root node
+                            //start playing different random track
+
+                        }
+
+                        //fade back from black screen
                         if (fader.finished)
                         {
+                            fader_last_frame = fader.finished;
                             fading_screen_alpha_percent = fader.change_alpha_percent_negative(fading_screen_alpha_percent);
                         }
                     }
-
-                    gameState = GameState.Game; //transition back to game
+                    gameState = GameState.Game;
                     break;
 
             }
