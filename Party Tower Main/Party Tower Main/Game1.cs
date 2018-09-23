@@ -121,7 +121,6 @@ namespace Party_Tower_Main
         Ladder normalLadder1;
         Ladder normalLadder2;
         Ladder normalLadder3;
-
         List<Ladder> ladders;
 
         //Background field
@@ -133,6 +132,13 @@ namespace Party_Tower_Main
 
         //Important GameObjects
         List<GameObject> importantObjects;
+
+        //Fader
+        Fader fader;
+        float fading_screen_alpha_percent = 0.0f;
+        Rectangle fading_screen_rect;
+        bool fader_exists;
+        Texture2D fading_screen_texture;
 
         //Shared Fields
         CameraLimiters cameraLimiters;
@@ -167,7 +173,7 @@ namespace Party_Tower_Main
         Room testRoom2;
 
         //Maps
-        //Map levelOne; THIS WILL BE IMPLEMENTED ONCE LEVELMAPCURRENT IS SORTED OUT (NOT SURE IF WE EXPLICITELY NEED IT) - Ian
+        //Map levelOne; THIS WILL BE IMPLEMENTED ONCE LEVELMAPCURRENT IS SORTED OUT (NOT SURE IF WE EXPLICITLY NEED IT) - Ian
         Map levelTwo;
         Map levelThree;
         Map levelFour;
@@ -672,6 +678,7 @@ namespace Party_Tower_Main
             bottomLadderTexture = playerTwoTexture;
             normalLadderTexture = playerOneTexture;
             backgroundTexture = Content.Load<Texture2D>("tempBackArt");
+            fading_screen_texture = Content.Load<Texture2D>("black_pixel");
 
             cakeManager = new CakeManager(players, cake, Content, testTable);
 
@@ -1586,7 +1593,25 @@ namespace Party_Tower_Main
                     }
                     break;
                 case GameState.LoadScreen:
-                    //LOAD STUFF
+                    //Fade to black screen
+                    if (!fader_exists)
+                    {
+                        fader = new Fader(60);
+                        fader_exists = true;
+                        fading_screen_rect = new Rectangle((int)(camera.CameraCenter.X - (width / 2)), (int)(camera.CameraCenter.Y - (height / 2)), width, height);
+                    }
+                    else
+                    {
+                        if (!fader.finished)
+                        {
+                            fading_screen_alpha_percent = fader.change_alpha_percent_positive(fading_screen_alpha_percent);
+                        }
+
+                        if (fader.finished)
+                        {
+                            fading_screen_alpha_percent = fader.change_alpha_percent_negative(fading_screen_alpha_percent);
+                        }
+                    }
 
                     gameState = GameState.Game; //transition back to game
                     break;
@@ -1873,6 +1898,10 @@ namespace Party_Tower_Main
                     spriteBatch.Begin();
                     spriteBatch.DrawString(textFont, "Press any key to return to menu", new Vector2(width / 4, height / 3), Color.White);
                     spriteBatch.End();
+                    break;
+
+                case GameState.LoadScreen:
+                    fader.Draw(spriteBatch, fading_screen_texture, fading_screen_rect, fading_screen_alpha_percent);
                     break;
 
                 case GameState.Credits:
