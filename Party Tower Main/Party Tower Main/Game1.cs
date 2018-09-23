@@ -728,15 +728,19 @@ namespace Party_Tower_Main
             #region How To Add Room to Map
 
             // IF New Map...
+            // Step 1
             // Specify how many rooms will be added... 
-            // from above of the root                               mapName.Above = # of Rooms Above
-            // from below of the root                               mapName.Above = # of Rooms Below
-            // from the right of the root.                          mapName.Above = # of Rooms Left
-            // from the left of the root.                           mapName.Above = # of Rooms Right
+            // from above of the root  ---->                        mapName.Above = # of Rooms Above
+            // from below of the root  ---->                        mapName.Above = # of Rooms Below
+            // from the right of the root.  ---->                   mapName.Above = # of Rooms Left
+            // from the left of the root.  ---->                    mapName.Above = # of Rooms Right
+
+            // Step 2
+            // Generate the proper pathmanager Map Size with        mapName.GenerateMap();
 
             // ### STEPS FOR ADDING A ROOM TO A MAP ###
             // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
-            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
+            // Step 2. Instantiate your room -->                    roomName = nnew Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
             // Step 5. Add important things to the list -->         importantObjects.AddRange(testRoom.ImportantObjects());
