@@ -22,6 +22,7 @@ namespace Party_Tower_Main
             Options,
             Game,
             LevelSelect,
+            LoadScreen,
             Credits,
             Pause,
             GameOver
@@ -65,8 +66,14 @@ namespace Party_Tower_Main
         MouseState previousMs;
         Rectangle mouseRect; //used to check for clicking on certain elements
 
+        Vector2 resumeDifference;
+        Vector2 optionsDifference;
+        Vector2 exitDifference;
+        Vector2 yesDifference;
+        Vector2 noDifference;
+
          //used to determine which 
-                             //game logic is run based on if game is paused or not
+         //game logic is run based on if game is paused or not
         bool menuPaused = false;
 
         //used to determine which buttons/screens to draw/instantiate
@@ -124,10 +131,15 @@ namespace Party_Tower_Main
         //Enemy Fields
         PathManager pathManager;
 
+        //Important GameObjects
+        List<GameObject> importantObjects;
+
         //Shared Fields
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
         Rectangle[] tempRects;
+
+        Vector2 previousCameraCenter; //used to adjust button placement
 
         Texture2D playerOneTexture;
         Texture2D playerTwoTexture;
@@ -303,6 +315,7 @@ namespace Party_Tower_Main
             levelMap.Add(new string[2]);
             currentEnemyList = new List<Enemy>();
             levelList = new List<Map>();
+            importantObjects = new List<GameObject>();
 
             bothPlayersDead = false;
 
@@ -400,6 +413,8 @@ namespace Party_Tower_Main
             camera = new Dynamic_Camera(GraphicsDevice.Viewport, playerOne.Width, cameraLimiters.MaxWidthDistance, pathManager.WidthConstant);
             //camera.SetMapEdge(LvlCoordinator.MapEdge); <- Correct
             camera.SetMapEdge(new Vector2(5000, 5000)); //<- Correct
+
+            previousCameraCenter = new Vector2(camera.CameraCenter.X, camera.CameraCenter.Y);
 
             //adjust first two values to set spawn point for cake
             cake = new Cake(200, 400, playerOneTexture);
@@ -504,22 +519,22 @@ namespace Party_Tower_Main
             controllerMapButton.Area = new Rectangle(controllerMapButton.StartX, controllerMapButton.StartY, width / 11, height / 10);
             rebindButton.Area = new Rectangle(rebindButton.StartX, rebindButton.StartY, width / 9, height / 10);
 
-            playerOneLeftButton.Area = new Rectangle(playerOneLeftButton.StartX, playerOneLeftButton.StartY, width / 11, height / 10);
-            playerOneRightButton.Area = new Rectangle(playerOneRightButton.StartX, playerOneRightButton.StartY, width / 11, height / 10);
-            playerOneUpButton.Area = new Rectangle(playerOneUpButton.StartX, playerOneUpButton.StartY, width / 11, height / 10);
-            playerOneJumpButton.Area = new Rectangle(playerOneJumpButton.StartX, playerOneJumpButton.StartY, width / 11, height / 10);
-            playerOneRollButton.Area = new Rectangle(playerOneRollButton.StartX, playerOneRollButton.StartY, width / 11, height / 10);
-            playerOneDownDashButton.Area = new Rectangle(playerOneDownDashButton.StartX, playerOneDownDashButton.StartY, width / 11, height / 10);
-            playerOneThrowButton.Area = new Rectangle(playerOneThrowButton.StartX, playerOneThrowButton.StartY, width / 11, height / 10);
+            playerOneLeftButton.Area = new Rectangle(playerOneLeftButton.StartX, playerOneLeftButton.StartY, width / 11, height / 20);
+            playerOneRightButton.Area = new Rectangle(playerOneRightButton.StartX, playerOneRightButton.StartY, width / 11, height / 20);
+            playerOneUpButton.Area = new Rectangle(playerOneUpButton.StartX, playerOneUpButton.StartY, width / 11, height / 20);
+            playerOneJumpButton.Area = new Rectangle(playerOneJumpButton.StartX, playerOneJumpButton.StartY, width / 11, height / 20);
+            playerOneRollButton.Area = new Rectangle(playerOneRollButton.StartX, playerOneRollButton.StartY, width / 11, height / 20);
+            playerOneDownDashButton.Area = new Rectangle(playerOneDownDashButton.StartX, playerOneDownDashButton.StartY, width / 11, height / 20);
+            playerOneThrowButton.Area = new Rectangle(playerOneThrowButton.StartX, playerOneThrowButton.StartY, width / 11, height / 20);
 
 
-            playerTwoLeftButton.Area = new Rectangle(playerTwoLeftButton.StartX, playerTwoLeftButton.StartY, width / 11, height / 10);
-            playerTwoRightButton.Area = new Rectangle(playerTwoRightButton.StartX, playerTwoRightButton.StartY, width / 11, height / 10);
-            playerTwoUpButton.Area = new Rectangle(playerTwoUpButton.StartX, playerTwoUpButton.StartY, width / 11, height / 10);
-            playerTwoJumpButton.Area = new Rectangle(playerTwoJumpButton.StartX, playerTwoJumpButton.StartY, width / 11, height / 10);
-            playerTwoRollButton.Area = new Rectangle(playerTwoRollButton.StartX, playerTwoRollButton.StartY, width / 11, height / 10);
-            playerTwoDownDashButton.Area = new Rectangle(playerTwoDownDashButton.StartX, playerTwoDownDashButton.StartY, width / 11, height / 10);
-            playerTwoThrowButton.Area = new Rectangle(playerTwoThrowButton.StartX, playerTwoThrowButton.StartY, width / 11, height / 10);
+            playerTwoLeftButton.Area = new Rectangle(playerTwoLeftButton.StartX, playerTwoLeftButton.StartY, width / 11, height / 20);
+            playerTwoRightButton.Area = new Rectangle(playerTwoRightButton.StartX, playerTwoRightButton.StartY, width / 11, height / 20);
+            playerTwoUpButton.Area = new Rectangle(playerTwoUpButton.StartX, playerTwoUpButton.StartY, width / 11, height / 20);
+            playerTwoJumpButton.Area = new Rectangle(playerTwoJumpButton.StartX, playerTwoJumpButton.StartY, width / 11, height / 20);
+            playerTwoRollButton.Area = new Rectangle(playerTwoRollButton.StartX, playerTwoRollButton.StartY, width / 11, height / 20);
+            playerTwoDownDashButton.Area = new Rectangle(playerTwoDownDashButton.StartX, playerTwoDownDashButton.StartY, width / 11, height / 20);
+            playerTwoThrowButton.Area = new Rectangle(playerTwoThrowButton.StartX, playerTwoThrowButton.StartY, width / 11, height / 20);
 
 
             optionsReturnButton.Area = new Rectangle(optionsReturnButton.StartX, optionsReturnButton.StartY, width / 14, height / 12);
@@ -717,6 +732,7 @@ namespace Party_Tower_Main
             // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
+            // Step 5. Add important things to the list -->         importantObjects.AddRange(roomName.ImportantObjects
 
             // Repeat as needed for each new room 
             // For more in depth info about level placement, see the Architecture doc
@@ -731,6 +747,7 @@ namespace Party_Tower_Main
             levelMap[0] = LvlCoordinator.PathManagerMap;
 
             LevelMapCurrent.AddRoom(testRoom);
+            importantObjects.AddRange(testRoom.ImportantObjects);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
@@ -779,7 +796,7 @@ namespace Party_Tower_Main
             #endregion Level 9
 
             // Test Enemy Manually Made
-            currentEnemyList.Add(new Enemy(EnemyType.Alive, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
+            currentEnemyList.Add(new Enemy(EnemyType.Stationary, new Rectangle(1200, 500, 64, 64), defaultEnemySprite, 500));
 
             testPlatform.TileSheet = mainTileSheet;
             secondTestPlatform.TileSheet = mainTileSheet;
@@ -878,20 +895,30 @@ namespace Party_Tower_Main
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
 
-                        //check for ladder interaction
-                        foreach (Player player in players)
+                        //check for ladder and exit interaction
+                        foreach (Player currentPlayer in players)
                         {
-                            foreach (Ladder currentLadder in ladders)
+                            foreach (GameObject currentObject in importantObjects)
                             {
-                                //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(currentLadder) && currentLadder.IsActive)
+                                if (currentObject is Ladder)
                                 {
-                                    player.CanClimb = true;
-                                    break; //this will only break out of ladder list
+                                    //check if the player is in the position that they can climb a ladder
+                                    if (currentPlayer.CheckLadderCollision((Ladder)currentObject) && currentObject.IsActive)
+                                    {
+                                        currentPlayer.CanClimb = true;
+                                        break; //this will only break out of ladder list
+                                    }
+                                    else
+                                    {
+                                        currentPlayer.CanClimb = false;
+                                    }
                                 }
-                                else
+                                else if (currentObject is Exit)
                                 {
-                                    player.CanClimb = false;
+                                    if (currentPlayer.Hitbox.Intersects(currentObject.Hitbox)) //player touches the exit
+                                    {
+                                        gameState = GameState.LoadScreen; //this triggers the transition
+                                    }
                                 }
                             }
 
@@ -1018,8 +1045,33 @@ namespace Party_Tower_Main
                         // Update A* Map of current players
                         pathManager.UpdatePlayersOnMap(/*String of Constructed A* Map goes here*/ levelMap[0], playerOne.Hitbox, playerTwo.Hitbox);
 
+                        previousCameraCenter = camera.CameraCenter;
+
                         // Update Camera's
                         camera.UpdateCamera(GraphicsDevice.Viewport, playerOne.Hitbox, playerTwo.Hitbox);
+
+
+                        if (previousCameraCenter.X != camera.CameraCenter.X && previousCameraCenter.X != 0) //if the camera has moved
+                        {
+                            int difference = (int)(camera.CameraCenter.X - previousCameraCenter.X); 
+
+                            resumeButton.X += difference; //adjust the location of the buttons by the difference
+                            gameOptionsButton.X += difference;
+                            gameExitButton.X += difference;
+                            yesButton.X += difference;
+                            noButton.X += difference;
+
+                        }
+                        if (previousCameraCenter.Y != camera.CameraCenter.Y && previousCameraCenter.Y != 0)
+                        {
+                            int difference = (int)(camera.CameraCenter.Y - previousCameraCenter.Y);
+
+                            resumeButton.Y += difference;
+                            gameOptionsButton.Y += difference;
+                            gameExitButton.Y += difference;
+                            yesButton.Y += difference;
+                            noButton.Y += difference;
+                        }
 
                         if (currentEnemyList != null)
                         {
@@ -1151,6 +1203,30 @@ namespace Party_Tower_Main
                             tryingToQuit = true;
                         }
 
+                        #region Hard Coding Button positions
+                        resumeDifference = new Vector2(resumeButton.X - resumeButton.StartX, resumeButton.Y - resumeButton.StartY);
+                        optionsDifference = new Vector2(gameOptionsButton.X - gameOptionsButton.StartX, gameOptionsButton.Y - gameOptionsButton.StartY);
+                        exitDifference = new Vector2(gameExitButton.X - gameExitButton.StartX, gameExitButton.Y - gameExitButton.StartY);
+                        yesDifference = new Vector2(yesButton.X - yesButton.StartX, yesButton.Y - yesButton.StartY);
+                        noDifference = new Vector2(noButton.X - noButton.StartX, noButton.Y - noButton.StartY);
+
+                        resumeButton.X = resumeButton.StartX;
+                        resumeButton.Y = resumeButton.StartY;
+
+                        gameOptionsButton.X = gameOptionsButton.StartX;
+                        gameOptionsButton.Y = gameOptionsButton.StartY;
+
+                        gameExitButton.X = gameExitButton.StartX;
+                        gameExitButton.Y = gameExitButton.StartY;
+
+                        yesButton.X = yesButton.StartX;
+                        yesButton.Y = yesButton.StartY;
+
+                        noButton.X = noButton.StartX;
+                        noButton.Y = noButton.StartY;
+                        #endregion
+
+
                         //traverse all buttons
                         for (int row = 0; row < menuChoices.GetLength(0); row++)
                         {
@@ -1176,6 +1252,23 @@ namespace Party_Tower_Main
                                 }
                             }
                         }
+
+                        #region Hard Coding Button positions
+                        resumeButton.X += (int)resumeDifference.X;
+                        resumeButton.Y += (int)resumeDifference.Y;
+
+                        gameOptionsButton.X += (int)optionsDifference.X;
+                        gameOptionsButton.Y += (int)optionsDifference.Y;
+
+                        gameExitButton.X += (int)exitDifference.X;
+                        gameExitButton.Y += (int)exitDifference.Y;
+
+                        yesButton.X += (int)yesDifference.X;
+                        yesButton.Y += (int)yesDifference.Y;
+
+                        noButton.X += (int)noDifference.X;
+                        noButton.Y += (int)noDifference.Y;
+                        #endregion
 
                         NavigateMenu(menuRow, menuColumn);
 
@@ -1228,6 +1321,9 @@ namespace Party_Tower_Main
                         menuChoices[3, 0] = creditsButton;
                         menuChoices[4, 0] = menuExitButton;
 
+                        yesButton.X = yesButton.StartX;
+                        yesButton.Y = yesButton.StartY;
+
                         //play the music first frame of the menu
                         if (startMenuMusic)
                         {
@@ -1255,6 +1351,12 @@ namespace Party_Tower_Main
                         quitFirstFrame = false;
                         tryingToQuit = true;
                     }
+
+                    yesButton.X = yesButton.StartX; //reset the buttons for the menu after adjusting them in game
+                    yesButton.Y = yesButton.StartY;
+                    noButton.X = noButton.StartX;
+                    noButton.Y = noButton.StartY;
+
 
                     //search through all the buttons
                     for (int row = 0; row < menuChoices.GetLength(0); row++)
@@ -1432,6 +1534,7 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
+
                     if (startGameMusic)
                     {
                         MediaPlayer.Play(gameSongs[rn.Next(0, 3)]);
@@ -1445,7 +1548,8 @@ namespace Party_Tower_Main
                     foreach (Player player in players) //any player can do this
                     {
                         //escape to menu / resume game (only allow B on Controller to work if game is paused
-                        if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.Back) || (SingleButtonPress(Buttons.B) && menuPaused) && !tryingToQuit))
+                        if ((SingleKeyPress(Keys.Escape) || SingleButtonPress(Buttons.Back) || SingleButtonPress(Buttons.Start) || 
+                            (SingleButtonPress(Buttons.B) && menuPaused) && !tryingToQuit))
                         {
                             menuSelectSound.Play();
                             if (menuPaused) //resume game
@@ -1489,6 +1593,11 @@ namespace Party_Tower_Main
                         gameState = GameState.Menu;
                         startMenuMusic = true;
                     }
+                    break;
+                case GameState.LoadScreen:
+                    //LOAD STUFF
+
+                    gameState = GameState.Game; //transition back to game
                     break;
 
             }
@@ -1575,11 +1684,7 @@ namespace Party_Tower_Main
                     //draw each button
                     foreach (Button currentButton in menuChoices)
                     {
-                        if (currentButton is RebindingButton) //determine if this button needs transparency
-                        {
-                            spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White * 0); //transparent for rebinding buttons
-                        }
-                        else
+                        if (!(currentButton is RebindingButton)) //determine if this button needs transparency
                         {
                             spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
                         }
@@ -1587,7 +1692,12 @@ namespace Party_Tower_Main
 
                         if (currentButton.IsHighlighted)
                         {
-                            spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+                            if (!(currentButton is RebindingButton))
+                            {
+                                spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+                            }
+
+
                             if (currentButton.IsHighlighted)
                             {
                                 if (currentButton is Slider) //position cursor differently if slider
@@ -1622,7 +1732,7 @@ namespace Party_Tower_Main
                         if (currentButton is RebindingButton)
                         {
                             
-                            if (currentButton.VisibleText.Length >= 3) //if button text exceeds certain length, calculate size of button differently
+                            if (currentButton.VisibleText.Length >= 4) //if button text exceeds certain length, calculate size of button differently
                             {
                                 double tempDrawUnit = width * (1.5 / 100);
                                 currentButton.Area = new Rectangle(currentButton.StartX, currentButton.StartY,
@@ -1732,12 +1842,12 @@ namespace Party_Tower_Main
 
                     if (menuPaused)
                     {
-                        spriteBatch.Draw(menuBoxTexture, new Rectangle(width / 4, height / 6,
+                        spriteBatch.Draw(menuBoxTexture, new Rectangle((int)camera.CameraCenter.X - width / 4, (int)camera.CameraCenter.Y - height / 3,
                             width / 2, height * 3 / 5), Color.White);
 
                         if (tryingToQuit)
                         {
-                            spriteBatch.Draw(menuBoxTexture, new Rectangle(width / 4, height / 5,
+                            spriteBatch.Draw(menuBoxTexture, new Rectangle((int)camera.CameraCenter.X - width / 4, (int)camera.CameraCenter.Y - (height * 3 / 10),
                                 width / 2, height / 2), Color.White);
                         }
 
@@ -1745,11 +1855,12 @@ namespace Party_Tower_Main
                         foreach (Button currentButton in menuChoices)
                         {
                             spriteBatch.Draw(currentButton.DrawnTexture, currentButton.Area, Color.White);
+
                             if (currentButton.IsHighlighted)
                             {
                                 //draw cursor next to button
-                                spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.StartX - Nudge(true, 3), 
-                                    currentButton.StartY + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
+                                spriteBatch.Draw(cursorTexture, new Rectangle(currentButton.X - Nudge(true, 3), 
+                                    currentButton.Y + (currentButton.Area.Height / 2) - (height / 40), width / 40, height / 20), Color.White);
                             }
                         }
                     }
@@ -2029,8 +2140,25 @@ namespace Party_Tower_Main
         /// <param name="currentColumn"></param>
         public void ButtonSelection(int currentRow, int currentColumn)
         {
-            if (SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.A) || SingleButtonPress(Buttons.Start)
-                || (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
+            #region Hard Coding Button positions
+            resumeButton.X = resumeButton.StartX;
+            resumeButton.Y = resumeButton.StartY;
+
+            gameOptionsButton.X = gameOptionsButton.StartX;
+            gameOptionsButton.Y = gameOptionsButton.StartY;
+
+            gameExitButton.X = gameExitButton.StartX;
+            gameExitButton.Y = gameExitButton.StartY;
+
+            yesButton.X = yesButton.StartX;
+            yesButton.Y = yesButton.StartY;
+
+            noButton.X = noButton.StartX;
+            noButton.Y = noButton.StartY;
+            #endregion
+
+            if (SingleKeyPress(Keys.Enter) || SingleButtonPress(Buttons.A) || 
+                (LeftMouseSinglePress(ButtonState.Pressed) && mouseRect.Intersects(menuChoices[currentRow, currentColumn].Area)))
             {
                 //not allowed to select this button
                 if (menuChoices[currentRow, currentColumn].IsLocked)
@@ -2149,7 +2277,7 @@ namespace Party_Tower_Main
                             menuFirstFrame = true;
                             tryingToQuit = false;
                             menuPaused = false;
-                            
+
                         }
                         else //exit from the menu hence quit the game
                         {
@@ -2304,6 +2432,27 @@ namespace Party_Tower_Main
                     lockedSelection = false;
                 }
             }
+
+            #region Hard Coding Button positions
+            resumeButton.X += (int)resumeDifference.X;
+            resumeButton.Y += (int)resumeDifference.Y;
+
+            gameOptionsButton.X += (int)optionsDifference.X;
+            gameOptionsButton.Y += (int)optionsDifference.Y;
+
+            gameExitButton.X += (int)exitDifference.X;
+            gameExitButton.Y += (int)exitDifference.Y;
+
+            if (gameState != GameState.Menu)
+            {
+                yesButton.X += (int)yesDifference.X;
+                yesButton.Y += (int)yesDifference.Y;
+
+                noButton.X += (int)noDifference.X;
+                noButton.Y += (int)noDifference.Y;
+            }
+            #endregion
+
 
         }
         /// <summary>

@@ -47,6 +47,16 @@ namespace Party_Tower_Main
             get { return cakeBlockedByTile; }
             set { cakeBlockedByTile = value; }
         }
+        public Cake Cake
+        {
+            get { return cake; }
+            set { cake = value; }
+        }
+        public Table Table
+        {
+            get { return table; }
+            set { table = value; }
+        }
 
         //Methods
         /// <summary>
