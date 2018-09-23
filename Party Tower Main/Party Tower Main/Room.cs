@@ -26,6 +26,9 @@ namespace Party_Tower_Main
         private List<Exit> exits = new List<Exit>();
         public List<Exit> Exits { get { return exits; } }
 
+        private List<GameObject> importantObjects = new List<GameObject>();
+        public List<GameObject> ImportantObjects { get { return importantObjects; } }
+
         public Room Above { get; set; }
         public Room Below { get; set; }
         public Room Left { get; set; }
@@ -56,6 +59,10 @@ namespace Party_Tower_Main
             tables = tableList;
             cakes = cakeList;
             exits = exitList;
+            importantObjects.AddRange(ladderList);
+            importantObjects.AddRange(tableList);
+            importantObjects.AddRange(cakeList);
+            importantObjects.AddRange(exitList);
 
             //A Star Map Here
             RoomMap = roomMap;
