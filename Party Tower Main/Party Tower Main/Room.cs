@@ -21,10 +21,13 @@ namespace Party_Tower_Main
         public List<Table> Table { get { return tables; } }
 
         private List<Cake> cakes = new List<Cake>();
-        public List<Cake> Cakes { get { return Cakes; } }
+        public List<Cake> Cakes { get { return cakes; } }
 
         private List<Exit> exits = new List<Exit>();
         public List<Exit> Exits { get { return exits; } }
+
+        private List<Enemy> enemies = new List<Enemy>();
+        public List<Enemy> Enemies { get { return enemies; } }
 
         public Room Above { get; set; }
         public Room Below { get; set; }
@@ -42,7 +45,7 @@ namespace Party_Tower_Main
         /// instantiates the room and adds the tileset passed in to 
         /// </summary>
         /// <param name="tileset"></param>
-        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList, List<Cake> cakeList, List<Exit> exitList, string[] roomMap)
+        public Room(Tile[,] tileset, List<Ladder> ladderList, List<Table> tableList, List<Cake> cakeList, List<Exit> exitList, string[] roomMap, List<Enemy> enemiesList)
         {
             tiles = tileset;
 
@@ -56,6 +59,7 @@ namespace Party_Tower_Main
             tables = tableList;
             cakes = cakeList;
             exits = exitList;
+            enemies = enemiesList;
 
             //A Star Map Here
             RoomMap = roomMap;
@@ -68,6 +72,8 @@ namespace Party_Tower_Main
         /// <param name="verticalShift"></param>
         public void ShiftTiles()
         {
+            // Shift Tiles
+
             foreach (Tile t in tiles)
             {
                 if(t != null)
@@ -77,12 +83,58 @@ namespace Party_Tower_Main
                 }
             }
 
+            // Shift Ladders
+
             if (ladders != null)
             {
                 foreach (Ladder l in ladders)
                 {
                     l.X += ShiftHoriztal;
                     l.Y += ShiftHoriztal;
+                }
+            }
+
+            // Shift Table
+
+            if (tables != null)
+            {
+                foreach (Table t in tables)
+                {
+                    t.X += ShiftHoriztal;
+                    t.Y += ShiftHoriztal;
+                }
+            }
+
+            // Shift Cake
+
+            if (cakes != null)
+            {
+                foreach (Cake c in cakes)
+                {
+                    c.X += ShiftHoriztal;
+                    c.Y += ShiftHoriztal;
+                }
+            }
+
+            // Shift Exits
+
+            if (exits != null)
+            {
+                foreach (Exit e in exits)
+                {
+                    e.X += ShiftHoriztal;
+                    e.Y += ShiftHoriztal;
+                }
+            }
+
+            // Shift Enemies
+
+            if (enemies != null)
+            {
+                foreach (Enemy e in enemies)
+                {
+                    e.X += ShiftHoriztal;
+                    e.Y += ShiftHoriztal;
                 }
             }
         }

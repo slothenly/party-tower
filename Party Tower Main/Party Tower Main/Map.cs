@@ -11,6 +11,13 @@ namespace Party_Tower_Main
     /// </summary>
     class Map
     {
+        // Holds Camera Limiters to be set within Dynamic Camera.SetMapEdge() when Map's Switch
+
+        public int Above { get; set; }
+        public int Below { get; set; }
+        public int Right { get; set; }
+        public int Left { get; set; }
+
         //TODO: Build in an add function which takes in a level and sets it as the root
         //TODO: Build in an add function which takes in a level and just adds it to a collection to be placed
         //TODO: Build in a function to place whatever level you just added & change its tiles positions

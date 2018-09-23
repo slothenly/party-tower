@@ -206,21 +206,26 @@ namespace Party_Tower_Main
                         //if the string indicates an enemy, add them to a list then add that list to the main list at the end
                         if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "e1")
                         {
+
+                            // If enemy lst strings r TT, mke it live. If not, mke enemy sttionry
                             enemyHolder.Add(GetEnemy(CurrentMap[rows, columns].X, currentMap[rows, columns].Y));
                             currentMap[rows, columns] = null;
-                            CurrentMapRaw[rows, columns] = null;
                         }
+
+                       
 
                         // ### CAKE ###
                         else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ca")
                         {
-                            Cake temp = new Cake(CurrentMap[rows, columns].X + 20, currentMap[rows, columns].Y + 88, null);
+                            cakeHolder.Add(new Cake(CurrentMap[rows, columns].X + 20, currentMap[rows, columns].Y + 88, null));
+                            currentMap[rows, columns] = null;
                         }
 
                         // ### EXIT ###{
                         else if (currentRawSplit[0].ToString() + currentRawSplit[1].ToString() == "ex")
                         {
                             exitHolder.Add(new Exit(new Rectangle(CurrentMap[rows, columns].X, CurrentMap[rows, columns].X, 120, 60), null));
+                            currentMap[rows, columns] = null;
                         }
 
                         // ### LADDERS ###
