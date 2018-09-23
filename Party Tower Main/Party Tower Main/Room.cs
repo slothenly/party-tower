@@ -139,6 +139,30 @@ namespace Party_Tower_Main
             }
         }
 
+        public List<GameObject> ImportantObjects()
+        {
+            List<GameObject> importantObj = new List<GameObject>();
+            if (ladders != null)
+            {
+                importantObj.AddRange(ladders);
+            }
+            if(cakes != null)
+            {
+                importantObj.AddRange(cakes);
+            }
+            if(exits != null)
+            {
+                importantObj.AddRange(exits);
+            }
+            if(tables != null)
+            {
+                importantObj.AddRange(tables);
+            }
+
+            return importantObj;
+        }
+
+
         //TODO: Add a music queueing variable & make it accessable via the map
 
     }
