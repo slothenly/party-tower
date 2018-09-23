@@ -22,6 +22,7 @@ namespace Party_Tower_Main
             Options,
             Game,
             LevelSelect,
+            LoadScreen,
             Credits,
             Pause,
             GameOver
@@ -879,20 +880,30 @@ namespace Party_Tower_Main
                         //Player throwing
                         coopManager.CheckForThrowAndThenThrow();
 
-                        //check for ladder interaction
-                        foreach (Player player in players)
+                        //check for ladder and exit interaction
+                        foreach (Player currentPlayer in players)
                         {
-                            foreach (Ladder currentLadder in ladders)
+                            foreach (GameObject currentObject in importantObjects)
                             {
-                                //check if the player is in the position that they can climb a ladder
-                                if (player.CheckLadderCollision(currentLadder) && currentLadder.IsActive)
+                                if (currentObject is Ladder)
                                 {
-                                    player.CanClimb = true;
-                                    break; //this will only break out of ladder list
+                                    //check if the player is in the position that they can climb a ladder
+                                    if (currentPlayer.CheckLadderCollision((Ladder)currentObject) && currentObject.IsActive)
+                                    {
+                                        currentPlayer.CanClimb = true;
+                                        break; //this will only break out of ladder list
+                                    }
+                                    else
+                                    {
+                                        currentPlayer.CanClimb = false;
+                                    }
                                 }
-                                else
+                                else if (currentObject is Exit)
                                 {
-                                    player.CanClimb = false;
+                                    if (currentPlayer.Hitbox.Intersects(currentObject.Hitbox)) //player touches the exit
+                                    {
+                                        gameState = GameState.LoadScreen; //this triggers the transition
+                                    }
                                 }
                             }
 
@@ -1508,6 +1519,7 @@ namespace Party_Tower_Main
                     break;
 
                 case GameState.Game:
+
                     if (startGameMusic)
                     {
                         MediaPlayer.Play(gameSongs[rn.Next(0, 3)]);
@@ -1566,6 +1578,11 @@ namespace Party_Tower_Main
                         gameState = GameState.Menu;
                         startMenuMusic = true;
                     }
+                    break;
+                case GameState.LoadScreen:
+                    //LOAD STUFF
+
+                    gameState = GameState.Game; //transition back to game
                     break;
 
             }
