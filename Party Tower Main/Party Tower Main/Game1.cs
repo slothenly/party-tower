@@ -130,6 +130,9 @@ namespace Party_Tower_Main
         //Enemy Fields
         PathManager pathManager;
 
+        //Important GameObjects
+        List<GameObject> importantObjects;
+
         //Shared Fields
         CameraLimiters cameraLimiters;
         Dynamic_Camera camera;
@@ -311,6 +314,7 @@ namespace Party_Tower_Main
             levelMap.Add(new string[2]);
             currentEnemyList = new List<Enemy>();
             levelList = new List<Map>();
+            importantObjects = new List<GameObject>();
 
             bothPlayersDead = false;
 
@@ -720,6 +724,7 @@ namespace Party_Tower_Main
             // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
+            // Step 5. Add important things to the list -->         importantObjects.AddRange(roomName.ImportantObjects
 
             // Repeat as needed for each new room 
             // For more in depth info about level placement, see the Architecture doc
@@ -732,6 +737,7 @@ namespace Party_Tower_Main
             testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap);
             levelMap[0] = LvlCoordinator.PathManagerMap;
             LevelMapCurrent.AddRoom(testRoom);
+            importantObjects.AddRange(testRoom.ImportantObjects);
             //first room is automatically placed as the root
 
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelTwo");
