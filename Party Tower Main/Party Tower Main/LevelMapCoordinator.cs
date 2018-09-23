@@ -266,6 +266,10 @@ namespace Party_Tower_Main
                             }
 
                             Ladder temp = new Ladder(checkTop, checkBottom, currentMap[rows, columns].X, currentMap[rows, columns].Y);
+                            if (currentRawSplit[2].ToString() + currentRawSplit[3].ToString() == "TT")
+                            {
+                                temp.IsActive = false;
+                            }
                             ladderHolder.Add(temp);
 
                             currentMap[rows, columns] = null;

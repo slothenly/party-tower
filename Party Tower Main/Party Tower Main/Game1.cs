@@ -759,6 +759,14 @@ namespace Party_Tower_Main
             #endregion Testing Levels
 
             #region Level 1
+            /* This is ridiculous, How does this work and how is this the most efficient solution?
+            LvlCoordinator.UpdateMapFromPath("LevelOneRoomRooT");
+            roomName = nnew Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
+            mapName.AddRoom(roomName);
+            LevelMapCurrent.PlaceLeft(LevelMapCurrent.Root.Above);
+            importantObjects.AddRange(testRoom.ImportantObjects());
+            */
+
 
             #endregion Level 1
 
@@ -916,6 +924,13 @@ namespace Party_Tower_Main
                             {
                                 if (currentObject is Ladder)
                                 {
+                                    if (cakeManager.Table.CakePlacedOnTable) //if the cake has been placed
+                                    {
+                                        if (!currentObject.IsActive) //make invisible ladders appear
+                                        {
+                                            currentObject.IsActive = true;
+                                        }
+                                    }
                                     //check if the player is in the position that they can climb a ladder
                                     if (currentPlayer.CheckLadderCollision((Ladder)currentObject) && currentObject.IsActive)
                                     {
