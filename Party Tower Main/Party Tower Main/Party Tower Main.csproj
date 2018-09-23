@@ -49,6 +49,7 @@
     <Compile Include="Dynamic-Camera.cs" />
     <Compile Include="Enemy.cs" />
     <Compile Include="Exit.cs" />
+    <Compile Include="Fader.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="Ladder.cs" />
