@@ -700,46 +700,71 @@ namespace Party_Tower_Main
 
             #region Create Empty # Levels for Game and Add
 
-            levelTwo = new Map(tempMeasuringStick, 1);
-            levelThree = new Map(tempMeasuringStick, 2);
-            levelFour = new Map(tempMeasuringStick, 3);
-            levelFive = new Map(tempMeasuringStick, 4);
-            levelSix = new Map(tempMeasuringStick, 5);
-            levelSeven = new Map(tempMeasuringStick, 6);
-            levelEight = new Map(tempMeasuringStick, 7);
-            levelNine = new Map(tempMeasuringStick, 8);
+            #region Argument Explamation for Map Generation
+            // Arguments:
+            // 1 -- A measuring stick to measure movement by
+            // 2 -- Room number
+            // 3 -- A level map coordinator (processed internally now)
+            // 4/5 -- The height and width respectively of the room (for the A* 2D array)
+            #endregion
+
+            levelTwo = new Map(tempMeasuringStick, 1, LvlCoordinator, 3, 3);
+            levelThree = new Map(tempMeasuringStick, 2, LvlCoordinator, 3, 3);
+            levelFour = new Map(tempMeasuringStick, 3, LvlCoordinator, 3, 3);
+            levelFive = new Map(tempMeasuringStick, 4, LvlCoordinator, 3, 3);
+            levelSix = new Map(tempMeasuringStick, 5, LvlCoordinator, 3, 3);
+            levelSeven = new Map(tempMeasuringStick, 6, LvlCoordinator, 3, 3);
+            levelEight = new Map(tempMeasuringStick, 7, LvlCoordinator, 3, 3);
+            levelNine = new Map(tempMeasuringStick, 8, LvlCoordinator, 3, 3);
 
             //Instantiating the current map
-            LevelMapCurrent = new Map(tempMeasuringStick, 1);
+            LevelMapCurrent = new Map(tempMeasuringStick, 1, LvlCoordinator, 3, 3);
 
             #endregion Create Empty # Levels for Game and Add
 
-            #region How To Add Room to Map
-
+            #region Old way to make a map
             // ### STEPS FOR MAKING A NEW MAP ###
             // 
             // Step 1. Specify how many rooms will be added... 
             // from above of the root  ---->                        mapName.Above = # of Rooms Above
-            // from below of the root  ---->                        mapName.Above = # of Rooms Below
-            // from the right of the root.  ---->                   mapName.Above = # of Rooms Left
-            // from the left of the root.  ---->                    mapName.Above = # of Rooms Right
+            // from below of the root  ---->                        mapName.Below = # of Rooms Below
+            // from the right of the root.  ---->                   mapName.Right = # of Rooms Left
+            // from the left of the root.  ---->                    mapName.Left = # of Rooms Right
 
 
             // Step 2. Generate the proper pathmanager Map ->       mapName.GenerateMap();
 
             // ### STEPS FOR ADDING A ROOM TO A MAP ###
             // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
-            // Step 2. Instantiate your room -->                    roomName = nnew Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
+            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
             // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
             // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
 
             // Repeat as needed for each new room 
             // For more in depth info about level placement, see the Architecture doc
+            #endregion
 
-            #endregion How to Add Room to Map
+            #region Current way to make a map
+            // ### IMPORTANT ###
+            // Load in levels like you'd read a book (left to right, top to bottom) or else A* bits WILL break
+            // To load in a blank level, insert a null value for the path but still place it correctly
+            // For the directions, type in the character which matches the direction starting at the root to get to your target room (a/b/l/r)
+            // 
+            // Step 1. Instantiate a Map ABOVE  --->    Map level1 = new Map();
+            // Step 2. Place via Map.AddRoom();  --->   level1.AddRoom(path, whereToPlace, relativePlacement);
+            //
+            // EXAMPLE                          levelFour.AddRoom("topLeftRoom", "aaall", "l");
+            // EXAMPLE                          Argument 1: The name of the text file of the room to be placed
+            // EXAMPLE                          Argument 2: The set of DIRECTIONS to get to the PLACEMENT room
+            // EXAMPLE                          Argument 3: The placement of the NEW room relative to the PLACEMENT room
+            // EXAMPLE                          Explanation: the new room (filename 'topLeftRoom') will be placed to the left  
+            // EXAMPLE                          of the room that is <above above above left left> of the root room
+            #endregion
 
             #region Testing Levels
 
+            #region Obsolete version of level placement
+            /*      
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
             testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
             //Comment this out eventaully
@@ -755,13 +780,21 @@ namespace Party_Tower_Main
             LevelMapCurrent.PlaceRight(LevelMapCurrent.Root);
 
             LevelMapOld = null;
+            */
+            #endregion
+
+            #region New Version of Level Placement
+            // TODO: Place rooms inside of levels here
+
+
+            #endregion
 
             #endregion Testing Levels
 
             #region Level 1
             /* This is ridiculous, How does this work and how is this the most efficient solution?
             LvlCoordinator.UpdateMapFromPath("LevelOneRoomRooT");
-            roomName = nnew Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
+            roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
             mapName.AddRoom(roomName);
             LevelMapCurrent.PlaceLeft(LevelMapCurrent.Root.Above);
             importantObjects.AddRange(testRoom.ImportantObjects());

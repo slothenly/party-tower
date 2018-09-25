@@ -21,14 +21,14 @@ namespace Party_Tower_Main
 
         #endregion Marco Data
 
-        //TODO: Build in an add function which takes in a level and sets it as the root
-        //TODO: Build in an add function which takes in a level and just adds it to a collection to be placed
-        //TODO: Build in a function to place whatever level you just added & change its tiles positions
-        //TODO: Have all that accessable to draw
-
         private Room root;
         public Room Root { get { return root; } }
         private Queue<Room> levelsToPlace = new Queue<Room>();
+        LevelMapCoordinator lvlMap;
+        Room[,] aStarArray;
+        int rowTicker;
+        int columnTicker;
+        int rowMax;
 
         //used to keep track of what the level number is (order of played and level selection), hard coded for now
         private int levelNumber;
@@ -46,24 +46,32 @@ namespace Party_Tower_Main
         private int count = 0;
         public int Count { get { return count; } }
 
-        public Map(Tile exampleTile, int levelNumber)
+        public Map(Tile exampleTile, int levelNumber, LevelMapCoordinator lvlMap, int rows, int columns)
         {
             measurementTile = exampleTile;
             levels = new List<Room>();
             this.levelNumber = levelNumber;
+            this.lvlMap = lvlMap;
+
+            aStarArray = new Room[rows, columns];
+            rowTicker = 0;
+            columnTicker = 0;
+            rowMax = rows;
         }
 
+        //stores the important objects which need to be returned after each room gets set up
         public List<GameObject> MapImportantObjects()
         {
-            List<GameObject> importantShit = new List<GameObject>();\
+            List<GameObject> importantItems = new List<GameObject>();
 
             foreach(Room r in levels)
             {
-                importantShit.AddRange(r.ImportantObjects());
+                importantItems.AddRange(r.ImportantObjects());
             }
-            return importantShit;
+            return importantItems;
         }
 
+        //stores where all of the enemies are on this map
         public List<Enemy> MapEnemies()
         {
             List<Enemy> mapenemies = new List<Enemy>();
@@ -79,22 +87,108 @@ namespace Party_Tower_Main
         /// Adds a level to the map
         /// </summary>
         /// <param name="importedRoom"></param>
-        public void AddRoom(Room importedRoom)
+        public List<GameObject> AddRoom(string path, string whereToPlace, string relativePlacement)
         {
+            //fields
+            char[] where;
+            Room current = root;
+            Tile[,] roomMap;
+
+            //If the path is broken, just set the path to the null room. This is how to set empty rooms too.
+            try
+            {
+                roomMap = lvlMap.UpdateMapFromPath(path);
+            }
+            catch (Exception)
+            {
+                roomMap = lvlMap.UpdateMapFromPath("nullRoom");               
+            }
+            
+            //creates the room by pulling info from lvlMap
+            Room temp = new Room(roomMap, lvlMap.LadderHolder, lvlMap.TableHolder, lvlMap.CakeHolder, lvlMap.ExitHolder, 
+                                lvlMap.PathManagerMap, lvlMap.EnemyHolder);
+            lvlMap.UpdateMapFromPath(path);
+
+            //modify placement based on if it's the root node
             if (root == null)
             {
-                importedRoom.ShiftHoriztal = 0;
-                importedRoom.ShiftHoriztal = 0;
-                root = importedRoom;
+                temp.ShiftHoriztal = 0;
+                temp.ShiftHoriztal = 0;
+                root = temp;
             }
-
             else
             {
-                levelsToPlace.Enqueue(importedRoom);
+                levelsToPlace.Enqueue(temp);
+            }
+            levels.Add(temp);
+
+            //extrapolate where to place the room based on whereToPlace relatice to the root node
+            where = whereToPlace.ToCharArray();
+            if (where != null)
+            {
+                foreach (char direction in where)
+                {
+                    switch (direction)
+                    {
+                        case 'a':
+                            current = current.Above;
+                            break;
+
+                        case 'b':
+                            current = current.Below;
+                            break;
+
+                        case 'l':
+                            current = current.Left;
+                            break;
+
+                        case 'r':
+                            current = current.Right;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
             }
 
-            levels.Add(importedRoom);
+            //actually place based on "relaticePlacement"
+            switch (relativePlacement)
+            {
+                case "a":
+                    PlaceAbove(current);
+                    break;
+
+                case "b":
+                    PlaceBelow(current);
+                    break;
+
+                case "l":
+                    PlaceLeft(current);
+                    break;
+
+                case "r":
+                    PlaceRight(current);
+                    break;
+
+                default:
+                    break;
+            }
+
+            //change internal counters and place into aStarArray
             count++;
+            aStarArray[rowTicker, columnTicker] = temp;
+            columnTicker++;
+            if (columnTicker >= rowMax)  
+            {
+                columnTicker = 0;
+                rowTicker++;
+            }
+
+
+            //return the list of important objects
+            return temp.ImportantObjects();
         }
 
         #region Placing Levels
