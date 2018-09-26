@@ -174,7 +174,7 @@ namespace Party_Tower_Main
         Room testRoom2;
 
         //Maps
-        //Map levelOne; THIS WILL BE IMPLEMENTED ONCE LEVELMAPCURRENT IS SORTED OUT (NOT SURE IF WE EXPLICITLY NEED IT) - Ian
+        Map levelOne;
         Map levelTwo;
         Map levelThree;
         Map levelFour;
@@ -722,28 +722,6 @@ namespace Party_Tower_Main
 
             #endregion Create Empty # Levels for Game and Add
 
-            #region Old way to make a map
-            // ### STEPS FOR MAKING A NEW MAP ###
-            // 
-            // Step 1. Specify how many rooms will be added... 
-            // from above of the root  ---->                        mapName.Above = # of Rooms Above
-            // from below of the root  ---->                        mapName.Below = # of Rooms Below
-            // from the right of the root.  ---->                   mapName.Right = # of Rooms Left
-            // from the left of the root.  ---->                    mapName.Left = # of Rooms Right
-
-
-            // Step 2. Generate the proper pathmanager Map ->       mapName.GenerateMap();
-
-            // ### STEPS FOR ADDING A ROOM TO A MAP ###
-            // Step 1. Load the tileset into tempHolder -->         LvlCoordinator.UpdateMapFromPath("<your level>");
-            // Step 2. Instantiate your room -->                    roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
-            // Step 3. Add your room to your map -->                mapName.AddRoom(roomName);
-            // Step 4. Place level with respect to root level -->   mapName.PlaceLeft(mapName.Root.Above);
-
-            // Repeat as needed for each new room 
-            // For more in depth info about level placement, see the Architecture doc
-            #endregion
-
             #region Current way to make a map
             // ### IMPORTANT ###
             // Load in levels like you'd read a book (left to right, top to bottom) or else A* bits WILL break
@@ -792,15 +770,20 @@ namespace Party_Tower_Main
             #endregion Testing Levels
 
             #region Level 1
-            /* This is ridiculous, How does this work and how is this the most efficient solution?
-            LvlCoordinator.UpdateMapFromPath("LevelOneRoomRooT");
-            roomName = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
-            mapName.AddRoom(roomName);
-            LevelMapCurrent.PlaceLeft(LevelMapCurrent.Root.Above);
-            importantObjects.AddRange(testRoom.ImportantObjects());
-            */
+            levelOne = new Map(tempMeasuringStick, 1, LvlCoordinator, 4, 5);
+            //levelOne.Root = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder,
+            //                            LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
 
+            levelOne.AddRoom("/Resources/levelExports/l1/l1r.txt", "", "r"); //what to put for 2nd parameter if placing next to root node?
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rr.txt", "r", "r");
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rrr.txt", "rr", "r");
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rrru.txt", "rrr", "r");
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruu.txt", "rrra", "r");
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruur.txt", "rrraa", "r");
+            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruuru.txt", "rrraar", "r");
 
+            //Testing level one
+            LevelMapCurrent = levelOne;
             #endregion Level 1
 
             #region Level 2

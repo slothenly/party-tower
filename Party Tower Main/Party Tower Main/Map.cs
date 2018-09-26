@@ -22,7 +22,11 @@ namespace Party_Tower_Main
         #endregion Marco Data
 
         private Room root;
-        public Room Root { get { return root; } }
+        public Room Root
+        {
+            get { return root; }
+            set { root = value; }
+        }
         private Queue<Room> levelsToPlace = new Queue<Room>();
         LevelMapCoordinator lvlMap;
         Room[,] aStarArray;
