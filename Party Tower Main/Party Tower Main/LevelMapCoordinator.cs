@@ -45,7 +45,7 @@ namespace Party_Tower_Main
 
         // Holders and Properties
         List<Enemy> enemyHolder;
-        public List<Enemy> EnemyHolder { get { return EnemyHolder; } }
+        public List<Enemy> EnemyHolder { get { return enemyHolder; } }
         List<Cake> cakeHolder;
         public List<Cake> CakeHolder { get { return cakeHolder; } }
         List<Exit> exitHolder;

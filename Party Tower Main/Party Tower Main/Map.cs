@@ -25,7 +25,6 @@ namespace Party_Tower_Main
         public Room Root
         {
             get { return root; }
-            set { root = value; }
         }
         private Queue<Room> levelsToPlace = new Queue<Room>();
         LevelMapCoordinator lvlMap;

@@ -771,16 +771,15 @@ namespace Party_Tower_Main
 
             #region Level 1
             levelOne = new Map(tempMeasuringStick, 1, LvlCoordinator, 4, 5);
-            //levelOne.Root = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder,
-            //                            LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
 
-            levelOne.AddRoom("/Resources/levelExports/l1/l1r.txt", "", "r"); //what to put for 2nd parameter if placing next to root node?
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rr.txt", "r", "r");
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rrr.txt", "rr", "r");
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rrru.txt", "rrr", "r");
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruu.txt", "rrra", "r");
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruur.txt", "rrraa", "r");
-            levelOne.AddRoom("/Resources/levelExports/l1/l1rrruuru.txt", "rrraar", "r");
+            levelOne.AddRoom("l1/l1", null, null); //root
+            levelOne.AddRoom("l1/l1r", "", "r");
+            levelOne.AddRoom("l1/l1rr", "r", "r");
+            levelOne.AddRoom("l1/l1rrr", "rr", "r");
+            levelOne.AddRoom("l1/l1rrru", "rrr", "r");
+            levelOne.AddRoom("l1/l1rrruu", "rrra", "r");
+            levelOne.AddRoom("l1/l1rrruur", "rrraa", "r");
+            levelOne.AddRoom("l1/l1rrruuru", "rrraar", "r");
 
             //Testing level one
             LevelMapCurrent = levelOne;
