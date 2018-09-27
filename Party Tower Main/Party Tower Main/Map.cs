@@ -111,8 +111,8 @@ namespace Party_Tower_Main
             //creates the room by pulling info from lvlMap
             Room temp = new Room(roomMap, lvlMap.LadderHolder, lvlMap.TableHolder, lvlMap.CakeHolder, lvlMap.ExitHolder, 
                                 lvlMap.PathManagerMap, lvlMap.EnemyHolder);
-            lvlMap.UpdateMapFromPath(path);
-            
+            //lvlMap.UpdateMapFromPath(path);
+
             //modify placement and set it to root if there's nothing else
             if (root == null)
             {
@@ -122,9 +122,7 @@ namespace Party_Tower_Main
             }
             else
             {
-                //add the leve to the queue
                 levelsToPlace.Enqueue(temp);
-
                 //extrapolate where to place the room based on whereToPlace relatice to the root node
                 where = whereToPlace.ToCharArray();
                 if (where != null)
