@@ -242,28 +242,37 @@ namespace Party_Tower_Main
                             bool checkBottom = true;
 
                             //if there is a ladder above this one, mark this one as not being top
-                            if (currentMapRaw[rows-1, columns] != null)
+                            if (rows != 0)
                             {
-                                char[] topRawSplit = currentMapRaw[rows - 1, columns].ToCharArray();
-                                topRaw = topRawSplit[0].ToString() + topRawSplit[1].ToString();
-
-                                if (topRaw == "la")
+                                //if there is a row above the current one, check it. If not, leave it as the top.
+                                if (currentMapRaw[rows - 1, columns] != null)
                                 {
-                                    checkTop = false;
+                                    char[] topRawSplit = currentMapRaw[rows - 1, columns].ToCharArray();
+                                    topRaw = topRawSplit[0].ToString() + topRawSplit[1].ToString();
+
+                                    if (topRaw == "la")
+                                    {
+                                        checkTop = false;
+                                    }
                                 }
                             }
+                            
 
                             //if there is a ladder below this one, mark this one as not being bottom
-                            if (currentMapRaw[rows+1, columns] != null)
+                            if (rows != Rows - 1)
                             {
-                                char[] botRawSplit = currentMapRaw[rows - 1, columns].ToCharArray();
-                                botRaw = botRawSplit[0].ToString() + botRawSplit[1].ToString();
-
-                                if (topRaw == "la")
+                                if (currentMapRaw[rows+1, columns] != null)
                                 {
-                                    checkBottom = false;
+                                    char[] botRawSplit = currentMapRaw[rows + 1, columns].ToCharArray();
+                                    botRaw = botRawSplit[0].ToString() + botRawSplit[1].ToString();
+
+                                    if (topRaw == "la")
+                                    {
+                                        checkBottom = false;
+                                    }
                                 }
                             }
+
 
                             Ladder temp = new Ladder(checkTop, checkBottom, currentMap[rows, columns].X, currentMap[rows, columns].Y);
                             if (currentRawSplit[2].ToString() + currentRawSplit[3].ToString() == "TT")

@@ -722,7 +722,12 @@ namespace Party_Tower_Main
 
             #endregion Create Empty # Levels for Game and Add
 
-            #region Current way to make a map
+
+            #region Testing Levels
+
+            #region Obsolete version of level placement
+
+            #region Placing a map
             // ### IMPORTANT ###
             // Load in levels like you'd read a book (left to right, top to bottom) or else A* bits WILL break
             // To load in a blank level, insert a null value for the path but still place it correctly
@@ -739,9 +744,6 @@ namespace Party_Tower_Main
             // EXAMPLE                          of the room that is <above above above left left> of the root room
             #endregion
 
-            #region Testing Levels
-
-            #region Obsolete version of level placement
             /*      
             tempHolder = LvlCoordinator.UpdateMapFromPath("levelOne");
             testRoom = new Room(tempHolder, LvlCoordinator.LadderHolder, LvlCoordinator.TableHolder, LvlCoordinator.CakeHolder, LvlCoordinator.ExitHolder, LvlCoordinator.PathManagerMap, LvlCoordinator.EnemyHolder);
