@@ -29,6 +29,7 @@ namespace Party_Tower_Main
         private Queue<Room> levelsToPlace = new Queue<Room>();
         LevelMapCoordinator lvlMap;
         Room[,] aStarArray;
+        public Room[,] AStartArray { get { return aStarArray; } }
         int rowTicker;
         int columnTicker;
         int rowMax;
@@ -112,7 +113,7 @@ namespace Party_Tower_Main
                                 lvlMap.PathManagerMap, lvlMap.EnemyHolder);
             lvlMap.UpdateMapFromPath(path);
 
-            //modify placement based on if it's the root node
+            //modify placement and set it to root if there's nothing else
             if (root == null)
             {
                 temp.ShiftHoriztal = 0;
@@ -122,62 +123,62 @@ namespace Party_Tower_Main
             else
             {
                 levelsToPlace.Enqueue(temp);
-            }
-            levels.Add(temp);
-
-            //extrapolate where to place the room based on whereToPlace relatice to the root node
-            where = whereToPlace.ToCharArray();
-            if (where != null)
-            {
-                foreach (char direction in where)
+                //extrapolate where to place the room based on whereToPlace relatice to the root node
+                where = whereToPlace.ToCharArray();
+                if (where != null)
                 {
-                    switch (direction)
+                    foreach (char direction in where)
                     {
-                        case 'a':
-                            current = current.Above;
-                            break;
+                        switch (direction)
+                        {
+                            case 'a':
+                                current = current.Above;
+                                break;
 
-                        case 'b':
-                            current = current.Below;
-                            break;
+                            case 'b':
+                                current = current.Below;
+                                break;
 
-                        case 'l':
-                            current = current.Left;
-                            break;
+                            case 'l':
+                                current = current.Left;
+                                break;
 
-                        case 'r':
-                            current = current.Right;
-                            break;
+                            case 'r':
+                                current = current.Right;
+                                break;
 
-                        default:
-                            break;
+                            default:
+                                break;
+                        }
                     }
+
                 }
 
+                //actually place based on "relaticePlacement"
+                switch (relativePlacement)
+                {
+                    case "a":
+                        PlaceAbove(current);
+                        break;
+
+                    case "b":
+                        PlaceBelow(current);
+                        break;
+
+                    case "l":
+                        PlaceLeft(current);
+                        break;
+
+                    case "r":
+                        PlaceRight(current);
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
-            //actually place based on "relaticePlacement"
-            switch (relativePlacement)
-            {
-                case "a":
-                    PlaceAbove(current);
-                    break;
-
-                case "b":
-                    PlaceBelow(current);
-                    break;
-
-                case "l":
-                    PlaceLeft(current);
-                    break;
-
-                case "r":
-                    PlaceRight(current);
-                    break;
-
-                default:
-                    break;
-            }
+            levels.Add(temp);
 
             //change internal counters and place into aStarArray
             count++;
