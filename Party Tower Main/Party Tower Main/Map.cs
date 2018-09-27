@@ -26,6 +26,7 @@ namespace Party_Tower_Main
         private Queue<Room> levelsToPlace = new Queue<Room>();
         LevelMapCoordinator lvlMap;
         Room[,] aStarArray;
+        public Room[,] AStartArray { get { return aStarArray; } }
         int rowTicker;
         int columnTicker;
         int rowMax;
