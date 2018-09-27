@@ -776,10 +776,10 @@ namespace Party_Tower_Main
             levelOne.AddRoom("l1/l1r", "", "r");
             levelOne.AddRoom("l1/l1rr", "r", "r");
             levelOne.AddRoom("l1/l1rrr", "rr", "r");
-            levelOne.AddRoom("l1/l1rrru", "rrr", "r");
-            levelOne.AddRoom("l1/l1rrruu", "rrra", "r");
+            levelOne.AddRoom("l1/l1rrru", "rrr", "a");
+            levelOne.AddRoom("l1/l1rrruu", "rrra", "a");
             levelOne.AddRoom("l1/l1rrruur", "rrraa", "r");
-            levelOne.AddRoom("l1/l1rrruuru", "rrraar", "r");
+            levelOne.AddRoom("l1/l1rrruuru", "rrraar", "a");
 
             //Testing level one
             LevelMapCurrent = levelOne;

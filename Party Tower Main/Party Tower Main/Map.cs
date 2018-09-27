@@ -111,7 +111,7 @@ namespace Party_Tower_Main
             //creates the room by pulling info from lvlMap
             Room temp = new Room(roomMap, lvlMap.LadderHolder, lvlMap.TableHolder, lvlMap.CakeHolder, lvlMap.ExitHolder, 
                                 lvlMap.PathManagerMap, lvlMap.EnemyHolder);
-            lvlMap.UpdateMapFromPath(path);
+            //lvlMap.UpdateMapFromPath(path);
 
             //modify placement and set it to root if there's nothing else
             if (root == null)
