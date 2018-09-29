@@ -152,65 +152,11 @@
 /processorParam:Quality=Best
 /build:sound/death.wav
 
-#begin sound/downdash.mp3
-/importer:Mp3Importer
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/downdash.mp3
-
-#begin sound/flutter.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/flutter.wav
-
-#begin sound/gamemusic2.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:sound/gamemusic2.mp3
-
-#begin sound/gamemusic3.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:sound/gamemusic3.mp3
-
-#begin sound/hitstun.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/hitstun.wav
-
-#begin sound/jump.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/jump.wav
-
-#begin sound/menumusic.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:sound/menumusic.mp3
-
 #begin sound/menuselect.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:sound/menuselect.mp3
-
-#begin sound/roll.mp3
-/importer:Mp3Importer
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/roll.mp3
-
-#begin sound/throw.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sound/throw.wav
 
 #begin sound/walk.wav
 /importer:WavImporter
@@ -229,12 +175,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:sound/respawn.mp3
-
-#begin sound/gamemusic1.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:sound/gamemusic1.mp3
 
 #begin textures/basicTileSheet.png
 /importer:TextureImporter
@@ -668,4 +608,64 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:black_pixel.png
+
+#begin sound/gameMusic1.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sound/gameMusic1.wav
+
+#begin sound/gameMusic2.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sound/gameMusic2.wav
+
+#begin sound/menuMusic.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sound/menuMusic.wav
+
+#begin sound/levelCompleteMusic.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/levelCompleteMusic.wav
+
+#begin sound/gameOverMusic.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sound/gameOverMusic.wav
+
+#begin sound/roll.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/roll.wav
+
+#begin sound/jumpsound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/jumpsound.wav
+
+#begin sound/doublejump.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/doublejump.mp3
+
+#begin sound/throw.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/throw.mp3
+
+#begin sound/downdash.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sound/downdash.wav
 

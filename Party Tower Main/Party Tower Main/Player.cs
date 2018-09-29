@@ -116,6 +116,7 @@ namespace Party_Tower_Main
         SoundEffect bounceSound;
         SoundEffect downDashSound;
         SoundEffect jumpSound;
+        SoundEffect doubleJumpSound;
         SoundEffect rollSound;
         SoundEffect walkSound;
         SoundEffect deathSound;
@@ -264,7 +265,8 @@ namespace Party_Tower_Main
 
             bounceSound = myContent.Load<SoundEffect>("sound/bounce");
             downDashSound = myContent.Load<SoundEffect>("sound/downdash");
-            jumpSound = myContent.Load<SoundEffect>("sound/jump");
+            jumpSound = myContent.Load<SoundEffect>("sound/jumpsound");
+            doubleJumpSound = myContent.Load<SoundEffect>("sound/doublejump");
             rollSound = myContent.Load<SoundEffect>("sound/roll");
             walkSound = myContent.Load<SoundEffect>("sound/walk");
             deathSound = myContent.Load<SoundEffect>("sound/death");
@@ -984,7 +986,15 @@ namespace Party_Tower_Main
                     //can jump twice while falling, unless carrying the other player or cake
                     else if ((SingleKeyPress(bindableKb["jump"]) || SingleButtonPress(Buttons.A)) && jumpCount <= 1 && !carrying && !cakeCarrying)
                     {
-                        jumpSound.Play();
+                        if (jumpCount == 0)
+                        {
+                            jumpSound.Play();
+                        }
+                        else
+                        {
+                            doubleJumpSound.Play(); //play a different sound for second jump
+                        }
+
                         if (kb.IsKeyDown(bindableKb["right"]) || GamepadRight())
                         {
                             playerState = PlayerState.JumpRight; //jump right if trying to move right

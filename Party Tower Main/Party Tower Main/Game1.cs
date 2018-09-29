@@ -846,11 +846,11 @@ namespace Party_Tower_Main
 
 
             //sound stuff
-            gameSongs.Add(Content.Load<Song>("sound/gamemusic1"));
-            gameSongs.Add(Content.Load<Song>("sound/gamemusic2"));
-            gameSongs.Add(Content.Load<Song>("sound/gamemusic3"));
+            gameSongs.Add(Content.Load<Song>("sound/gameMusic1"));
+            gameSongs.Add(Content.Load<Song>("sound/gameMusic2"));
+            //gameSongs.Add(Content.Load<Song>("sound/gamemusic3"));
 
-            menuMusic = Content.Load<Song>("sound/menumusic");
+            menuMusic = Content.Load<Song>("sound/menuMusic");
             menuSelectSound = Content.Load<SoundEffect>("sound/menuselect");
             errorSound = Content.Load<SoundEffect>("sound/cakeError");
             // TODO: use this.Content to load your game content here
@@ -1583,7 +1583,7 @@ namespace Party_Tower_Main
 
                     if (startGameMusic)
                     {
-                        MediaPlayer.Play(gameSongs[rn.Next(0, 3)]);
+                        MediaPlayer.Play(gameSongs[rn.Next(0, 2)]);
                         startGameMusic = false;
                     }
                     if (bothPlayersDead) //if both players are dead during overlaping intervals, game over
@@ -1641,6 +1641,7 @@ namespace Party_Tower_Main
                     }
                     break;
                 case GameState.LoadScreen:
+                    MediaPlayer.Play(Content.Load<Song>("sound/gameOverMusic"));
                     //Instantiate fader
                     if (!fader_exists)
                     {
@@ -2272,7 +2273,7 @@ namespace Party_Tower_Main
                     {
                         menuChoices[currentRow, currentColumn].IsHighlighted = false;
                         gameState = GameState.Credits;
-                        MediaPlayer.Play(gameSongs[0]);
+                        MediaPlayer.Play(Content.Load<Song>("sound/gameOverMusic"));
                     }
                     else if (menuChoices[currentRow, currentColumn].Equals(menuExitButton))
                     {
