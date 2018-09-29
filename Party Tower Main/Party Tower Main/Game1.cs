@@ -1969,7 +1969,16 @@ namespace Party_Tower_Main
 
                 case GameState.Credits:
                     spriteBatch.Begin();
-                    spriteBatch.DrawString(textFont,"Credits will go here!", new Vector2(width / 4, height / 3), Color.White);
+                    spriteBatch.Draw(playerOneTexture, new Rectangle(0, 0, width, height), Color.Black);
+
+                    spriteBatch.DrawString(textFont,"Developed by", new Vector2(Nudge(true, 40), height / 3 - Nudge(false, 20)), Color.White);
+                    spriteBatch.DrawString(textFont, "Jacob Marcovecchio", new Vector2(Nudge(true, 34), height / 3 - Nudge(false, 7)), Color.White);
+                    spriteBatch.DrawString(textFont, "Ian Matic", new Vector2(Nudge(true, 41), height / 3 + Nudge(false, 3)), Color.White);
+                    spriteBatch.DrawString(textFont, "Justin Vaughn", new Vector2(Nudge(true, 38), height / 3 + Nudge(false, 13)), Color.White);
+
+                    spriteBatch.DrawString(textFont, "Music by 'Music Man'", new Vector2(Nudge(true, 32), height * 2 / 3 - Nudge(false, 5)), Color.White);
+
+                    spriteBatch.DrawString(textFont,"Press Any key to go back!", new Vector2(Nudge(true, 29), height * 8 / 9 - Nudge(false, 7)), Color.White);
                     spriteBatch.End();
                     break;
             }
